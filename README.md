@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# L'île de Yandel - Escape Game Éducatif
 
-## Getting Started
+Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ, développé avec Next.js.
 
-First, run the development server:
+## 🎯 Description
+
+Yandel, un jeune adolescent, s'est écrasé sur une île déserte. Pour en repartir, il devra franchir 5 étapes correspondant à des lieux de l'île, afin de collecter les éléments nécessaires à la construction de son radeau.
+
+À chaque étape, Yandel devra répondre correctement à des questions liées aux matières scolaires :
+- Français
+- Mathématiques
+- Histoire-Géographie
+- Physique-Chimie
+- Sciences de la Vie et de la Terre
+
+## 🚀 Installation
+
+```bash
+npm install
+```
+
+## 🛠️ Développement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Architecture du projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+.
+├── app/                          # Pages Next.js (App Router)
+│   ├── layout.tsx               # Layout racine
+│   ├── page.tsx                 # Page d'accueil
+│   ├── game/                    # Zone de jeu
+│      ├── layout.tsx           # Layout du jeu (HUD, inventaire)
+│      ├── page.tsx             # Intro narrative
+│      ├── mission/[missionId]/ # Pages des missions
+│      └── step/[stepId]/       # Pages des steps
+│   
+│
+├── components/                   # Composants React
+│   ├── ui/                      # Composants UI génériques
+│   ├── layout/                  # Composants de layout
+│   ├── game/                    # Composants métier du jeu
+│   └── games/                    # Mini-jeux réutilisables
+│
+├── data/                        # Données du jeu
+│   ├── missions/                # Définitions des missions
+│   ├── steps.ts                 # Définitions des steps
+│   ├── raft.ts                  # Pièces du radeau
+│   └── assets.ts                # Assets (images, backgrounds)
+│
+├── store/                       # Stores Zustand
+│   ├── gameStore.ts             # Progression globale
+│   ├── inventoryStore.ts        # Pièces du radeau
+│   └── hintStore.ts             # Indices utilisés
+│
+├── lib/                         # Utilitaires
+│   ├── engine/                  # Moteurs de jeu
+│   ├── storage/                 # Gestion du stockage
+│   ├── orientation.ts          # Détection orientation
+│   ├── navigation.ts            # Helpers de routing
+│   └── constants.ts             # Constantes
+│
+├── hooks/                       # Hooks personnalisés
+│   ├── useGameProgress.ts
+│   ├── useOrientation.ts
+│   ├── useHint.ts
+│   └── useInventory.ts
+│
+└── types/                       # Types TypeScript
+    ├── mission.ts
+    ├── step.ts
+    ├── game.ts
+    └── inventory.ts
+```
 
-## Learn More
+## 🎮 Types de mini-jeux
 
-To learn more about Next.js, take a look at the following resources:
+- **QCM** : Questions à choix multiples
+- **Drag & Drop** :
+  - Classement (drag-sort)
+  - Sélection d'images (drag-select-image)
+  - Remplir un panier (basket-fill)
+  - Vider une bouteille (bottle-empty)
+- **Image Click** : Cliquer sur une zone précise d'une image
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📱 Contraintes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Mode paysage obligatoire** sur mobile
+- Responsive (Desktop, Tablette, Mobile)
+- Pas de chronomètre
+- Pas de score chiffré
+- Pas de pénalité
 
-## Deploy on Vercel
+## 💾 Persistance
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Les données sont stockées dans le **LocalStorage** :
+- Mission en cours
+- Step en cours
+- Steps validés
+- Indices utilisés
+- Pièces du radeau obtenues
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛠️ Technologies
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Zustand** (state management avec persistance)
+- **@dnd-kit** (drag & drop)
+- **Tailwind CSS**
+
+## 📝 Notes
+
+- Frontend uniquement (pas de backend)
+- Aucun compte utilisateur
+- Aucune donnée personnelle collectée
+- Conforme usage scolaire
