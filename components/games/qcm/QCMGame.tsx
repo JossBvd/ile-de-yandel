@@ -1,18 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { QCMStep } from '@/types/step';
+import { QCMMission } from '@/types/mission';
 import { QCMOption } from './QCMOption';
 import { Button } from '@/components/ui/Button';
 
 interface QCMGameProps {
-  step: QCMStep;
+  mission: QCMMission;
   onComplete: (answer: number | number[]) => void;
 }
 
-export function QCMGame({ step, onComplete }: QCMGameProps) {
+export function QCMGame({ mission, onComplete }: QCMGameProps) {
   // Détecter si c'est un QCM à réponses multiples
-  const isMultiple = step.correctAnswers.length > 1;
+  const isMultiple = mission.correctAnswers.length > 1;
   
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
 
@@ -38,19 +38,19 @@ export function QCMGame({ step, onComplete }: QCMGameProps) {
   };
 
   const canSubmit = selectedIndices.length > 0 && 
-    (isMultiple ? selectedIndices.length === step.correctAnswers.length : true);
+    (isMultiple ? selectedIndices.length === mission.correctAnswers.length : true);
 
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-900">{step.question}</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-900">{mission.question}</h3>
         {isMultiple && (
           <p className="text-sm text-gray-600 mb-4">
-            ⚠️ Plusieurs réponses possibles ({step.correctAnswers.length} réponse(s) attendue(s))
+            ⚠️ Plusieurs réponses possibles ({mission.correctAnswers.length} réponse(s) attendue(s))
           </p>
         )}
         <div className="space-y-2">
-          {step.options.map((option, index) => (
+          {mission.options.map((option, index) => (
             <QCMOption
               key={option.id}
               option={option}

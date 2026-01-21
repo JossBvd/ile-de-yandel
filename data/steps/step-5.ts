@@ -1,13 +1,13 @@
-import { Mission } from '@/types/mission';
+import { Step } from '@/types/step';
 
-export const mission5: Mission = {
-  id: 'mission-5',
-  title: 'Mission 5 : Le Volcan',
+export const step5: Step = {
+  id: 'step-5',
+  title: 'Step 5 : Le Volcan',
   description: 'Dernière étape de votre aventure',
   location: 'Près du volcan',
   narrative: `Yandel approche d'un volcan actif. 
 La chaleur est intense. 
 Il doit trouver la dernière pièce de son radeau.`,
-  steps: [], // À compléter
+  missions: [], // À compléter avec les IDs des missions
   raftPiece: 'piece-5',
 };

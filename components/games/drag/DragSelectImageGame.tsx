@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DragSelectImageStep } from '@/types/step';
+import { DragSelectImageMission } from '@/types/mission';
 import { Button } from '@/components/ui/Button';
 
 interface DragSelectImageGameProps {
-  step: DragSelectImageStep;
+  mission: DragSelectImageMission;
   onComplete: (selectedIds: string[]) => void;
 }
 
-export function DragSelectImageGame({ step, onComplete }: DragSelectImageGameProps) {
+export function DragSelectImageGame({ mission, onComplete }: DragSelectImageGameProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleSelection = (imageId: string) => {
@@ -28,7 +28,7 @@ export function DragSelectImageGame({ step, onComplete }: DragSelectImageGamePro
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {step.images.map((image) => {
+          {mission.images.map((image) => {
             const isSelected = selectedIds.includes(image.id);
             return (
               <button

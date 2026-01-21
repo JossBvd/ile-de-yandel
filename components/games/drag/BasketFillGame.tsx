@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BasketFillStep } from '@/types/step';
+import { BasketFillMission } from '@/types/mission';
 import { Button } from '@/components/ui/Button';
 
 interface BasketFillGameProps {
-  step: BasketFillStep;
+  mission: BasketFillMission;
   onComplete: (selectedIds: string[]) => void;
 }
 
-export function BasketFillGame({ step, onComplete }: BasketFillGameProps) {
+export function BasketFillGame({ mission, onComplete }: BasketFillGameProps) {
   const [basketItems, setBasketItems] = useState<string[]>([]);
 
   const toggleItem = (itemId: string) => {
@@ -30,7 +30,7 @@ export function BasketFillGame({ step, onComplete }: BasketFillGameProps) {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Items disponibles</h3>
           <div className="space-y-2">
-            {step.items.map((item) => {
+            {mission.items.map((item) => {
               const inBasket = basketItems.includes(item.id);
               return (
                 <button
@@ -62,7 +62,7 @@ export function BasketFillGame({ step, onComplete }: BasketFillGameProps) {
               <p className="text-gray-400 text-center py-8">Le panier est vide</p>
             ) : (
               basketItems.map((itemId) => {
-                const item = step.items.find((i) => i.id === itemId);
+                const item = mission.items.find((i) => i.id === itemId);
                 if (!item) return null;
                 return (
                   <div

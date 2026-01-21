@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Step } from '@/types/step';
+import { Mission } from '@/types/mission';
 import { QCMGame } from '@/components/games/qcm/QCMGame';
 import { DragSortGame } from '@/components/games/drag/DragSortGame';
 import { DragSelectImageGame } from '@/components/games/drag/DragSelectImageGame';
@@ -9,35 +9,35 @@ import { BasketFillGame } from '@/components/games/drag/BasketFillGame';
 import { BottleEmptyGame } from '@/components/games/drag/BottleEmptyGame';
 import { ImageClickGame } from '@/components/games/image-click/ImageClickGame';
 
-interface StepRendererProps {
-  step: Step;
+interface MissionRendererProps {
+  mission: Mission;
   onComplete: (answer: unknown) => void;
 }
 
-export function StepRenderer({ step, onComplete }: StepRendererProps) {
-  switch (step.type) {
+export function MissionRenderer({ mission, onComplete }: MissionRendererProps) {
+  switch (mission.type) {
     case 'qcm':
-      return <QCMGame step={step} onComplete={onComplete} />;
+      return <QCMGame mission={mission} onComplete={onComplete} />;
     
     case 'drag-sort':
-      return <DragSortGame step={step} onComplete={onComplete} />;
+      return <DragSortGame mission={mission} onComplete={onComplete} />;
     
     case 'drag-select-image':
-      return <DragSelectImageGame step={step} onComplete={onComplete} />;
+      return <DragSelectImageGame mission={mission} onComplete={onComplete} />;
     
     case 'basket-fill':
-      return <BasketFillGame step={step} onComplete={onComplete} />;
+      return <BasketFillGame mission={mission} onComplete={onComplete} />;
     
     case 'bottle-empty':
-      return <BottleEmptyGame step={step} onComplete={onComplete} />;
+      return <BottleEmptyGame mission={mission} onComplete={onComplete} />;
     
     case 'image-click':
-      return <ImageClickGame step={step} onComplete={onComplete} />;
+      return <ImageClickGame mission={mission} onComplete={onComplete} />;
     
     default:
       return (
         <div className="text-red-600">
-          Type de mini-jeu non supporté: {(step as Step).type}
+          Type de mini-jeu non supporté: {(mission as Mission).type}
         </div>
       );
   }

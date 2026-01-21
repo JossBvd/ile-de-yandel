@@ -1,10 +1,10 @@
-import { MissionId, StepId } from './mission';
+import { StepId, MissionId } from './step';
 
 export interface GameProgress {
-  currentMission: MissionId | null;
   currentStep: StepId | null;
-  completedSteps: StepId[];
+  currentMission: MissionId | null;
   completedMissions: MissionId[];
+  completedSteps: StepId[];
 }
 
 export interface GameState extends GameProgress {

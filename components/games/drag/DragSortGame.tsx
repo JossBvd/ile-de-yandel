@@ -15,17 +15,17 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { DragSortStep } from '@/types/step';
+import { DragSortMission } from '@/types/mission';
 import { SortableItem } from './SortableItem';
 import { Button } from '@/components/ui/Button';
 
 interface DragSortGameProps {
-  step: DragSortStep;
+  mission: DragSortMission;
   onComplete: (order: string[]) => void;
 }
 
-export function DragSortGame({ step, onComplete }: DragSortGameProps) {
-  const [items, setItems] = useState(step.items);
+export function DragSortGame({ mission, onComplete }: DragSortGameProps) {
+  const [items, setItems] = useState(mission.items);
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {

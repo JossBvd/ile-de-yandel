@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BottleEmptyStep } from '@/types/step';
+import { BottleEmptyMission } from '@/types/mission';
 import { Button } from '@/components/ui/Button';
 
 interface BottleEmptyGameProps {
-  step: BottleEmptyStep;
+  mission: BottleEmptyMission;
   onComplete: (order: string[]) => void;
 }
 
-export function BottleEmptyGame({ step, onComplete }: BottleEmptyGameProps) {
-  const [bottleItems, setBottleItems] = useState(step.items);
+export function BottleEmptyGame({ mission, onComplete }: BottleEmptyGameProps) {
+  const [bottleItems, setBottleItems] = useState(mission.items);
   const [emptiedItems, setEmptiedItems] = useState<string[]>([]);
 
   const emptyNext = () => {
@@ -22,7 +22,7 @@ export function BottleEmptyGame({ step, onComplete }: BottleEmptyGameProps) {
   };
 
   const reset = () => {
-    setBottleItems(step.items);
+    setBottleItems(mission.items);
     setEmptiedItems([]);
   };
 
@@ -71,7 +71,7 @@ export function BottleEmptyGame({ step, onComplete }: BottleEmptyGameProps) {
               <p className="text-gray-400 text-center py-8">Aucun élément vidé</p>
             ) : (
               emptiedItems.map((itemId) => {
-                const item = step.items.find((i) => i.id === itemId);
+                const item = mission.items.find((i) => i.id === itemId);
                 if (!item) return null;
                 return (
                   <div

@@ -12,7 +12,7 @@ export default function VictoryPage() {
   if (!raftComplete) {
     return (
       <div className="text-center">
-        <p className="text-red-600">Vous devez terminer toutes les missions d'abord.</p>
+        <p className="text-red-600">Vous devez terminer tous les steps d'abord.</p>
         <Button onClick={() => router.push('/game')} className="mt-4">
           Retour au jeu
         </Button>

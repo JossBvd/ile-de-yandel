@@ -2,13 +2,13 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { StepId } from '@/types/mission';
+import { MissionId } from '@/types/step';
 import { STORAGE_KEY_HINTS } from '@/lib/constants';
 
 interface HintStore {
-  usedHints: StepId[];
-  useHint: (stepId: StepId) => void;
-  hasUsedHint: (stepId: StepId) => boolean;
+  usedHints: MissionId[];
+  useHint: (missionId: MissionId) => void;
+  hasUsedHint: (missionId: MissionId) => boolean;
   reset: () => void;
 }
 
@@ -17,18 +17,18 @@ export const useHintStore = create<HintStore>()(
     (set, get) => ({
       usedHints: [],
       
-      useHint: (stepId) =>
+      useHint: (missionId) =>
         set((state) => {
-          if (state.usedHints.includes(stepId)) {
+          if (state.usedHints.includes(missionId)) {
             return state;
           }
           return {
-            usedHints: [...state.usedHints, stepId],
+            usedHints: [...state.usedHints, missionId],
           };
         }),
       
-      hasUsedHint: (stepId) =>
-        get().usedHints.includes(stepId),
+      hasUsedHint: (missionId) =>
+        get().usedHints.includes(missionId),
       
       reset: () =>
         set({ usedHints: [] }),
