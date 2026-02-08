@@ -1,101 +1,80 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { BottleEmptyMission } from '@/types/mission';
-import { Button } from '@/components/ui/Button';
+import React, { useState } from "react";
+import { Step, BottleEmptyGameData } from "@/types/step";
+import { Button } from "@/components/ui/Button";
+import { VictoryModal } from "@/components/ui/VictoryModal";
+import { getRaftPieceByStepId } from "@/data/raft";
 
 interface BottleEmptyGameProps {
-  mission: BottleEmptyMission;
-  onComplete: (order: string[]) => void;
+  step: Step;
+  onComplete: () => void;
+  onDefeat?: () => void;
 }
 
-export function BottleEmptyGame({ mission, onComplete }: BottleEmptyGameProps) {
-  const [bottleItems, setBottleItems] = useState(mission.items);
-  const [emptiedItems, setEmptiedItems] = useState<string[]>([]);
+export function BottleEmptyGame({
+  step,
+  onComplete,
+  onDefeat,
+}: BottleEmptyGameProps) {
+  const game = step.game as BottleEmptyGameData;
+  const [bottleItems, setBottleItems] = useState(game.items);
+  const [showVictory, setShowVictory] = useState(false);
 
-  const emptyNext = () => {
-    if (bottleItems.length > 0) {
-      const nextItem = bottleItems[0];
-      setBottleItems((prev) => prev.slice(1));
-      setEmptiedItems((prev) => [...prev, nextItem.id]);
+  const handleSubmit = () => {
+    const isCorrect = bottleItems.every(
+      (item, index) => item.id === game.correctOrder[index],
+    );
+    if (isCorrect) {
+      setShowVictory(true);
+    } else if (onDefeat) {
+      onDefeat();
     }
   };
 
-  const reset = () => {
-    setBottleItems(mission.items);
-    setEmptiedItems([]);
-  };
-
-  const handleSubmit = () => {
-    onComplete(emptiedItems);
+  const handleContinue = () => {
+    setShowVictory(false);
+    onComplete();
   };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Bouteille 🍾</h3>
-          <div className="space-y-2 min-h-[200px] border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
-            {bottleItems.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">La bouteille est vide</p>
-            ) : (
-              bottleItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="p-3 bg-blue-100 border-2 border-blue-300 rounded-lg"
-                  style={{ marginTop: index > 0 ? '-8px' : '0' }}
-                >
-                  {typeof item.content === 'string' ? (
-                    <span className="text-gray-900">{item.content}</span>
-                  ) : (
-                    item.content
-                  )}
+    <>
+      <div className="absolute top-4 left-4 right-4 sm:top-8 sm:left-8 sm:right-8 z-10 pointer-events-none">
+        <div
+          className="rounded-2xl p-4 sm:p-6 md:p-8 shadow-xl pointer-events-auto"
+          style={{ backgroundColor: "#E6D5B8" }}
+        >
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-3">
+            {step.title}
+          </h2>
+          <p className="text-sm sm:text-base text-gray-700 mb-4">
+            {step.instruction}
+          </p>
+          <div className="space-y-2 mb-4">
+            {bottleItems.map((item) => (
+              <div
+                key={item.id}
+                className="p-2 sm:p-3 rounded-lg border-2 border-gray-300 bg-white"
+              >
+                <div className="text-xs sm:text-sm text-gray-800">
+                  {item.name}
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </div>
-          <div className="mt-4 flex gap-2">
-            <Button onClick={emptyNext} disabled={bottleItems.length === 0} size="sm">
-              Vider le prochain
-            </Button>
-            <Button onClick={reset} variant="outline" size="sm">
-              Réinitialiser
-            </Button>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Éléments vidés</h3>
-          <div className="space-y-2 min-h-[200px]">
-            {emptiedItems.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">Aucun élément vidé</p>
-            ) : (
-              emptiedItems.map((itemId) => {
-                const item = mission.items.find((i) => i.id === itemId);
-                if (!item) return null;
-                return (
-                  <div
-                    key={itemId}
-                    className="p-3 bg-green-50 border-2 border-green-200 rounded-lg"
-                  >
-                    {typeof item.content === 'string' ? (
-                      <span className="text-gray-900">{item.content}</span>
-                    ) : (
-                      item.content
-                    )}
-                  </div>
-                );
-              })
-            )}
+          <div className="flex justify-center">
+            <Button onClick={handleSubmit}>Valider l&apos;ordre</Button>
           </div>
         </div>
       </div>
-      
-      <div className="flex justify-center">
-        <Button onClick={handleSubmit} disabled={emptiedItems.length === 0}>
-          Valider l'ordre
-        </Button>
-      </div>
-    </div>
+
+      {/* Modal de victoire */}
+      <VictoryModal
+        isOpen={showVictory}
+        onContinue={handleContinue}
+        raftPieceName={getRaftPieceByStepId(step.id)?.name}
+        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
+      />
+    </>
   );
 }

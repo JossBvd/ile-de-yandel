@@ -1,45 +1,96 @@
-'use client';
+"use client";
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { Inventory } from '@/types/inventory';
-import { RaftPieceId } from '@/types/mission';
-import { STORAGE_KEY_INVENTORY } from '@/lib/constants';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { RaftPieceId } from "@/types/step";
+import { TOTAL_RAFT_PIECES, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 
-interface InventoryStore extends Inventory {
+/** ID d’un objet créé par fusion (ex. "fused-1") */
+export type FusedPieceId = string;
+
+interface InventoryState {
+  collectedPieces: RaftPieceId[];
+  /** Pièces créées par fusion (3 objets → 1), max MAX_FUSED_RAFT_PIECES */
+  fusedRaftPiecesCount: number;
+  /** Objets fusionnés présents dans l’inventaire (prennent la place d’un des 3 objets fusionnés) */
+  fusedPieces: FusedPieceId[];
   addPiece: (pieceId: RaftPieceId) => void;
+  hasPiece: (pieceId: RaftPieceId) => boolean;
+  /** Consommer 3 pièces pour créer 1 pièce fusion ; l’objet fusionné rejoint l’inventaire. Retourne true si la fusion a eu lieu. */
+  consumePiecesForFusion: (pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId]) => boolean;
+  getProgress: () => number;
+  isRaftComplete: () => boolean;
   reset: () => void;
 }
 
-const initialState: Inventory = {
+const initialState = {
   collectedPieces: [],
-  totalPieces: 5, // 5 missions = 5 pièces
+  fusedRaftPiecesCount: 0,
+  fusedPieces: [],
 };
 
-export const useInventoryStore = create<InventoryStore>()(
+export const useInventoryStore = create<InventoryState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
-      
-      addPiece: (pieceId) =>
+
+      /** Ajouter une pièce à l'inventaire (si pas déjà collectée) */
+      addPiece: (pieceId: RaftPieceId) =>
         set((state) => {
           if (state.collectedPieces.includes(pieceId)) {
-            return state;
+            return state; // Déjà collectée, pas de changement
           }
           return {
             collectedPieces: [...state.collectedPieces, pieceId],
           };
         }),
-      
-      reset: () =>
-        set(initialState),
+
+      /** Vérifier si une pièce est déjà collectée */
+      hasPiece: (pieceId: RaftPieceId) => {
+        return get().collectedPieces.includes(pieceId);
+      },
+
+      /** Fusionner 3 pièces : les retire, ajoute 1 objet fusionné dans l’inventaire (prend la place d’un des 3). */
+      consumePiecesForFusion: (
+        pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId],
+      ): boolean => {
+        const state = get();
+        if (state.fusedRaftPiecesCount >= MAX_FUSED_RAFT_PIECES) return false;
+        const setIds = new Set(pieceIds);
+        const stillHas = state.collectedPieces.filter((id) => setIds.has(id));
+        if (stillHas.length !== 3) return false;
+        const nextFusedId = `fused-${state.fusedRaftPiecesCount + 1}`;
+        set({
+          collectedPieces: state.collectedPieces.filter((id) => !setIds.has(id)),
+          fusedRaftPiecesCount: state.fusedRaftPiecesCount + 1,
+          fusedPieces: [...state.fusedPieces, nextFusedId],
+        });
+        return true;
+      },
+
+      /** Calculer la progression en pourcentage */
+      getProgress: () => {
+        const collected = get().collectedPieces.length;
+        return TOTAL_RAFT_PIECES > 0
+          ? Math.round((collected / TOTAL_RAFT_PIECES) * 100)
+          : 0;
+      },
+
+      /** Vérifier si le radeau est complet (toutes les pièces collectées) */
+      isRaftComplete: () => {
+        return get().collectedPieces.length === TOTAL_RAFT_PIECES;
+      },
+
+      /** Réinitialiser l'inventaire et les pièces fusion */
+      reset: () => set(initialState),
     }),
     {
-      name: STORAGE_KEY_INVENTORY,
+      name: "escape_game_inventory", // Clé localStorage
       partialize: (state) => ({
         collectedPieces: state.collectedPieces,
-        totalPieces: state.totalPieces,
+        fusedRaftPiecesCount: state.fusedRaftPiecesCount,
+        fusedPieces: state.fusedPieces,
       }),
-    }
-  )
+    },
+  ),
 );
