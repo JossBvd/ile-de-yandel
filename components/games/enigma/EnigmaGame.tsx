@@ -75,35 +75,40 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
           boxShadow: "inset 0 0 80px 20px rgba(200, 0, 0, 0.2)",
         }}
       />
-      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 md:top-6 md:right-6 left-36 md:left-50 z-10 pointer-events-none">
+      <div 
+        className="absolute top-2 sm:top-3 md:top-4 lg:top-6 left-0 right-0 pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-2 sm:pr-3 md:pr-4 lg:pr-6 z-10 pointer-events-none"
+        style={{
+          maxHeight: "33vh",
+        }}
+      >
         <div
-          className="rounded-2xl p-3 sm:p-4 md:p-6 shadow-xl border-2 border-amber-800/30 flex flex-col gap-3 pointer-events-auto bg-cover bg-center bg-no-repeat"
+          className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl border-2 border-amber-800/30 flex flex-col gap-1.5 sm:gap-2 md:gap-3 pointer-events-auto bg-cover bg-center bg-no-repeat w-full max-h-full overflow-y-auto"
           style={{
             backgroundImage: "url(/backgrounds/paper_texture.webp)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
           }}
         >
           {/* Contenu principal : consigne à la place de "Énigme" + phrase à compléter */}
-          <div className="flex flex-row items-stretch gap-3 md:gap-4">
+          <div className="flex flex-row items-start gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
             <div className="flex-1 min-w-0 flex flex-col">
               {(() => {
                 const [instruction, sentence] = game.text.split(/\n\n/, 2);
                 const hasTwoParts = sentence !== undefined;
                 return hasTwoParts ? (
                   <>
-                    <p className="text-gray-800 text-xs sm:text-sm leading-relaxed mb-2 font-bold">
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight mb-0.5 sm:mb-1 md:mb-2 font-bold">
                       {instruction}
                     </p>
-                    <p className="text-gray-800 text-xs sm:text-sm leading-relaxed italic flex-1 whitespace-pre-line">
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
                       {sentence}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h2 className="text-center text-lg sm:text-xl font-bold text-gray-900 uppercase tracking-wide mb-2">
+                    <h2 className="text-center text-sm sm:text-base md:text-lg font-bold text-gray-900 uppercase tracking-wide mb-0.5 sm:mb-1 md:mb-2">
                       Énigme
                     </h2>
-                    <p className="text-gray-800 text-xs sm:text-sm leading-relaxed italic flex-1 whitespace-pre-line">
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
                       « {game.text} »
                     </p>
                   </>
@@ -114,7 +119,7 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
             {/* Droite : champ réponse + bouton Envoyer */}
             <form
               onSubmit={handleSubmit}
-              className="flex flex-row items-center gap-2 sm:gap-3 shrink-0"
+              className="flex flex-row items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0"
             >
               <label htmlFor="enigma-answer" className="sr-only">
                 Champ réponse
@@ -125,7 +130,7 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                 value={answer}
                 onChange={handleAnswerChange}
                 placeholder="Réponse"
-                className={`w-32 sm:w-40 md:w-48 px-2 sm:px-3 py-2 text-sm sm:text-base rounded border-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
+                className={`w-24 sm:w-28 md:w-36 lg:w-40 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base rounded border-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
                   hasError
                     ? "border-red-500 focus:border-red-600"
                     : "border-gray-800 focus:border-amber-600"
@@ -134,14 +139,14 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
               <button
                 type="submit"
                 disabled={!answer.trim()}
-                className="shrink-0 min-w-[48px] min-h-[48px] w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
+                className="shrink-0 min-w-[32px] min-h-[32px] w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
                 aria-label="Envoyer"
               >
                 <Image
                   src="/ui/icon_bottle_send.webp"
                   alt=""
-                  width={96}
-                  height={96}
+                  width={144}
+                  height={144}
                   className="w-full h-full object-contain"
                 />
               </button>

@@ -277,9 +277,9 @@ function HomeContent() {
               <button
                 type="button"
                 onClick={handleExploreMission}
-                className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full shadow-lg transition-colors text-4xl"
+                className="px-8 py-4 sm:px-12 sm:py-6 md:px-14 md:py-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors text-xl sm:text-2xl md:text-3xl lg:text-4xl"
               >
-                Explorer
+                Jouer !
               </button>
             </div>
           </div>

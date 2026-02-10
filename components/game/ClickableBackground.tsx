@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { BackgroundHintZone } from "@/types/step";
+import { useOrientationContext } from "./OrientationGuard";
 
 interface ClickableBackgroundProps {
   imageSrc: string;
@@ -21,6 +22,7 @@ export function ClickableBackground({
 }: ClickableBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const { isRotated, width: contextWidth, height: contextHeight } = useOrientationContext();
   const [isOverHintZone, setIsOverHintZone] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{
     width: number;
@@ -36,9 +38,16 @@ export function ClickableBackground({
     const img = new window.Image();
     img.onload = () => {
       setImageDimensions({ width: img.width, height: img.height });
+      if (debugMode) {
+        console.log(`📐 Image chargée: ${imageSrc} - Dimensions: ${img.width}x${img.height}`);
+      }
     };
-    img.src = imageSrc;
-  }, [imageSrc]);
+    img.onerror = () => {
+      console.error(`❌ Erreur de chargement de l'image: ${imageSrc}`);
+    };
+    // S'assurer que le chemin est absolu
+    img.src = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+  }, [imageSrc, debugMode]);
 
   const getImageCoordinates = (
     clientX: number,
@@ -47,35 +56,48 @@ export function ClickableBackground({
     if (!containerRef.current || !imageDimensions) return null;
 
     const containerRect = containerRef.current.getBoundingClientRect();
-    const containerRatio = containerRect.width / containerRect.height;
+    
+    // Si l'écran est pivoté, les dimensions visuelles sont inversées
+    const visualWidth = isRotated ? containerRect.height : containerRect.width;
+    const visualHeight = isRotated ? containerRect.width : containerRect.height;
+    
+    // Calculer les coordonnées relatives au conteneur DOM
+    let relX = clientX - containerRect.left;
+    let relY = clientY - containerRect.top;
+    
+    // Si pivoté, convertir les coordonnées du clic dans le système visuel pivoté
+    if (isRotated) {
+      // Le conteneur DOM est pivoté de 90° horaire, donc visuellement les dimensions sont inversées
+      // Transformation pour rotation horaire de 90° : (x_visuel, y_visuel) = (y_DOM, width_DOM - x_DOM)
+      const tempX = relX;
+      relX = relY;
+      relY = containerRect.width - tempX;
+    }
+    
+    const containerRatio = visualWidth / visualHeight;
     const imageRatio = imageDimensions.width / imageDimensions.height;
 
     let imageWidth, imageHeight, offsetX, offsetY;
 
     // Avec object-contain, l'image est entièrement visible (letterboxing si besoin)
     if (containerRatio > imageRatio) {
-      // Container plus large : image calée en largeur, bandes haut/bas
-      imageWidth = containerRect.width;
+      // Container plus large que l'image : image calée en HAUTEUR, bandes gauche/droite
+      imageHeight = visualHeight;
+      imageWidth = imageHeight * imageRatio;
+      offsetX = (visualWidth - imageWidth) / 2;
+      offsetY = 0;
+    } else {
+      // Container plus haut que l'image : image calée en LARGEUR, bandes haut/bas
+      imageWidth = visualWidth;
       imageHeight = imageWidth / imageRatio;
       offsetX = 0;
-      offsetY = (containerRect.height - imageHeight) / 2;
-    } else {
-      // Container plus haut : image calée en hauteur, bandes gauche/droite
-      imageHeight = containerRect.height;
-      imageWidth = imageHeight * imageRatio;
-      offsetX = (containerRect.width - imageWidth) / 2;
-      offsetY = 0;
+      offsetY = (visualHeight - imageHeight) / 2;
     }
-
-    // Position relative au conteneur
-    const relX = clientX - containerRect.left;
-    const relY = clientY - containerRect.top;
 
     // Coordonnées en pourcentage de l'image (0-100)
     const x = ((relX - offsetX) / imageWidth) * 100;
     const y = ((relY - offsetY) / imageHeight) * 100;
 
-    // Même si on clique en dehors de la partie visible, on retourne les coordonnées
     return { x, y };
   };
 
@@ -101,12 +123,22 @@ export function ClickableBackground({
 
     // Mode debug : afficher les coordonnées dans la console
     if (debugMode) {
+      const containerRect = containerRef.current?.getBoundingClientRect();
       console.log(
         `🎯 Coordonnées du clic: x: ${coords.x.toFixed(2)}, y: ${coords.y.toFixed(2)}`,
       );
       console.log(
         `📋 Config pour backgroundHintZones:\n{ x: ${Math.round(coords.x)}, y: ${Math.round(coords.y)}, radius: 8, hint: "Votre indice ici" }`,
       );
+      if (containerRect && imageDimensions) {
+        const visualWidth = isRotated ? containerRect.height : containerRect.width;
+        const visualHeight = isRotated ? containerRect.width : containerRect.height;
+        const containerRatio = visualWidth / visualHeight;
+        const imageRatio = imageDimensions.width / imageDimensions.height;
+        console.log(
+          `📐 Debug: ${isRotated ? '[ROTATED] ' : ''}Container DOM ${containerRect.width.toFixed(0)}x${containerRect.height.toFixed(0)}, Visual ${visualWidth.toFixed(0)}x${visualHeight.toFixed(0)} (ratio: ${containerRatio.toFixed(2)}), Image ${imageDimensions.width}x${imageDimensions.height} (ratio: ${imageRatio.toFixed(2)}), Clic relatif: (${(e.clientX - containerRect.left).toFixed(0)}, ${(e.clientY - containerRect.top).toFixed(0)})`,
+        );
+      }
     }
 
     // Vérifier si le clic est dans une zone d'indice
@@ -154,6 +186,64 @@ export function ClickableBackground({
         className="object-contain pointer-events-none"
         priority
       />
+
+      {/* Affichage des zones cliquables */}
+      {hintZones.map((zone, index) => {
+        const containerRect = containerRef.current?.getBoundingClientRect();
+        if (!containerRect || !imageDimensions) return null;
+
+        const visualWidth = isRotated ? containerRect.height : containerRect.width;
+        const visualHeight = isRotated ? containerRect.width : containerRect.height;
+        const containerRatio = visualWidth / visualHeight;
+        const imageRatio = imageDimensions.width / imageDimensions.height;
+
+        let imageWidth, imageHeight, offsetX, offsetY;
+
+        if (containerRatio > imageRatio) {
+          imageHeight = visualHeight;
+          imageWidth = imageHeight * imageRatio;
+          offsetX = (visualWidth - imageWidth) / 2;
+          offsetY = 0;
+        } else {
+          imageWidth = visualWidth;
+          imageHeight = imageWidth / imageRatio;
+          offsetX = 0;
+          offsetY = (visualHeight - imageHeight) / 2;
+        }
+
+        const centerX = offsetX + (zone.x / 100) * imageWidth;
+        const centerY = offsetY + (zone.y / 100) * imageHeight;
+        const radius = (zone.radius / 100) * Math.max(imageWidth, imageHeight);
+
+        // Si pivoté, transformer les coordonnées pour l'affichage dans le système DOM
+        let displayX = centerX;
+        let displayY = centerY;
+        let displayTransform = 'translate(-50%, -50%)';
+
+        if (isRotated) {
+          // Le cercle est calculé dans le système visuel (après rotation)
+          // Mais il doit être affiché dans le système DOM (avant rotation)
+          // Transformation inverse de (x_visuel, y_visuel) = (y_DOM, width_DOM - x_DOM)
+          // Donc (x_DOM, y_DOM) = (width_DOM - y_visuel, x_visuel)
+          displayX = containerRect.width - centerY;
+          displayY = centerX;
+        }
+
+        return (
+          <div
+            key={index}
+            className="absolute pointer-events-none border-2 border-pink-500 rounded-full bg-pink-500/20"
+            style={{
+              left: `${displayX}px`,
+              top: `${displayY}px`,
+              width: `${radius * 2}px`,
+              height: `${radius * 2}px`,
+              transform: displayTransform,
+              zIndex: 10,
+            }}
+          />
+        );
+      })}
 
       {/* Affichage debug des coordonnées */}
       {debugMode && debugCoords && (

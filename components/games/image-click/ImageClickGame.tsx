@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Step, ImageClickGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
@@ -20,21 +20,66 @@ export function ImageClickGame({
   const game = step.game as ImageClickGameData;
   const [clicks, setClicks] = useState<{ x: number; y: number }[]>([]);
   const [showVictory, setShowVictory] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const totalObjects = game.clickableZones.length;
 
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => {
+      setImageDimensions({ width: img.width, height: img.height });
+    };
+    img.src = game.image;
+  }, [game.image]);
+
+  const getImageCoordinates = (
+    clientX: number,
+    clientY: number,
+  ): { x: number; y: number } | null => {
+    if (!containerRef.current || !imageDimensions) return null;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const containerRatio = containerRect.width / containerRect.height;
+    const imageRatio = imageDimensions.width / imageDimensions.height;
+
+    let imageWidth, imageHeight, offsetX, offsetY;
+
+    if (containerRatio > imageRatio) {
+      imageWidth = containerRect.width;
+      imageHeight = imageWidth / imageRatio;
+      offsetX = 0;
+      offsetY = (containerRect.height - imageHeight) / 2;
+    } else {
+      imageHeight = containerRect.height;
+      imageWidth = imageHeight * imageRatio;
+      offsetX = (containerRect.width - imageWidth) / 2;
+      offsetY = 0;
+    }
+
+    const relX = clientX - containerRect.left;
+    const relY = clientY - containerRect.top;
+
+    const x = ((relX - offsetX) / imageWidth) * 100;
+    const y = ((relY - offsetY) / imageHeight) * 100;
+
+    return { x, y };
+  };
+
   const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    const coords = getImageCoordinates(event.clientX, event.clientY);
+    if (!coords) return;
 
     // Vérifier si le clic est dans une zone
     for (const zone of game.clickableZones) {
       if (zone.type === "circle") {
         const distance = Math.sqrt(
-          Math.pow(x - zone.x, 2) + Math.pow(y - zone.y, 2),
+          Math.pow(coords.x - zone.x, 2) + Math.pow(coords.y - zone.y, 2),
         );
         if (distance <= (zone.radius || 0)) {
-          const newClicks = [...clicks, { x, y }];
+          const newClicks = [...clicks, coords];
           setClicks(newClicks);
 
           if (newClicks.length === totalObjects) {
@@ -76,15 +121,23 @@ export function ImageClickGame({
             Objets trouvés: {clicks.length} / {totalObjects}
           </p>
           <div
+            ref={containerRef}
             onClick={handleImageClick}
-            className="relative cursor-pointer"
-            style={{ width: "100%", paddingBottom: "75%" }}
+            className="relative cursor-pointer w-full min-h-[300px]"
+            style={
+              imageDimensions
+                ? {
+                    aspectRatio: `${imageDimensions.width} / ${imageDimensions.height}`,
+                  }
+                : { aspectRatio: "4/3" }
+            }
           >
             <Image
               src={game.image}
               alt="Zone de jeu"
               fill
-              className="rounded-lg object-cover"
+              className="rounded-lg object-contain"
+              sizes="100vw"
             />
             {clicks.map((click, index) => (
               <div

@@ -12,12 +12,10 @@ import { getNextStep } from "@/lib/engine/missionEngine";
 import { getStepPath, getStepIdFromSlug } from "@/lib/navigation";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
-import { ContinueButton } from "@/components/ui/ContinueButton";
 import { GameRenderer } from "@/components/game/GameRenderer";
 import { ClickableBackground } from "@/components/game/ClickableBackground";
 import { IconButton } from "@/components/ui/IconButton";
 import { DefeatModal } from "@/components/ui/DefeatModal";
-import { StepSidebar } from "@/components/game/StepSidebar";
 import { BackgroundHintZone } from "@/types/step";
 
 function StepPageContent() {
@@ -34,8 +32,8 @@ function StepPageContent() {
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
+  const [generalHintModal, setGeneralHintModal] = useState<{ title: string; hint: string } | null>(null);
   const [showDefeatModal, setShowDefeatModal] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   /** Modal "objet récupéré pour le radeau" (ex. ficelle step 1 mission 1) : image à afficher ou null */
   const [raftObjectModalImage, setRaftObjectModalImage] = useState<string | null>(null);
   /** True quand l'user a cliqué sur l'icône radeau : on ne doit pas rediriger vers le step suivant. */
@@ -175,24 +173,33 @@ function StepPageContent() {
         {/* Sur mobile paysage : conteneur dans les 2/3 gauche (pas dans le dernier tiers à droite) */}
         <div className="absolute left-[8%] max-w-[58%] w-full top-[10%] overflow-y-auto sm:left-[10%] sm:max-w-2xl sm:w-[85%] sm:top-1/3 sm:max-h-none sm:overflow-visible sm:transform sm:-translate-y-1/2">
           <div
-            className="rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl bg-cover bg-center bg-no-repeat"
+            className="relative rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
             }}
           >
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-4 sm:mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6">
               {step.title}
             </h2>
-            <div className="mb-6 sm:mb-8">
-              <p className="text-gray-800 text-sm sm:text-base md:text-lg italic leading-relaxed whitespace-pre-line">
+            <div className="mb-6 sm:mb-8 pr-14 sm:pr-16 md:pr-20">
+              <p className="text-gray-800 text-base sm:text-lg md:text-xl italic leading-relaxed whitespace-pre-line">
                 {step.narrative}
               </p>
             </div>
-            <div className="flex justify-center">
-              <ContinueButton onClick={handleContinueFromNarrative}>
-                Continuer
-              </ContinueButton>
-            </div>
+            <button
+              type="button"
+              onClick={handleContinueFromNarrative}
+              className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 p-2 rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              aria-label="Continuer"
+            >
+              <Image
+                src="/ui/icon_next.webp"
+                alt=""
+                width={64}
+                height={64}
+                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+              />
+            </button>
           </div>
         </div>
       </div>
@@ -212,14 +219,95 @@ function StepPageContent() {
   // Afficher le mini-jeu
   return (
     <div
-      className="fixed inset-0 overflow-hidden bg-black"
+      className="fixed inset-0 overflow-hidden bg-black flex"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
       }}
     >
-      {/* Fond en position absolue pour remplir tout l'écran (évite la bande noire sur mobile) */}
-      <div className="absolute inset-0 w-full h-full">
+      {/* Zone latérale gauche fixe */}
+      <div
+        className="relative shrink-0 flex flex-col z-20"
+        style={{
+          width: "clamp(200px, 20vw, 250px)",
+          backgroundImage: "url(/backgrounds/paper_texture.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRight: "3px solid #8B4513",
+          boxShadow: "4px 0 12px rgba(0,0,0,0.15)",
+          height: isRotated ? `${height}px` : "100vh",
+          overflowY: "auto",
+        }}
+      >
+        {/* Conteneur interne pour garantir l'espace minimum */}
+        <div className="flex flex-col min-h-0 flex-1">
+          {/* Titre Mission / Etape */}
+          <div className="pt-2 px-3 pb-1 sm:pt-3 sm:px-4 sm:pb-1 md:pt-6 md:pb-2 shrink-0">
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
+              Mission {missionNumber}
+            </p>
+            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 opacity-90">
+              Etape {stepNumber}
+            </p>
+          </div>
+
+          {/* Icône bouteille principale - taille adaptative avec espace flexible */}
+          <div className="flex items-center justify-center py-2 sm:py-3 md:py-4 shrink-0" style={{ 
+            minHeight: "clamp(50px, 10vh, 100px)",
+            maxHeight: "clamp(80px, 25vh, 150px)",
+            flex: "0 1 auto"
+          }}>
+            <div className="relative w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
+              <Image
+                src="/ui/icon_bottle.webp"
+                alt="Bouteille à la mer"
+                width={128}
+                height={128}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Boutons d'action (Indice, Radeau, Retour) - toujours visibles en bas */}
+          <div className="flex flex-col gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pl-4 pr-3 pb-3 pt-1 sm:pl-6 sm:pr-4 sm:pb-4 sm:pt-2 md:pl-8 md:pt-4 shrink-0 mt-auto">
+            <IconButton
+              icon="/ui/icon_clue.webp"
+              alt="Indice"
+              onClick={() => {
+                if (step.hint) {
+                  setGeneralHintModal({
+                    title: "Indice",
+                    hint: step.hint.text || step.hint.simplifiedInstruction || "",
+                  });
+                }
+              }}
+              label="Indice"
+              showLabel
+              disabled={!step.hint}
+              className="self-start"
+            />
+            <IconButton
+              icon="/ui/icon_radeau.webp"
+              alt="Radeau"
+              onClick={() => router.push("/radeau")}
+              label="Radeau"
+              showLabel
+              className="self-start"
+            />
+            <IconButton
+              icon="/ui/icon_back.webp"
+              alt="Retour"
+              onClick={() => router.push("/carte-de-l-ile")}
+              label="Retour"
+              showLabel
+              className="self-start"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Zone de contenu principal */}
+      <div className="flex-1 relative overflow-hidden">
         <ClickableBackground
           imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
           hintZones={step.backgroundHintZones}
@@ -236,41 +324,6 @@ function StepPageContent() {
         </ClickableBackground>
       </div>
 
-      {/* Sidebar gauche (Mission / Etape, bouteille, Indice, Radeau, Retour) */}
-      <StepSidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen((o) => !o)}
-        missionNumber={missionNumber}
-        stepNumber={stepNumber}
-      >
-        <IconButton
-          icon="/ui/icon_clue.webp"
-          alt="Indice"
-          onClick={() => {
-            if (step.hint) {
-              /* À implémenter : ouvrir modal indice */
-            }
-          }}
-          label="Indice"
-          showLabel
-          disabled={!step.hint}
-        />
-        <IconButton
-          icon="/ui/icon_radeau.webp"
-          alt="Radeau"
-          onClick={() => router.push("/radeau")}
-          label="Radeau"
-          showLabel
-        />
-        <IconButton
-          icon="/ui/icon_back.webp"
-          alt="Retour"
-          onClick={() => router.push("/carte-de-l-ile")}
-          label="Retour"
-          showLabel
-        />
-      </StepSidebar>
-
       {/* Modal de défaite */}
       <DefeatModal
         isOpen={showDefeatModal}
@@ -281,42 +334,32 @@ function StepPageContent() {
       {/* Modal = image seule (texte déjà dans l’image), clic pour fermer */}
       {raftObjectModalImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+          className="fixed z-50 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            width: isRotated ? `${width}px` : "100vw",
+            height: isRotated ? `${height}px` : "100vh",
+            left: isRotated ? "50%" : "0",
+            top: isRotated ? "50%" : "0",
+            marginLeft: isRotated ? `-${width / 2}px` : "0",
+            marginTop: isRotated ? `-${height / 2}px` : "0",
+          }}
           role="dialog"
           aria-modal="true"
           aria-label="Objet récupéré"
         >
-          <div className="relative w-full max-w-lg max-h-[90vh]">
+          <div className="relative w-full max-w-lg" style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}>
             <Image
               src={raftObjectModalImage}
               alt="Objet récupéré pour le radeau"
               width={800}
               height={600}
-              className="w-full h-auto max-h-[90vh] object-contain pointer-events-none"
+              className="w-full h-auto object-contain pointer-events-none"
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
-            {/* Icônes en bas à droite : radeau → page radeau, next → step suivant */}
-            <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setRaftObjectModalImage(null);
-                  navigatingToRaftRef.current = true;
-                  applyStepCompletionOnly();
-                  router.push("/radeau");
-                }}
-                className="p-1.5 rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                aria-label="Voir le radeau"
-              >
-                <Image
-                  src="/ui/icon_radeau.webp"
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
-                />
-              </button>
+            {/* Icône en bas à droite : next → step suivant */}
+            <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12">
               <button
                 type="button"
                 onClick={handleRaftObjectModalClose}
@@ -336,12 +379,112 @@ function StepPageContent() {
         </div>
       )}
 
-      {/* Modal indice (même forme et fond que modal step accomplie) */}
+      {/* Modal indice */}
       {hintModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+          className="fixed z-50 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            width: isRotated ? `${width}px` : "100vw",
+            height: isRotated ? `${height}px` : "100vh",
+            left: isRotated ? "50%" : "0",
+            top: isRotated ? "50%" : "0",
+            marginLeft: isRotated ? `-${width / 2}px` : "0",
+            marginTop: isRotated ? `-${height / 2}px` : "0",
+          }}
           onClick={() => setHintModal(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Indice"
+        >
+          {hintModal.image && !hintModal.hint ? (
+            // Modal image seule (comme la modal radeau)
+            <div className="relative w-full max-w-4xl" style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}>
+              <Image
+                src={hintModal.image}
+                alt={hintModal.title ?? "Indice"}
+                width={1200}
+                height={800}
+                className="w-full h-auto object-contain pointer-events-none"
+                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+                sizes="(max-width: 640px) 100vw, 80vw"
+              />
+            </div>
+          ) : (
+            // Modal avec texte (format original)
+            <div
+              className="relative rounded-3xl p-12 max-w-xl w-[92%] shadow-2xl flex flex-col"
+              style={{
+                backgroundImage: "url(/backgrounds/paper_texture.webp)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                border: "3px solid #8B4513",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-1 min-h-0 flex-col justify-center">
+                <div className="flex gap-4 items-center">
+                  <div className="shrink-0 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center">
+                    {hintModal.image ? (
+                      <Image
+                        src={hintModal.image}
+                        alt={hintModal.title ?? "Objet"}
+                        width={208}
+                        height={208}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full bg-linear-to-b from-sky-200/80 to-green-200/80"
+                        aria-hidden
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    {hintModal.title && (
+                      <p className="text-xl font-bold text-black drop-shadow-sm uppercase tracking-wide mb-3 text-center">
+                        {hintModal.title}
+                      </p>
+                    )}
+                    <p className="text-gray-900 text-sm leading-relaxed flex-1 text-justify overflow-y-auto">
+                      {hintModal.hint}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHintModal(null)}
+                className="absolute bottom-4 right-4 p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
+                aria-label="Fermer"
+              >
+                <Image
+                  src="/ui/icon_back.webp"
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="block"
+                />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal indice général (depuis le bouton Indice) */}
+      {generalHintModal && (
+        <div
+          className="fixed z-50 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            width: isRotated ? `${width}px` : "100vw",
+            height: isRotated ? `${height}px` : "100vh",
+            left: isRotated ? "50%" : "0",
+            top: isRotated ? "50%" : "0",
+            marginLeft: isRotated ? `-${width / 2}px` : "0",
+            marginTop: isRotated ? `-${height / 2}px` : "0",
+          }}
+          onClick={() => setGeneralHintModal(null)}
           role="dialog"
           aria-modal="true"
           aria-label="Indice"
@@ -356,43 +499,21 @@ function StepPageContent() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Contenu centré verticalement : image à gauche, colonne titre + texte à droite */}
             <div className="flex flex-1 min-h-0 flex-col justify-center">
-              <div className="flex gap-4 items-center">
-                {/* Zone image : plus grande et centrée verticalement */}
-                <div className="shrink-0 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center">
-                  {hintModal.image ? (
-                    <Image
-                      src={hintModal.image}
-                      alt={hintModal.title ?? "Objet"}
-                      width={208}
-                      height={208}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="w-full h-full bg-linear-to-b from-sky-200/80 to-green-200/80"
-                      aria-hidden
-                    />
-                  )}
-                </div>
-                {/* Colonne : titre centré au-dessus du texte uniquement */}
-                <div className="flex flex-col flex-1 min-w-0">
-                  {hintModal.title && (
-                    <p className="text-xl font-bold text-black drop-shadow-sm uppercase tracking-wide mb-3 text-center">
-                      {hintModal.title}
-                    </p>
-                  )}
-                  <p className="text-gray-900 text-sm leading-relaxed flex-1 text-justify overflow-y-auto">
-                    {hintModal.hint}
+              <div className="flex flex-col gap-4">
+                {generalHintModal.title && (
+                  <p className="text-xl font-bold text-black drop-shadow-sm uppercase tracking-wide text-center">
+                    {generalHintModal.title}
                   </p>
-                </div>
+                )}
+                <p className="text-gray-900 text-sm leading-relaxed text-justify overflow-y-auto">
+                  {generalHintModal.hint}
+                </p>
               </div>
             </div>
-            {/* Bouton retour en absolute bas droite, sans chevaucher le texte */}
             <button
               type="button"
-              onClick={() => setHintModal(null)}
+              onClick={() => setGeneralHintModal(null)}
               className="absolute bottom-4 right-4 p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
               aria-label="Fermer"
             >

@@ -23,7 +23,6 @@ interface OrientationGuardProps {
 
 export function OrientationGuard({ children }: OrientationGuardProps) {
   const { isLandscape } = useOrientation();
-  const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -33,7 +32,6 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
       const width = window.innerWidth;
       const height = window.innerHeight;
       setDimensions({ width, height });
-      setIsMobile(width < 768);
     };
     
     // Initialisation immédiate
@@ -59,7 +57,7 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
   useEffect(() => {
     if (!mounted) return;
     
-    const needsRotation = isMobile && !isLandscape;
+    const needsRotation = !isLandscape;
     if (needsRotation) {
       // Empêcher le scroll quand on pivote
       document.body.style.overflow = 'hidden';
@@ -79,10 +77,10 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
       document.body.style.width = '';
       document.documentElement.style.overflow = '';
     };
-  }, [isMobile, isLandscape, mounted]);
+  }, [isLandscape, mounted]);
 
-  // Sur mobile en portrait, forcer l'affichage en paysage en pivotant le contenu
-  const needsRotation = mounted && isMobile && !isLandscape;
+  // Sur portrait (écran plus haut que large), forcer l'affichage en paysage en pivotant le contenu
+  const needsRotation = mounted && !isLandscape;
 
   const rotatedWidth = needsRotation ? dimensions.height : dimensions.width;
   const rotatedHeight = needsRotation ? dimensions.width : dimensions.height;

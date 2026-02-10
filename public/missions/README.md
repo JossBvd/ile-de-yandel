@@ -6,6 +6,44 @@ Ce dossier contient toutes les images et assets pour les différentes missions d
 
 ---
 
+## 🎮 Mission 1 - Step 1 : Jeu avec zones cliquables (indices sur l’image)
+
+### Fonctionnalité
+
+Le step 1 combine :
+
+- **Une image de fond** affichée en `object-contain` (toujours entièrement visible, même taille relative quel que soit l’écran).
+- **Des zones cliquables** (cercles en %) : un clic dans une zone ouvre une modale d’indice (image seule ou texte + image).
+- **Une énigme** (type `enigma`) : l’utilisateur doit compléter une phrase après avoir exploré les indices.
+
+Les coordonnées des zones sont en **pourcentage (0–100)** par rapport à l’**image complète**. Ainsi, les zones restent au même endroit visuel sur tous les appareils (desktop, tablette, mobile, avec ou sans rotation).
+
+### Pourquoi garder la même « taille » d’image ?
+
+- L’image est affichée en **`object-contain`** dans son conteneur : elle est toujours entièrement visible, avec letterboxing (bandes) si le ratio du conteneur diffère du ratio de l’image.
+- Le code utilise les **dimensions réelles** de l’image (chargée via `new Image()`) pour calculer la zone affichée (largeur/hauteur effective, offsets du letterboxing).
+- Les clics sont convertis en **% par rapport à cette zone d’image**, pas par rapport au conteneur. Donc :
+  - **Même image** → mêmes coordonnées (x, y, radius) partout.
+  - Pas besoin de recalculer les coordonnées quand on change de device ou de taille d’écran.
+- Sur mobile/tablette en portrait, l’UI est pivotée (OrientationGuard). Le composant transforme les coordonnées du clic du repère DOM vers le repère **visuel** pivoté avant d’appliquer le calcul `object-contain`, pour que les zones restent alignées avec l’image affichée.
+
+### Fichiers concernés
+
+- **Config du step** : `data/missions/mission-1/steps/step-1.ts`  
+  - `backgroundImage`, `backgroundHintZones` (x, y, radius, title, hint, image), `game.type: "enigma"`.
+- **Composant** : `components/game/ClickableBackground.tsx`  
+  - Charge l’image pour obtenir ses dimensions, calcule les coordonnées (avec gestion de la rotation), détecte les clics dans les zones.
+- **Intégration** : `app/[missionId]/[stepSlug]/page.tsx`  
+  - Affiche le fond cliquable et les modales d’indice (image seule si `hint` vide, sinon texte + image).
+
+### Référence step 1
+
+- **Image de fond** : `/missions/mission-1/step-1/mission1_step1_valises.png`
+- **Zones** : voir `backgroundHintZones` dans `step-1.ts` (plusieurs cercles, radius 1 ou 2, avec `image` pour les popups d’indice).
+- **Exemple de zone** : `x: 10.33, y: 38.4, radius: 2` → ouvre `M1_S1_popup-indice-01.webp`.
+
+---
+
 ## 🖼️ Structure des Images par Step
 
 ### Mission 1 - Step 3 : Jeu de Drag & Drop d'Images
@@ -41,7 +79,7 @@ Ce système permet d'ajouter des zones cliquables sur les images de fond des ste
 
 #### Activer le mode debug
 
-Dans `app/game/mission/[missionId]/step/[stepId]/page.tsx` :
+Dans `app/[missionId]/[stepSlug]/page.tsx` :
 
 ```typescript
 <ClickableBackground
@@ -128,27 +166,39 @@ debugMode={false}  // ← Production
 
 ## 📐 Système de coordonnées
 
-- **x, y** : Pourcentage (0-100) de la position sur l'image
-- **radius** : Pourcentage de l'image (rayon du cercle cliquable)
-- L'image utilise `object-cover` : elle remplit tout l'écran, peut être croppée
-- Les coordonnées sont calculées par rapport à l'image **complète** (pas l'écran)
+- **x, y** : Pourcentage (0–100) du **centre** de la zone par rapport à l’image **complète** (largeur et hauteur).
+- **radius** : Rayon du cercle cliquable, en **pourcentage** de l’image (ex. 1 = petit, 2–3 = moyen, 4–5 = grand).
+- L’affichage utilise **`object-contain`** : l’image est toujours entièrement visible ; si le ratio du conteneur diffère de celui de l’image, des bandes (letterboxing) apparaissent. Le calcul tient compte de la zone réelle occupée par l’image dans le conteneur.
+- Les coordonnées sont calculées par rapport à cette **zone d’image** (dimensions réelles chargées côté client), pas par rapport au viewport. Ainsi, **les mêmes valeurs (x, y, radius) restent valides sur tous les écrans et devices**.
+- **Rotation (mobile/tablette portrait)** : le conteneur peut être pivoté (OrientationGuard). Les coordonnées du clic sont d’abord transformées du repère DOM vers le repère visuel pivoté (`(x_visuel, y_visuel) = (y_DOM, width_DOM - x_DOM)`), puis le calcul `object-contain` est appliqué dans ce repère. Les zones restent donc alignées avec l’image affichée.
 
-## 🎨 Exemple complet
+## 🎨 Exemple complet (Step 1)
 
-Voir : `data/missions/mission-1/steps/step-1.ts` qui utilise :
+Voir : `data/missions/mission-1/steps/step-1.ts` :
 
-- Image : `/public/missions/mission-1/step-1/jungle_test.png`
-- Zone cliquable : cercle rose à x:40, y:50, radius:3
+- **Image de fond** : `/missions/mission-1/step-1/mission1_step1_valises.png`
+- **Zones** : plusieurs `backgroundHintZones` avec x, y, radius (1 ou 2), et `image` pour la modale d’indice (ex. `M1_S1_popup-indice-01.webp`). Pas de texte `hint` → modale image seule.
+- Pour ajouter une zone : activer `debugMode={true}` sur `ClickableBackground`, cliquer sur l’image, noter les coordonnées en console, puis ajouter une entrée dans `backgroundHintZones` (centre x, y et radius en %).
 
 ## 🔧 Fichiers concernés
 
 - **Composant principal** : `components/game/ClickableBackground.tsx`
-- **Intégration** : `app/game/mission/[missionId]/step/[stepId]/page.tsx`
+- **Intégration** : `app/[missionId]/[stepSlug]/page.tsx`
 - **Types** : `types/step.ts` → `BackgroundHintZone`
 
 ## 💡 Conseils
 
-1. **Radius** : Commencez avec `3-5` et ajustez selon la taille du cercle
-2. **Multiple zones** : Vous pouvez avoir plusieurs cercles sur une même image
-3. **Test** : Testez toujours sur mobile et desktop (ratios différents)
-4. **Suppression** : Une fois les vraies images reçues, supprimez les `*_test.png`
+1. **Radius** : Utilisez 1–2 pour des zones précises, 3–5 pour des zones plus larges. Ajustez selon la taille visuelle souhaitée sur l’image.
+2. **Multiple zones** : Plusieurs cercles peuvent partager la même modale (même `image`, même indice).
+3. **Garder la même taille d’image** : Ne pas changer le ratio ou recadrer l’image de fond sans recalculer les coordonnées. Utiliser toujours la même image (ou une image aux mêmes dimensions) pour conserver les mêmes (x, y, radius).
+4. **Test** : Tester sur desktop, tablette et mobile (y compris en portrait avec rotation) pour vérifier l’alignement des zones.
+5. **Mode debug** : Avec `debugMode={true}`, les cercles des zones sont affichés (bordure rose) et les coordonnées des clics sont loguées en console. Désactiver en production.
+
+## 🔧 Pour les jeux de type "image-click"
+
+Si vous utilisez un jeu de type `image-click` (où l'utilisateur doit cliquer sur des zones précises de l'image), le système calcule automatiquement les coordonnées correctement en tenant compte :
+- Des dimensions réelles de l'image
+- Du ratio du conteneur vs ratio de l'image
+- Du letterboxing (bandes noires) si nécessaire
+
+Les coordonnées dans `clickableZones` doivent être en pourcentage (0-100) par rapport à l'image complète, exactement comme pour `backgroundHintZones`.
