@@ -113,6 +113,11 @@ function StepPageContent() {
       setRaftObjectModalImage("/missions/mission-1/step-2/M1_S2_popup-aiguille.webp");
       return;
     }
+    // Step 3 mission 1 : afficher la modal avec l'image du tissu
+    if (step.id === "mission-1-step-3") {
+      setRaftObjectModalImage("/missions/mission-1/step-3/M1_S3_popup-tissu.webp");
+      return;
+    }
     applyStepCompletionAndNavigate();
   };
 

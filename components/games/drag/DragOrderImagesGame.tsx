@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Step, DragOrderImagesGameData, ImageOption } from "@/types/step";
+import { Step, DragOrderImagesGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
 
@@ -24,33 +24,38 @@ export function DragOrderImagesGame({
   const [lockedSlots, setLockedSlots] = useState<boolean[]>(
     Array(game.slotsCount).fill(false),
   );
-  const [selectedImage, setSelectedImage] = useState<ImageOption | null>(null);
+  const [infoModalImageUrl, setInfoModalImageUrl] = useState<string | null>(null);
   const [showVictory, setShowVictory] = useState(false);
 
   const handleSubmit = () => {
+    const correctSet = new Set(game.correctOrder);
     const newLockedSlots = [...lockedSlots];
     const newSlots = [...slots];
-    let hasCorrectAnswers = false;
-    let allCorrect = true;
 
     slots.forEach((imageId, index) => {
-      if (imageId === game.correctOrder[index]) {
+      if (imageId && correctSet.has(imageId)) {
         newLockedSlots[index] = true;
-        hasCorrectAnswers = true;
       } else {
         newSlots[index] = null;
-        allCorrect = false;
+        newLockedSlots[index] = false;
       }
     });
 
     setLockedSlots(newLockedSlots);
     setSlots(newSlots);
 
-    if (allCorrect && hasCorrectAnswers) {
-      setTimeout(() => setShowVictory(true), 500);
-    } else if (!hasCorrectAnswers && onDefeat) {
-      // Aucune bonne réponse : afficher la modal de défaite
-      setTimeout(() => onDefeat(), 500);
+    const remainingIds = newSlots.filter((id): id is string => id !== null);
+    const remainingSet = new Set(remainingIds);
+    const allCorrect =
+      remainingSet.size === correctSet.size &&
+      [...remainingSet].every((id) => correctSet.has(id));
+
+    if (allCorrect) {
+      if (step.id === "mission-1-step-3") {
+        onComplete();
+      } else {
+        setTimeout(() => setShowVictory(true), 500);
+      }
     }
   };
 
@@ -77,7 +82,7 @@ export function DragOrderImagesGame({
           }}
         >
           <h2 className="text-center text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-900 uppercase tracking-wide mb-0.5 sm:mb-1 md:mb-2">
-            Énigme
+            {step.title}
           </h2>
           <p className="text-gray-800 text-[10px] sm:text-xs md:text-sm lg:text-base leading-tight sm:leading-relaxed italic text-center line-clamp-2 sm:line-clamp-none">
             « {game.text || step.instruction} »
@@ -120,29 +125,31 @@ export function DragOrderImagesGame({
                     draggable={false}
                   />
                 </div>
-                {/* Bouton info */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedImage(image);
-                  }}
-                  className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
-                  aria-label="Voir les informations"
-                >
-                  <span className="text-white text-[10px] sm:text-xs font-bold">
-                    i
-                  </span>
-                </button>
+                {/* Bouton info : ouvre l'image indice en modal si infoImage est défini */}
+                {image.infoImage && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInfoModalImageUrl(image.infoImage!);
+                    }}
+                    className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
+                    aria-label="Voir l'indice"
+                  >
+                    <span className="text-white text-[10px] sm:text-xs font-bold">
+                      i
+                    </span>
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Zone de dépôt : 3 slots + bouton Envoyer - positionnée en bas du milieu */}
+      {/* Zone de dépôt : slots + bouton Envoyer - positionnée en bas du milieu */}
       <div className="absolute bottom-[8%] sm:bottom-[10%] md:bottom-[12%] lg:bottom-[14%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 pointer-events-auto">
-          {/* Les 3 slots */}
+          {/* Les slots */}
           {slots.map((imageId, index) => {
             const isLocked = lockedSlots[index];
             const image = imageId
@@ -175,15 +182,30 @@ export function DragOrderImagesGame({
                 }`}
               >
                 {image && (
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover rounded-md"
-                  />
+                  <>
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                    {image.infoImage && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInfoModalImageUrl(image.infoImage!);
+                        }}
+                        className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
+                        aria-label="Voir l'indice"
+                      >
+                        <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
+                      </button>
+                    )}
+                  </>
                 )}
                 {isLocked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-md sm:rounded-lg">
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-md sm:rounded-lg pointer-events-none">
                     <svg
                       className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-md"
                       fill="currentColor"
@@ -217,80 +239,30 @@ export function DragOrderImagesGame({
                 className="w-full h-full object-contain"
               />
             </button>
-            <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-yellow-400 drop-shadow-lg whitespace-nowrap mt-1">
-              Envoyer
-            </span>
           </div>
         </div>
       </div>
 
-      {/* Modal d'information */}
-      {selectedImage && (
+      {/* Modal indice : image seule, clic pour fermer */}
+      {infoModalImageUrl && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 pointer-events-auto"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setInfoModalImageUrl(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Indice"
         >
           <div
-            className="relative w-full max-w-md sm:max-w-lg md:max-w-xl rounded-2xl shadow-2xl overflow-hidden"
-            style={{
-              backgroundImage: "url(/backgrounds/paper_texture.webp)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl max-h-[90vh] flex items-center justify-center cursor-pointer"
           >
-            {/* Bordure déchirée effet */}
-            <div className="absolute inset-0 border-4 border-amber-900/40 rounded-2xl pointer-events-none" />
-
-            {/* Contenu de la modal */}
-            <div className="relative p-6 sm:p-8 md:p-10">
-              {/* Bouton fermer */}
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 z-10 touch-manipulation"
-                aria-label="Fermer"
-              >
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-
-              {/* Titre INFO */}
-              <h3 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 uppercase mb-4 sm:mb-6">
-                Info
-              </h3>
-
-              {/* Contenu : image + texte */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                {/* Image */}
-                <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-lg overflow-hidden border-2 border-gray-700 shadow-lg shrink-0">
-                  <Image
-                    src={selectedImage.src}
-                    alt={selectedImage.alt}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Texte */}
-                <div className="flex-1 text-gray-800 text-xs sm:text-sm md:text-base leading-relaxed">
-                  <p>
-                    {selectedImage.info ||
-                      "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis."}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Image
+              src={infoModalImageUrl}
+              alt="Indice"
+              width={800}
+              height={600}
+              className="w-full h-auto max-h-[90vh] object-contain pointer-events-none"
+              sizes="(max-width: 640px) 100vw, 42rem"
+            />
           </div>
         </div>
       )}

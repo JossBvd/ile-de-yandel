@@ -35,6 +35,8 @@ export interface ImageOption {
   src: string;
   alt: string;
   info?: string;
+  /** URL d'une image à afficher en modal au clic sur le bouton info (remplace la modal texte) */
+  infoImage?: string;
 }
 
 export interface BasketItem {
