@@ -130,10 +130,12 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                 value={answer}
                 onChange={handleAnswerChange}
                 placeholder="Réponse"
-                className={`w-24 sm:w-28 md:w-36 lg:w-40 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base rounded border-2 bg-white text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
+                autoComplete="off"
+                name={`enigma-answer-${step.id}`}
+                className={`w-24 sm:w-28 md:w-36 lg:w-40 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base rounded border-2 text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
                   hasError
-                    ? "border-red-500 focus:border-red-600"
-                    : "border-gray-800 focus:border-amber-600"
+                    ? "bg-red-100 border-red-500 focus:border-red-600"
+                    : "bg-white border-gray-800 focus:border-amber-600"
                 }`}
               />
               <button

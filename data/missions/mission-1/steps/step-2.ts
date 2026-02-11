@@ -2,27 +2,26 @@ import { Step } from "@/types/step";
 
 export const mission1Step2: Step = {
   id: "mission-1-step-2",
-  title: "Quiz 1",
+  title: "Synthétique",
   instruction: "Réponds à cette question",
   narrative: `Yandel se retrouve sur une magnifique plage. 
 Le soleil brille et les vagues viennent caresser le sable doré. 
 Il doit résoudre un quiz pour obtenir la deuxième pièce de son radeau.`,
   location: "Sur la plage",
   raftPiece: "piece-1-2",
-  backgroundImage: "/missions/mission-1/step-2/fond_challenge.jpg",
+  backgroundImage: "/missions/mission-1/step-2/M1_S2_background_quiz.webp",
   hint: {
     text: "Relis bien la question et élimine les réponses qui ne collent pas au texte.",
   },
   game: {
     type: "qcm",
-    question:
-      "«Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam»",
+    question: "Quel est le principal avantage d'un tissu synthétique pour résister aux conditions marines ?",
     options: [
-      { id: "A", text: "A" },
-      { id: "B", text: "B" },
-      { id: "C", text: "C" },
-      { id: "D", text: "D" },
+      { id: "A", text: "Il est plus lourd et plus facile à coudre" },
+      { id: "B", text: "Il résiste à l'eau et sèche plus vite" },
+      { id: "C", text: "Il a une couleur visible pour les secours" },
+      { id: "D", text: "Il est biodégradable océan" },
     ],
-    correctAnswers: [0], // A est correct pour l'instant
+    correctAnswers: [1], // B est correct
   },
 };

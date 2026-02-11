@@ -332,9 +332,8 @@ function RadeauContent() {
             type="button"
             onClick={handleFusionner}
             disabled={!canFuse}
-            className="w-full rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+            className="w-full rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
             style={{
-              backgroundColor: "#f97316",
               padding: "clamp(0.375rem, 1.2vh, 0.625rem)",
               fontSize: "clamp(0.75rem, 2vw, 1rem)",
             }}

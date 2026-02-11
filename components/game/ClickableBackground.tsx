@@ -7,15 +7,15 @@ import { useOrientationContext } from "./OrientationGuard";
 
 interface ClickableBackgroundProps {
   imageSrc: string;
-  hintZones?: BackgroundHintZone[];
+  hintZones: BackgroundHintZone[];
   onHintClick: (zone: BackgroundHintZone) => void;
   children?: React.ReactNode;
-  debugMode?: boolean; // Mode debug pour afficher les coordonnées des clics
+  debugMode?: boolean;
 }
 
 export function ClickableBackground({
   imageSrc,
-  hintZones = [],
+  hintZones,
   onHintClick,
   children,
   debugMode = false,
@@ -102,7 +102,6 @@ export function ClickableBackground({
   };
 
   const checkPositionInZones = (x: number, y: number): boolean => {
-    if (!hintZones.length) return false;
     return hintZones.some((zone) => {
       const dist = Math.sqrt(Math.pow(x - zone.x, 2) + Math.pow(y - zone.y, 2));
       return dist <= zone.radius;
@@ -170,6 +169,10 @@ export function ClickableBackground({
     if (debugMode) setDebugCoords(null);
   };
 
+  // Utiliser object-contain uniquement si des zones cliquables sont définies (pour garantir l'intégrité des coordonnées)
+  // Sinon utiliser object-cover pour remplir l'écran
+  const objectFit = hintZones && hintZones.length > 0 ? "object-contain" : "object-cover";
+
   return (
     <div
       ref={containerRef}
@@ -183,12 +186,12 @@ export function ClickableBackground({
         src={imageSrc}
         alt="Fond du step"
         fill
-        className="object-contain pointer-events-none"
+        className={`${objectFit} pointer-events-none`}
         priority
       />
 
-      {/* Affichage des zones cliquables */}
-      {hintZones.map((zone, index) => {
+      {/* Affichage des zones cliquables (uniquement en mode debug) */}
+      {debugMode && hintZones.map((zone, index) => {
         const containerRect = containerRef.current?.getBoundingClientRect();
         if (!containerRect || !imageDimensions) return null;
 

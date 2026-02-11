@@ -14,6 +14,7 @@ import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
 import { GameRenderer } from "@/components/game/GameRenderer";
 import { ClickableBackground } from "@/components/game/ClickableBackground";
+import { StepBackground } from "@/components/game/StepBackground";
 import { IconButton } from "@/components/ui/IconButton";
 import { DefeatModal } from "@/components/ui/DefeatModal";
 import { BackgroundHintZone } from "@/types/step";
@@ -105,6 +106,11 @@ function StepPageContent() {
     // Step 1 mission 1 : afficher la modal "premier objet récupéré" (ficelle) avant de compléter
     if (step.id === "mission-1-step-1") {
       setRaftObjectModalImage("/missions/mission-1/step-1/M1_S1_popup-ficelle.webp");
+      return;
+    }
+    // Step 2 mission 1 : afficher la modal avec l'image de l'aiguille
+    if (step.id === "mission-1-step-2") {
+      setRaftObjectModalImage("/missions/mission-1/step-2/M1_S2_popup-aiguille.webp");
       return;
     }
     applyStepCompletionAndNavigate();
@@ -308,20 +314,35 @@ function StepPageContent() {
 
       {/* Zone de contenu principal */}
       <div className="flex-1 relative overflow-hidden">
-        <ClickableBackground
-          imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
-          hintZones={step.backgroundHintZones}
-          onHintClick={(zone) => setHintModal(zone)}
-          debugMode={true}
-        >
-          <GameRenderer
-            step={step}
-            onComplete={handleGameComplete}
-            onDefeat={handleGameDefeat}
-            onGoBackToMap={handleDefeatGoBack}
-            skipVictoryModal={step.id === "mission-1-step-1"}
-          />
-        </ClickableBackground>
+        {step.backgroundHintZones && step.backgroundHintZones.length > 0 ? (
+          <ClickableBackground
+            imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
+            hintZones={step.backgroundHintZones}
+            onHintClick={(zone) => setHintModal(zone)}
+            debugMode={false}
+          >
+            <GameRenderer
+              step={step}
+              onComplete={handleGameComplete}
+              onDefeat={handleGameDefeat}
+              onGoBackToMap={handleDefeatGoBack}
+              skipVictoryModal={step.id === "mission-1-step-1"}
+            />
+          </ClickableBackground>
+        ) : (
+          <StepBackground
+            imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
+            objectFit="cover"
+          >
+            <GameRenderer
+              step={step}
+              onComplete={handleGameComplete}
+              onDefeat={handleGameDefeat}
+              onGoBackToMap={handleDefeatGoBack}
+              skipVictoryModal={step.id === "mission-1-step-1"}
+            />
+          </StepBackground>
+        )}
       </div>
 
       {/* Modal de défaite */}

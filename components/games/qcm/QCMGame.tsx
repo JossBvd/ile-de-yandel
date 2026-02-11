@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { Step, QCMGameData } from "@/types/step";
-import { RecapModal } from "@/components/ui/RecapModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 
 interface QCMGameProps {
   step: Step;
@@ -12,8 +10,8 @@ interface QCMGameProps {
   onGoBackToMap?: () => void;
 }
 
-const MIN_CORRECT_TO_PASS = 2;
-const totalQuestions = 3;
+const MIN_CORRECT_TO_PASS = 1;
+const totalQuestions = 1;
 
 export function QCMGame({
   step,
@@ -32,7 +30,6 @@ export function QCMGame({
   >({});
   // Tracker des résultats (question numéro → true si correct, false si incorrect)
   const [results, setResults] = useState<Record<number, boolean>>({});
-  const [showRecap, setShowRecap] = useState(false);
 
   const goToQuestion = (questionNum: number) => {
     setCurrentQuestion(questionNum);
@@ -65,13 +62,17 @@ export function QCMGame({
     if (currentQuestion < totalQuestions) {
       goToQuestion(currentQuestion + 1);
     } else {
-      // Fin du quiz : recap toujours affiché ; pièce seulement si >= 2 bonnes réponses
-      setShowRecap(true);
+      // Fin du quiz : vérifier si la réponse est correcte
+      const isCorrect = results[currentQuestion] === true;
+      if (isCorrect) {
+        // Appeler onComplete qui déclenchera l'affichage de l'image de l'objet dans la page parente
+        onComplete();
+      }
+      // Si incorrect, le bouton "Terminer" devient "Rejouer" (géré dans le rendu)
     }
   };
 
   const handleRetryQuiz = () => {
-    setShowRecap(false);
     setCurrentQuestion(1);
     setSelectedIndex(null);
     setShowCorrection(false);
@@ -85,44 +86,40 @@ export function QCMGame({
     }
   };
 
-  const handleRecapContinue = () => {
-    setShowRecap(false);
-    // Pièce du radeau uniquement si au moins 2 bonnes réponses (hasPassed)
-    onComplete();
-  };
-
-  const handleReviewQuestion = (questionNumber: number) => {
-    setShowRecap(false);
-    goToQuestion(questionNumber);
-  };
 
   return (
     <>
-      {/* Container centré pour le quiz — plus large sur desktop pour lisibilité */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-xl md:max-w-2xl lg:max-w-3xl z-10 pointer-events-none flex flex-col items-center gap-3 sm:gap-5 md:gap-6">
-        {/* Panneau beige avec titre et question UNIQUEMENT */}
-        <div
-          className="w-full rounded-3xl p-4 sm:p-6 md:p-8 shadow-2xl pointer-events-auto"
-          style={{
-            backgroundColor: "#E8DCC8",
-            border: "3px solid #D4B896",
-          }}
-        >
-          {/* Titre centré — change en "Correction question X" après le clic */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 text-center">
-            {showCorrection
-              ? `Correction question ${currentQuestion}`
-              : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
-          </h2>
+      {/* Container responsive — optimise l'espace vertical disponible */}
+      <div 
+        className="absolute top-4 sm:top-6 md:top-8 lg:top-10 bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 left-0 right-0 pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-2 sm:pr-3 md:pr-4 lg:pr-6 z-10 pointer-events-none flex flex-col"
+      >
+        <div className="w-full flex-1 overflow-visible flex flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto justify-center">
+          {/* Panneau beige avec titre et question */}
+          <div
+            className="w-full rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl pointer-events-auto"
+            style={{
+              backgroundColor: "#E8DCC8",
+              border: "3px solid #D4B896",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            }}
+          >
+            {/* Titre centré — change en "Correction question X" après le clic */}
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 text-center">
+              {showCorrection
+                ? `Correction question ${currentQuestion}`
+                : totalQuestions === 1
+                ? step.title
+                : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
+            </h2>
 
-          {/* Question en italique — taille lisible sur desktop (base → lg) */}
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-800 italic text-center leading-relaxed">
-            {game.question}
-          </p>
-        </div>
+            {/* Question en italique — taille responsive (minimum 16px pour accessibilité) */}
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-800 italic text-center leading-relaxed">
+              {game.question}
+            </p>
+          </div>
 
-        {/* Grille de 4 boutons EN DESSOUS du panneau */}
-        <div className="w-full grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 pointer-events-auto">
+          {/* Grille de 4 boutons EN DESSOUS du panneau */}
+          <div className="w-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto p-1 sm:p-2">
           {game.options.map((option, index) => {
             // En mode correction : afficher toutes les réponses avec leurs couleurs
             const isCorrectOption = game.correctAnswers.includes(index);
@@ -145,38 +142,44 @@ export function QCMGame({
                 onClick={() => handleOptionClick(index)}
                 disabled={showCorrection}
                 className={`
-                  py-3 sm:py-5 md:py-6 px-4 sm:px-6 md:px-8 rounded-3xl text-lg sm:text-xl md:text-2xl font-bold
+                  py-3 sm:py-4 md:py-5 lg:py-6 px-3 sm:px-5 md:px-7 lg:px-9 rounded-xl sm:rounded-2xl md:rounded-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold
                   transition-all duration-300 transform
                   ${buttonColor}
                   text-white
                   shadow-lg hover:shadow-xl
                   ${showCorrection ? "cursor-default" : ""}
-                  focus:outline-none focus:ring-4 focus:ring-orange-300
+                  focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-orange-300
+                  flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5
                 `}
                 style={{
                   textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                 }}
               >
-                {option.text}
+                <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold shrink-0">
+                  {option.id}
+                </span>
+                <span className="flex-1 text-left text-sm sm:text-base md:text-lg lg:text-xl">
+                  {option.text}
+                </span>
               </button>
             );
           })}
-        </div>
+          </div>
 
-        {/* Navigation : espace fixe (2 emplacements) pour éviter tout décalage */}
-        <div className="w-full flex justify-between items-center pt-2 sm:pt-4 min-h-[3.25rem] sm:min-h-[3.5rem] md:min-h-[4rem] gap-3 sm:gap-4 pointer-events-auto px-2">
+          {/* Navigation : espace fixe (2 emplacements) pour éviter tout décalage */}
+          <div className="w-full flex justify-between items-center pt-1 sm:pt-2 md:pt-3 lg:pt-4 min-h-[2.5rem] sm:min-h-[3rem] md:min-h-[3.5rem] gap-2 sm:gap-3 md:gap-4 pointer-events-auto px-1 sm:px-2">
           <div className="min-w-0 flex-1 flex justify-start">
             {currentQuestion > 1 ? (
               <button
                 type="button"
                 onClick={handlePrevious}
-                className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                className="px-2 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 lg:py-4 text-xs sm:text-sm md:text-base lg:text-lg font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
               >
                 ← Question précédente
               </button>
             ) : (
               <span
-                className="inline-block py-3 sm:py-4 md:py-5 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
+                className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
                 aria-hidden="true"
               >
                 ←
@@ -185,18 +188,28 @@ export function QCMGame({
           </div>
           <div className="min-w-0 flex-1 flex justify-end">
             {showCorrection ? (
-              <button
-                type="button"
-                onClick={handleContinue}
-                className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-5 text-sm sm:text-base md:text-lg font-bold bg-green-600 hover:bg-green-700 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
-              >
-                {currentQuestion < totalQuestions
-                  ? "Question suivante →"
-                  : "Terminer"}
-              </button>
+              currentQuestion === totalQuestions && results[currentQuestion] === false ? (
+                <button
+                  type="button"
+                  onClick={handleRetryQuiz}
+                  className="px-2 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 lg:py-4 text-xs sm:text-sm md:text-base lg:text-lg font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                >
+                  Rejouer
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="px-2 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 lg:py-4 text-xs sm:text-sm md:text-base lg:text-lg font-bold bg-green-600 hover:bg-green-700 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                >
+                  {currentQuestion < totalQuestions
+                    ? "Question suivante →"
+                    : "Terminer"}
+                </button>
+              )
             ) : (
               <span
-                className="inline-block py-3 sm:py-4 md:py-5 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
+                className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
                 aria-hidden="true"
               >
                 →
@@ -204,23 +217,9 @@ export function QCMGame({
             )}
           </div>
         </div>
+        </div>
       </div>
 
-      {/* Recap toujours affiché ; si < 2 bonnes réponses : pas de pièce + texte DefeatModal + boutons Réessayer / J'essaie autre chose */}
-      <RecapModal
-        isOpen={showRecap}
-        results={results}
-        totalQuestions={totalQuestions}
-        onContinue={handleRecapContinue}
-        onReviewQuestion={handleReviewQuestion}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-        hasPassed={
-          Object.values(results).filter(Boolean).length >= MIN_CORRECT_TO_PASS
-        }
-        onRetry={handleRetryQuiz}
-        onGoBack={onGoBackToMap}
-      />
     </>
   );
 }

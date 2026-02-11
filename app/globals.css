@@ -10,6 +10,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-orange-300: #fbbf77;
+  --color-orange-400: #f9a855;
+  --color-orange-500: #f7941d;
+  --color-orange-600: #d67e0f;
 }
 
 @media (prefers-color-scheme: dark) {

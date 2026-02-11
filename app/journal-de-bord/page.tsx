@@ -11,7 +11,6 @@ import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
 
-const ORANGE_RESSOURCE = "#f7941d";
 
 /** Mission N est débloquée si c'est la mission 1, ou si la mission N-1 est complétée, ou si la mission N est complétée. */
 function isMissionUnlocked(
@@ -185,7 +184,7 @@ function JournalContent() {
                   <div
                     key={index}
                     className="rounded-full px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 shadow-md"
-                    style={{ backgroundColor: ORANGE_RESSOURCE }}
+                    className="bg-orange-500"
                   >
                     <p className="text-white text-xs sm:text-sm md:text-base lg:text-lg font-medium text-center">
                       Ressource enseignant
