@@ -1,19 +1,17 @@
-'use client';
-
-import { useHintStore } from '@/store/hintStore';
-import { StepId } from '@/types/mission';
+import { useHintStore } from "@/store/hintStore";
+import { StepId } from "@/types/step";
 
 export function useHint(stepId: StepId) {
-  const { useHint, hasUsedHint } = useHintStore();
-
-  const markHintAsUsed = () => {
-    useHint(stepId);
-  };
+  const { hasUsedHint, markHintAsUsed } = useHintStore();
 
   const hintUsed = hasUsedHint(stepId);
 
+  const markAsUsed = () => {
+    markHintAsUsed(stepId);
+  };
+
   return {
-    markHintAsUsed,
     hintUsed,
+    markAsUsed,
   };
 }

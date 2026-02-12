@@ -1,32 +1,37 @@
-import { Mission, MissionId, StepId } from '@/types/mission';
+import { Mission } from "@/types/mission";
+import { StepId } from "@/types/step";
 
 export function isMissionCompleted(
   mission: Mission,
-  completedSteps: StepId[]
+  completedSteps: StepId[],
 ): boolean {
-  return mission.steps.every(stepId => completedSteps.includes(stepId));
+  return mission.steps.every((stepId) => completedSteps.includes(stepId));
 }
 
 export function getNextStep(
   mission: Mission,
-  completedSteps: StepId[]
+  completedSteps: StepId[],
 ): StepId | null {
-  return mission.steps.find(stepId => !completedSteps.includes(stepId)) || null;
+  return (
+    mission.steps.find((stepId) => !completedSteps.includes(stepId)) ?? null
+  );
 }
 
 export function getCurrentStepIndex(
   mission: Mission,
-  currentStep: StepId
+  currentStepId: StepId,
 ): number {
-  return mission.steps.indexOf(currentStep);
+  return mission.steps.indexOf(currentStepId);
 }
 
 export function getMissionProgress(
   mission: Mission,
-  completedSteps: StepId[]
+  completedSteps: StepId[],
 ): number {
-  const completed = mission.steps.filter(stepId => 
-    completedSteps.includes(stepId)
+  const completed = mission.steps.filter((stepId) =>
+    completedSteps.includes(stepId),
   ).length;
-  return (completed / mission.steps.length) * 100;
+  return mission.steps.length > 0
+    ? (completed / mission.steps.length) * 100
+    : 0;
 }

@@ -10,6 +10,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-orange-300: #fbbf77;
+  --color-orange-400: #f9a855;
+  --color-orange-500: #f7941d;
+  --color-orange-600: #d67e0f;
+  --color-correct-answer: #39b54a;
+  --color-incorrect-answer: #ed1c24;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +29,125 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Animations personnalisées */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  75% {
+    transform: translateX(-10px);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Page Radeau : zone fusion — adaptation à la hauteur du panneau */
+/* Supprimé : on utilise désormais un aspect-ratio sur le conteneur principal */
+
+/* Journal de bord : sécurité hauteur — scale pour tout faire rentrer si l'écran est trop court */
+@container journal-missions-column (max-height: 700px) {
+  .journal-missions-list {
+    transform: scale(0.95);
+    transform-origin: top center;
+  }
+}
+@container journal-missions-column (max-height: 600px) {
+  .journal-missions-list {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+@container journal-missions-column (max-height: 500px) {
+  .journal-missions-list {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+@container journal-missions-column (max-height: 400px) {
+  .journal-missions-list {
+    transform: scale(0.65);
+    transform-origin: top center;
+  }
+}
+
+/* Journal de bord : tailles adaptatives selon les breakpoints */
+/* Mobile (< 768px) : optimisation de l'espace - tout doit tenir sans scroll */
+.journal-picto-ile {
+  width: clamp(120px, 90cqi, 100%);
+  max-width: 100%;
+}
+
+.journal-encart-mission {
+  width: clamp(130px, 92cqi, 100%);
+  max-width: 100%;
+  height: clamp(38px, 7cqh, 62px);
+}
+
+.journal-encart-text {
+  font-size: clamp(0.65rem, 4.5cqi, 1.2rem);
+}
+
+/* Tablette moyenne (594px - 767px) : optimisation de l'espace en hauteur */
+@media (min-width: 594px) and (max-width: 767px) {
+  .journal-picto-ile {
+    width: clamp(150px, 88cqi, 100%);
+  }
+  
+  .journal-encart-mission {
+    width: clamp(145px, 90cqi, 100%);
+    height: clamp(45px, 9cqh, 72px);
+  }
+  
+  .journal-encart-text {
+    font-size: clamp(0.75rem, 5cqi, 1.4rem);
+  }
+}
+
+/* Tablette et desktop (≥ 768px) */
+@media (min-width: 768px) {
+  .journal-picto-ile {
+    width: clamp(180px, 75cqi, 100%);
+  }
+  
+  .journal-encart-mission {
+    width: clamp(160px, 80cqi, 100%);
+    height: clamp(50px, 8cqh, 75px);
+  }
+  
+  .journal-encart-text {
+    font-size: clamp(0.875rem, 5cqi, 1.5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .journal-picto-ile {
+    width: clamp(200px, 70cqi, 100%);
+  }
+  
+  .journal-encart-mission {
+    width: clamp(175px, 75cqi, 100%);
+    height: clamp(55px, 8.5cqh, 80px);
+  }
+  
+  .journal-encart-text {
+    font-size: clamp(0.9rem, 5cqi, 1.6rem);
+  }
 }

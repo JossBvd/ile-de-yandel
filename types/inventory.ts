@@ -1,4 +1,4 @@
-import { RaftPieceId } from './mission';
+import { RaftPieceId } from "./step";
 
 export interface Inventory {
   collectedPieces: RaftPieceId[];
@@ -10,5 +10,5 @@ export interface RaftPiece {
   name: string;
   description: string;
   image: string;
-  missionId: string;
+  stepId: string;
 }

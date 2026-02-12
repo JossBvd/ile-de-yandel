@@ -1,19 +1,43 @@
-'use client';
+import { useInventoryStore } from "@/store/inventoryStore";
+import { RaftPieceId } from "@/types/step";
+import { TOTAL_RAFT_PIECES } from "@/data/raft";
 
-import { useInventoryStore } from '@/store/inventoryStore';
-import { isRaftComplete, getRaftProgress } from '@/lib/engine/inventoryEngine';
-
+/**
+ * Hook pour gérer l'inventaire du joueur
+ *
+ * Fournit un accès simplifié au store d'inventaire
+ * et aux méthodes pour collecter des pièces
+ */
 export function useInventory() {
-  const { collectedPieces, totalPieces, addPiece } = useInventoryStore();
-
-  const raftComplete = isRaftComplete({ collectedPieces, totalPieces });
-  const progress = getRaftProgress({ collectedPieces, totalPieces });
+  const {
+    collectedPieces,
+    addPiece,
+    hasPiece,
+    getProgress,
+    isRaftComplete,
+    reset,
+  } = useInventoryStore();
 
   return {
+    /** Liste des pièces collectées */
     collectedPieces,
-    totalPieces,
+
+    /** Nombre total de pièces disponibles dans le jeu */
+    totalPieces: TOTAL_RAFT_PIECES,
+
+    /** Progression en pourcentage (0-100) */
+    progress: getProgress(),
+
+    /** Le radeau est-il complet ? */
+    raftComplete: isRaftComplete(),
+
+    /** Ajouter une pièce à l'inventaire */
     addPiece,
-    raftComplete,
-    progress,
+
+    /** Vérifier si une pièce est déjà collectée */
+    hasPiece,
+
+    /** Réinitialiser l'inventaire */
+    reset,
   };
 }

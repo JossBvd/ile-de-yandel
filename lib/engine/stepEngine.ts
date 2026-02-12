@@ -1,142 +1,214 @@
-import { Step, QCMStep, DragSortStep, DragSelectImageStep, BasketFillStep, BottleEmptyStep, ImageClickStep } from '@/types/step';
+import {
+  Step,
+  QCMGameData,
+  DragSortGameData,
+  DragSelectImageGameData,
+  BasketFillGameData,
+  BottleEmptyGameData,
+  ImageClickGameData,
+} from "@/types/step";
 
-export interface StepValidationResult {
+export interface ValidationResult {
   isValid: boolean;
-  message?: string;
+  message: string;
 }
 
 export function validateStepAnswer(
   step: Step,
-  userAnswer: unknown
-): StepValidationResult {
-  switch (step.type) {
-    case 'qcm':
-      return validateQCM(step, userAnswer as number | number[]);
-    
-    case 'drag-sort':
-      return validateDragSort(step, userAnswer as string[]);
-    
-    case 'drag-select-image':
-      return validateDragSelectImage(step, userAnswer as string[]);
-    
-    case 'basket-fill':
-      return validateBasketFill(step, userAnswer as string[]);
-    
-    case 'bottle-empty':
-      return validateBottleEmpty(step, userAnswer as string[]);
-    
-    case 'image-click':
-      return validateImageClick(step, userAnswer as { x: number; y: number });
-    
+  userAnswer: unknown,
+): ValidationResult {
+  switch (step.game.type) {
+    case "qcm":
+      return validateQCM(step.game, userAnswer as number | number[]);
+    case "drag-sort":
+      return validateDragSort(step.game, userAnswer as string[]);
+    case "drag-select-image":
+      return validateDragSelectImage(step.game, userAnswer as string[]);
+    case "basket-fill":
+      return validateBasketFill(step.game, userAnswer as string[]);
+    case "bottle-empty":
+      return validateBottleEmpty(step.game, userAnswer as string[]);
+    case "image-click":
+      return validateImageClick(
+        step.game,
+        userAnswer as { x: number; y: number }[],
+      );
     default:
-      return { isValid: false, message: 'Type de step non reconnu' };
+      return { isValid: false, message: "Type de mini-jeu non reconnu" };
   }
 }
 
-function validateQCM(step: QCMStep, userAnswer: number | number[]): StepValidationResult {
-  // Normaliser la réponse utilisateur en tableau
+function validateQCM(
+  game: QCMGameData,
+  userAnswer: number | number[],
+): ValidationResult {
   const selectedIndices = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
-  
-  // Vérifier que le nombre de réponses sélectionnées correspond
-  if (selectedIndices.length !== step.correctAnswers.length) {
-    return { 
-      isValid: false, 
-      message: step.correctAnswers.length > 1 
-        ? `Vous devez sélectionner ${step.correctAnswers.length} réponse(s). Réessayez !`
-        : 'Réponse incorrecte. Réessayez !'
+
+  if (selectedIndices.length !== game.correctAnswers.length) {
+    return {
+      isValid: false,
+      message:
+        game.correctAnswers.length > 1
+          ? `Vous devez sélectionner ${game.correctAnswers.length} réponse(s). Réessayez !`
+          : "Mauvaise réponse. Réessayez !",
     };
   }
-  
-  // Vérifier que toutes les réponses sélectionnées sont correctes
-  const allCorrect = selectedIndices.every(index => 
-    step.correctAnswers.includes(index)
-  ) && step.correctAnswers.every(correctIndex =>
-    selectedIndices.includes(correctIndex)
-  );
-  
-  if (allCorrect) {
-    return { isValid: true };
-  }
-  
-  return { 
-    isValid: false, 
-    message: step.correctAnswers.length > 1
-      ? 'Certaines réponses sont incorrectes. Réessayez !'
-      : 'Réponse incorrecte. Réessayez !'
+
+  const isCorrect =
+    selectedIndices.every((index) => game.correctAnswers.includes(index)) &&
+    game.correctAnswers.every((correctIndex) =>
+      selectedIndices.includes(correctIndex),
+    );
+
+  return {
+    isValid: isCorrect,
+    message: isCorrect
+      ? game.correctAnswers.length > 1
+        ? "Bravo ! Toutes les réponses sont correctes !"
+        : "Bravo ! Bonne réponse !"
+      : "Mauvaise réponse. Réessayez !",
   };
 }
 
-function validateDragSort(step: DragSortStep, order: string[]): StepValidationResult {
-  if (order.length !== step.correctOrder.length) {
-    return { isValid: false, message: 'Ordre incomplet. Réessayez !' };
+function validateDragSort(
+  game: DragSortGameData,
+  order: string[],
+): ValidationResult {
+  if (order.length !== game.correctOrder.length) {
+    return {
+      isValid: false,
+      message: "L'ordre n'est pas complet. Réessayez !",
+    };
   }
-  
-  const isCorrect = order.every((id, index) => id === step.correctOrder[index]);
-  
-  if (isCorrect) {
-    return { isValid: true };
-  }
-  return { isValid: false, message: 'Ordre incorrect. Réessayez !' };
+
+  const isCorrect = order.every((id, index) => id === game.correctOrder[index]);
+  return {
+    isValid: isCorrect,
+    message: isCorrect
+      ? "Bravo ! Ordre correct !"
+      : "L'ordre n'est pas bon. Réessayez !",
+  };
 }
 
-function validateDragSelectImage(step: DragSelectImageStep, selectedIds: string[]): StepValidationResult {
-  if (selectedIds.length !== step.correctImages.length) {
-    return { isValid: false, message: 'Sélection incomplète. Réessayez !' };
+function validateDragSelectImage(
+  game: DragSelectImageGameData,
+  selectedIds: string[],
+): ValidationResult {
+  if (selectedIds.length !== game.correctImages.length) {
+    return { isValid: false, message: "Sélection incomplète. Réessayez !" };
   }
-  
-  const isCorrect = step.correctImages.every(id => selectedIds.includes(id)) &&
-                    selectedIds.every(id => step.correctImages.includes(id));
-  
-  if (isCorrect) {
-    return { isValid: true };
-  }
-  return { isValid: false, message: 'Sélection incorrecte. Réessayez !' };
+
+  const isCorrect =
+    game.correctImages.every((id) => selectedIds.includes(id)) &&
+    selectedIds.every((id) => game.correctImages.includes(id));
+
+  return {
+    isValid: isCorrect,
+    message: isCorrect
+      ? "Bravo ! Toutes les images sont correctes !"
+      : "Certaines images sont incorrectes. Réessayez !",
+  };
 }
 
-function validateBasketFill(step: BasketFillStep, selectedIds: string[]): StepValidationResult {
-  if (selectedIds.length !== step.correctItems.length) {
-    return { isValid: false, message: 'Panier incomplet. Réessayez !' };
+function validateBasketFill(
+  game: BasketFillGameData,
+  selectedIds: string[],
+): ValidationResult {
+  if (selectedIds.length !== game.correctItems.length) {
+    return {
+      isValid: false,
+      message: "Le panier n'est pas complet. Réessayez !",
+    };
   }
-  
-  const isCorrect = step.correctItems.every(id => selectedIds.includes(id)) &&
-                    selectedIds.every(id => step.correctItems.includes(id));
-  
-  if (isCorrect) {
-    return { isValid: true };
-  }
-  return { isValid: false, message: 'Contenu du panier incorrect. Réessayez !' };
+
+  const isCorrect =
+    game.correctItems.every((id) => selectedIds.includes(id)) &&
+    selectedIds.every((id) => game.correctItems.includes(id));
+
+  return {
+    isValid: isCorrect,
+    message: isCorrect
+      ? "Bravo ! Le panier est correct !"
+      : "Certains items sont incorrects. Réessayez !",
+  };
 }
 
-function validateBottleEmpty(step: BottleEmptyStep, order: string[]): StepValidationResult {
-  if (order.length !== step.correctOrder.length) {
-    return { isValid: false, message: 'Ordre incomplet. Réessayez !' };
+function validateBottleEmpty(
+  game: BottleEmptyGameData,
+  order: string[],
+): ValidationResult {
+  if (order.length !== game.correctOrder.length) {
+    return {
+      isValid: false,
+      message: "L'ordre de vidage n'est pas complet. Réessayez !",
+    };
   }
-  
-  const isCorrect = order.every((id, index) => id === step.correctOrder[index]);
-  
-  if (isCorrect) {
-    return { isValid: true };
-  }
-  return { isValid: false, message: 'Ordre de vidage incorrect. Réessayez !' };
+
+  const isCorrect = order.every((id, index) => id === game.correctOrder[index]);
+  return {
+    isValid: isCorrect,
+    message: isCorrect
+      ? "Bravo ! Ordre de vidage correct !"
+      : "L'ordre de vidage n'est pas bon. Réessayez !",
+  };
 }
 
-function validateImageClick(step: ImageClickStep, click: { x: number; y: number }): StepValidationResult {
-  const zone = step.clickableZone;
-  
-  if (zone.type === 'circle' && zone.radius) {
-    const distance = Math.sqrt(
-      Math.pow(click.x - zone.x, 2) + Math.pow(click.y - zone.y, 2)
-    );
-    if (distance <= zone.radius) {
-      return { isValid: true };
+function validateImageClick(
+  game: ImageClickGameData,
+  clicks: { x: number; y: number }[],
+): ValidationResult {
+  if (clicks.length !== game.clickableZones.length) {
+    return {
+      isValid: false,
+      message: `Vous devez trouver ${game.clickableZones.length} objet(s). Vous en avez trouvé ${clicks.length}. Réessayez !`,
+    };
+  }
+
+  const foundZones = new Set<number>();
+
+  for (const click of clicks) {
+    let found = false;
+    for (let i = 0; i < game.clickableZones.length; i++) {
+      if (foundZones.has(i)) continue;
+
+      const zone = game.clickableZones[i];
+
+      if (zone.type === "circle") {
+        const distance = Math.sqrt(
+          Math.pow(click.x - zone.x, 2) + Math.pow(click.y - zone.y, 2),
+        );
+        if (distance <= (zone.radius || 0)) {
+          foundZones.add(i);
+          found = true;
+          break;
+        }
+      } else if (zone.type === "rectangle") {
+        if (
+          click.x >= zone.x &&
+          click.x <= zone.x + (zone.width || 0) &&
+          click.y >= zone.y &&
+          click.y <= zone.y + (zone.height || 0)
+        ) {
+          foundZones.add(i);
+          found = true;
+          break;
+        }
+      }
     }
-  } else if (zone.type === 'rectangle' && zone.width && zone.height) {
-    const inX = click.x >= zone.x && click.x <= zone.x + zone.width;
-    const inY = click.y >= zone.y && click.y <= zone.y + zone.height;
-    if (inX && inY) {
-      return { isValid: true };
+    if (!found) {
+      return {
+        isValid: false,
+        message: "Certains objets ne sont pas corrects. Réessayez !",
+      };
     }
   }
-  
-  return { isValid: false, message: 'Zone incorrecte. Réessayez !' };
+
+  if (foundZones.size === game.clickableZones.length) {
+    return {
+      isValid: true,
+      message: "Bravo ! Tous les objets ont été trouvés !",
+    };
+  }
+
+  return { isValid: false, message: "Certains objets manquent. Réessayez !" };
 }

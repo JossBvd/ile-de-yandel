@@ -1,15 +1,14 @@
+import { StepId, RaftPieceId } from "./step";
+
 export type MissionId = string;
 
+/** Mission = conteneur de steps. */
 export interface Mission {
   id: MissionId;
   title: string;
-  description: string;
-  location: string;
-  narrative: string;
+  description?: string;
   steps: StepId[];
-  raftPiece: RaftPieceId;
-  backgroundImage?: string;
 }
 
-export type StepId = string;
-export type RaftPieceId = string;
+// Re-export pour compatibilité
+export type { RaftPieceId };

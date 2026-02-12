@@ -1,18 +1,19 @@
-'use client';
-
-import { useGameStore } from '@/store/gameStore';
-import { MissionId, StepId } from '@/types/mission';
+import { useGameStore } from "@/store/gameStore";
+import { StepId } from "@/types/step";
+import { MissionId } from "@/types/mission";
 
 export function useGameProgress() {
   const {
-    currentMission,
-    currentStep,
+    currentMissionId,
+    currentStepId,
     completedSteps,
     completedMissions,
-    setCurrentMission,
-    setCurrentStep,
+    setCurrentMissionId,
+    setCurrentStepId,
     completeStep,
     completeMission,
+    resetMissionSteps,
+    reset,
   } = useGameStore();
 
   const isStepCompleted = (stepId: StepId): boolean => {
@@ -24,15 +25,17 @@ export function useGameProgress() {
   };
 
   return {
-    currentMission,
-    currentStep,
+    currentMissionId,
+    currentStepId,
     completedSteps,
     completedMissions,
-    setCurrentMission,
-    setCurrentStep,
+    setCurrentMissionId,
+    setCurrentStepId,
     completeStep,
     completeMission,
+    resetMissionSteps,
     isStepCompleted,
     isMissionCompleted,
+    reset,
   };
 }

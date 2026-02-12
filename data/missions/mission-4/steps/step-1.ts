@@ -1,0 +1,20 @@
+import { Step } from "@/types/step";
+
+export const mission4Step1: Step = {
+  id: "mission-4-step-1",
+  title: "Mission 4 - Step 1",
+  instruction: "Sélectionnez la bonne réponse",
+  narrative: "À définir avec le client",
+  raftPiece: "piece-4-1",
+  backgroundImage: "/backgrounds/paper_texture.webp",
+  game: {
+    type: "qcm",
+    question: "Question placeholder pour Mission 4 - Step 1",
+    options: [
+      { id: "1", text: "Réponse A" },
+      { id: "2", text: "Réponse B" },
+      { id: "3", text: "Réponse C" },
+    ],
+    correctAnswers: [0],
+  },
+};

@@ -1,21 +1,17 @@
-import { StepId } from "./mission";
 import { ReactNode } from "react";
 
-export type StepType =
+export type StepId = string;
+export type RaftPieceId = string;
+
+export type GameType =
   | "qcm"
   | "drag-sort"
   | "drag-select-image"
+  | "drag-order-images"
   | "basket-fill"
   | "bottle-empty"
-  | "image-click";
-
-export interface BaseStep {
-  id: StepId;
-  type: StepType;
-  title: string;
-  instruction: string;
-  hint?: Hint;
-}
+  | "image-click"
+  | "enigma";
 
 export interface Hint {
   text?: string;
@@ -23,22 +19,9 @@ export interface Hint {
   simplifiedInstruction?: string;
 }
 
-export interface QCMStep extends BaseStep {
-  type: "qcm";
-  question: string;
-  options: QCMOption[];
-  correctAnswers: number[]; // indices des bonnes réponses (peut être un seul élément pour QCM simple)
-}
-
 export interface QCMOption {
   id: string;
   text: string;
-}
-
-export interface DragSortStep extends BaseStep {
-  type: "drag-sort";
-  items: SortableItem[];
-  correctOrder: string[]; // IDs dans l'ordre correct
 }
 
 export interface SortableItem {
@@ -47,22 +30,12 @@ export interface SortableItem {
   image?: string;
 }
 
-export interface DragSelectImageStep extends BaseStep {
-  type: "drag-select-image";
-  images: ImageOption[];
-  correctImages: string[]; // IDs des images correctes
-}
-
 export interface ImageOption {
   id: string;
   src: string;
   alt: string;
-}
-
-export interface BasketFillStep extends BaseStep {
-  type: "basket-fill";
-  items: BasketItem[];
-  correctItems: string[]; // IDs des items à mettre dans le panier
+  info?: string;
+  infoImage?: string;
 }
 
 export interface BasketItem {
@@ -71,36 +44,99 @@ export interface BasketItem {
   image?: string;
 }
 
-export interface BottleEmptyStep extends BaseStep {
-  type: "bottle-empty";
-  items: BottleItem[];
-  correctOrder: string[]; // IDs dans l'ordre de vidage
-}
-
 export interface BottleItem {
   id: string;
   content: string | ReactNode;
 }
 
-export interface ImageClickStep extends BaseStep {
-  type: "image-click";
-  image: string;
-  clickableZone: ClickableZone;
-}
-
 export interface ClickableZone {
   type: "circle" | "rectangle";
-  x: number; // coordonnée X (en % ou px)
-  y: number; // coordonnée Y (en % ou px)
-  radius?: number; // pour type 'circle'
-  width?: number; // pour type 'rectangle'
-  height?: number; // pour type 'rectangle'
+  x: number;
+  y: number;
+  radius?: number;
+  width?: number;
+  height?: number;
 }
 
-export type Step =
-  | QCMStep
-  | DragSortStep
-  | DragSelectImageStep
-  | BasketFillStep
-  | BottleEmptyStep
-  | ImageClickStep;
+export interface QCMGameData {
+  type: "qcm";
+  question: string;
+  options: QCMOption[];
+  correctAnswers: number[];
+}
+
+export interface DragSortGameData {
+  type: "drag-sort";
+  items: SortableItem[];
+  correctOrder: string[];
+}
+
+export interface DragSelectImageGameData {
+  type: "drag-select-image";
+  images: ImageOption[];
+  correctImages: string[];
+}
+
+export interface BasketFillGameData {
+  type: "basket-fill";
+  items: BasketItem[];
+  correctItems: string[];
+}
+
+export interface BottleEmptyGameData {
+  type: "bottle-empty";
+  items: BottleItem[];
+  correctOrder: string[];
+}
+
+export interface ImageClickGameData {
+  type: "image-click";
+  image: string;
+  clickableZones: ClickableZone[];
+}
+
+export interface DragOrderImagesGameData {
+  type: "drag-order-images";
+  text?: string;
+  sourceImages: ImageOption[];
+  correctOrder: string[];
+  slotsCount: number;
+}
+
+export interface EnigmaGameData {
+  type: "enigma";
+  text: string;
+  correctAnswer: string;
+}
+
+export type GameData =
+  | QCMGameData
+  | DragSortGameData
+  | DragSelectImageGameData
+  | DragOrderImagesGameData
+  | BasketFillGameData
+  | BottleEmptyGameData
+  | ImageClickGameData
+  | EnigmaGameData;
+
+export interface BackgroundHintZone {
+  x: number;
+  y: number;
+  radius: number;
+  hint: string;
+  title?: string;
+  image?: string;
+}
+
+export interface Step {
+  id: StepId;
+  title: string;
+  instruction: string;
+  narrative?: string;
+  location?: string;
+  raftPiece?: RaftPieceId;
+  backgroundImage?: string;
+  backgroundHintZones?: BackgroundHintZone[];
+  hint?: Hint;
+  game: GameData;
+}
