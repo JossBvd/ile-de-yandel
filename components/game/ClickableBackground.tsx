@@ -34,7 +34,6 @@ export function ClickableBackground({
   } | null>(null);
 
   useEffect(() => {
-    // Charger l'image pour obtenir ses dimensions réelles
     const img = new window.Image();
     img.onload = () => {
       setImageDimensions({ width: img.width, height: img.height });
@@ -45,7 +44,6 @@ export function ClickableBackground({
     img.onerror = () => {
       console.error(`❌ Erreur de chargement de l'image: ${imageSrc}`);
     };
-    // S'assurer que le chemin est absolu
     img.src = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
   }, [imageSrc, debugMode]);
 
@@ -56,19 +54,11 @@ export function ClickableBackground({
     if (!containerRef.current || !imageDimensions) return null;
 
     const containerRect = containerRef.current.getBoundingClientRect();
-    
-    // Si l'écran est pivoté, les dimensions visuelles sont inversées
     const visualWidth = isRotated ? containerRect.height : containerRect.width;
     const visualHeight = isRotated ? containerRect.width : containerRect.height;
-    
-    // Calculer les coordonnées relatives au conteneur DOM
     let relX = clientX - containerRect.left;
     let relY = clientY - containerRect.top;
-    
-    // Si pivoté, convertir les coordonnées du clic dans le système visuel pivoté
     if (isRotated) {
-      // Le conteneur DOM est pivoté de 90° horaire, donc visuellement les dimensions sont inversées
-      // Transformation pour rotation horaire de 90° : (x_visuel, y_visuel) = (y_DOM, width_DOM - x_DOM)
       const tempX = relX;
       relX = relY;
       relY = containerRect.width - tempX;
@@ -76,25 +66,18 @@ export function ClickableBackground({
     
     const containerRatio = visualWidth / visualHeight;
     const imageRatio = imageDimensions.width / imageDimensions.height;
-
     let imageWidth, imageHeight, offsetX, offsetY;
-
-    // Avec object-contain, l'image est entièrement visible (letterboxing si besoin)
     if (containerRatio > imageRatio) {
-      // Container plus large que l'image : image calée en HAUTEUR, bandes gauche/droite
       imageHeight = visualHeight;
       imageWidth = imageHeight * imageRatio;
       offsetX = (visualWidth - imageWidth) / 2;
       offsetY = 0;
     } else {
-      // Container plus haut que l'image : image calée en LARGEUR, bandes haut/bas
       imageWidth = visualWidth;
       imageHeight = imageWidth / imageRatio;
       offsetX = 0;
       offsetY = (visualHeight - imageHeight) / 2;
     }
-
-    // Coordonnées en pourcentage de l'image (0-100)
     const x = ((relX - offsetX) / imageWidth) * 100;
     const y = ((relY - offsetY) / imageHeight) * 100;
 
@@ -109,18 +92,13 @@ export function ClickableBackground({
   };
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Obtenir la cible réelle du clic
     const target = e.target as HTMLElement;
-
-    // Ignorer les clics sur les enfants interactifs (panneau de jeu, boutons)
     if (target.closest(".game-panel, button, a, input, select, textarea")) {
       return;
     }
 
     const coords = getImageCoordinates(e.clientX, e.clientY);
     if (!coords) return;
-
-    // Mode debug : afficher les coordonnées dans la console
     if (debugMode) {
       const containerRect = containerRef.current?.getBoundingClientRect();
       console.log(
@@ -139,8 +117,6 @@ export function ClickableBackground({
         );
       }
     }
-
-    // Vérifier si le clic est dans une zone d'indice
     for (const zone of hintZones) {
       const dist = Math.sqrt(
         Math.pow(coords.x - zone.x, 2) + Math.pow(coords.y - zone.y, 2),
@@ -168,9 +144,6 @@ export function ClickableBackground({
     setIsOverHintZone(false);
     if (debugMode) setDebugCoords(null);
   };
-
-  // Utiliser object-contain uniquement si des zones cliquables sont définies (pour garantir l'intégrité des coordonnées)
-  // Sinon utiliser object-cover pour remplir l'écran
   const objectFit = hintZones && hintZones.length > 0 ? "object-contain" : "object-cover";
 
   return (
@@ -189,8 +162,6 @@ export function ClickableBackground({
         className={`${objectFit} pointer-events-none`}
         priority
       />
-
-      {/* Affichage des zones cliquables (uniquement en mode debug) */}
       {debugMode && hintZones.map((zone, index) => {
         const containerRect = containerRef.current?.getBoundingClientRect();
         if (!containerRect || !imageDimensions) return null;
@@ -217,17 +188,10 @@ export function ClickableBackground({
         const centerX = offsetX + (zone.x / 100) * imageWidth;
         const centerY = offsetY + (zone.y / 100) * imageHeight;
         const radius = (zone.radius / 100) * Math.max(imageWidth, imageHeight);
-
-        // Si pivoté, transformer les coordonnées pour l'affichage dans le système DOM
         let displayX = centerX;
         let displayY = centerY;
         let displayTransform = 'translate(-50%, -50%)';
-
         if (isRotated) {
-          // Le cercle est calculé dans le système visuel (après rotation)
-          // Mais il doit être affiché dans le système DOM (avant rotation)
-          // Transformation inverse de (x_visuel, y_visuel) = (y_DOM, width_DOM - x_DOM)
-          // Donc (x_DOM, y_DOM) = (width_DOM - y_visuel, x_visuel)
           displayX = containerRect.width - centerY;
           displayY = centerX;
         }
@@ -247,8 +211,6 @@ export function ClickableBackground({
           />
         );
       })}
-
-      {/* Affichage debug des coordonnées */}
       {debugMode && debugCoords && (
         <div className="fixed top-4 right-4 bg-black/80 text-white px-4 py-2 rounded-lg font-mono text-sm z-50 pointer-events-none">
           <div>x: {Math.round(debugCoords.x)}</div>

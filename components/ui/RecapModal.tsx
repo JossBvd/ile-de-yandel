@@ -5,16 +5,13 @@ import Image from "next/image";
 
 interface RecapModalProps {
   isOpen: boolean;
-  results: Record<number, boolean>; // {1: true, 2: true, 3: false}
+  results: Record<number, boolean>;
   totalQuestions: number;
   onContinue: () => void;
   onReviewQuestion: (questionNumber: number) => void;
-  /** Texte optionnel sous "Mission accomplie !" */
   missionMessage?: string;
-  /** Pièce du radeau gagnée (step 2 QCM) : affichée dans le recap et gagnée au clic Continuer */
   raftPieceName?: string;
   raftPieceImage?: string;
-  /** Si false : affiche le message d'échec (DefeatModal) et les boutons Réessayer / J'essaie autre chose */
   hasPassed?: boolean;
   onRetry?: () => void;
   onGoBack?: () => void;
@@ -40,7 +37,6 @@ export function RecapModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 md:p-5 bg-black/60 overflow-y-auto"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Même ratios que desktop : modale quasi plein écran sur mobile, mêmes tailles de texte partout */}
       <div
         className="relative flex flex-col w-full h-[96dvh] max-h-[96vh] sm:h-auto sm:max-h-[min(92dvh,92vh)] sm:max-w-2xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl overflow-hidden"
         style={{
@@ -51,17 +47,14 @@ export function RecapModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* En-tête — même ratio que desktop */}
         <header className="flex items-center justify-end shrink-0 pt-5 pr-5 pb-0 pl-6 lg:pt-6 lg:pr-6 lg:pl-8">
           <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800 italic">
             RECAP
           </h2>
         </header>
 
-        {/* Contenu : 2 colonnes, centré verticalement */}
         <div className="flex flex-1 min-h-0 overflow-auto items-center justify-center px-3 sm:px-5 pb-20 sm:pb-20 lg:pb-24 pt-2 lg:pt-4">
           <div className="flex flex-row gap-3 sm:gap-6 lg:gap-8 xl:gap-10 w-full max-w-full">
-            {/* Bloc gauche : Mission accomplie (succès) ou TU Y ES PRESQUE ! (échec) */}
             <div className="flex shrink-0 w-[40%] sm:w-auto sm:flex-1 min-w-0 flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-5 py-2 sm:py-4 lg:py-8">
               <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 relative shrink-0">
                 <Image
@@ -115,7 +108,6 @@ export function RecapModal({
               </div>
             </div>
 
-            {/* Liste des questions — centrée verticalement dans la colonne */}
             <div className="flex flex-1 min-w-0 flex-col justify-center">
               <ul className="space-y-2 sm:space-y-2.5 lg:space-y-3">
                 {Array.from({ length: totalQuestions }, (_, i) => {
@@ -175,7 +167,6 @@ export function RecapModal({
           </div>
         </div>
 
-        {/* Pied : continuer (succès) ou j'y retourne / j'essaie autre chose (échec) */}
         {hasPassed ? (
           <button
             type="button"

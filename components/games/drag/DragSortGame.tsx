@@ -103,7 +103,6 @@ export function DragSortGame({
         </div>
       </div>
 
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

@@ -7,7 +7,6 @@ export default function WelcomePage() {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
 
-  // Charger le pseudo depuis localStorage au montage
   useEffect(() => {
     const savedPseudo = localStorage.getItem("playerPseudo");
     if (savedPseudo) {
@@ -17,9 +16,7 @@ export default function WelcomePage() {
 
   const handleStart = () => {
     if (pseudo.trim()) {
-      // Sauvegarder le pseudo dans localStorage
       localStorage.setItem("playerPseudo", pseudo.trim());
-      // Rediriger vers la page de l'île
       router.push("/carte-de-l-ile");
     }
   };
@@ -40,17 +37,13 @@ export default function WelcomePage() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Contenu principal centré */}
       <div className="flex-1 flex flex-col items-center justify-center p-8">
-        {/* Titre principal */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-800 text-center mb-4">
           Île de Yandel
         </h1>
       </div>
 
-      {/* Input et bouton en bas de page */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 px-4 w-full max-w-2xl">
-        {/* Input pseudo carré */}
         <input
           type="text"
           value={pseudo}
@@ -61,7 +54,6 @@ export default function WelcomePage() {
           maxLength={20}
         />
 
-        {/* Bouton JOUER ! */}
         <button
           onClick={handleStart}
           disabled={!pseudo.trim()}

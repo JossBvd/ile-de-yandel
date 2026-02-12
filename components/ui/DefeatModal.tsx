@@ -32,7 +32,6 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
           border: "3px solid #8B4513",
         }}
       >
-        {/* Icône de défaite */}
         <div className="w-20 h-20 sm:w-24 sm:h-24 relative mb-6">
           <Image
             src="/ui/icon_false.webp"
@@ -53,7 +52,6 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
           TU Y ES PRESQUE !
         </h2>
 
-        {/* Message d'encouragement */}
         <p
           className="text-lg sm:text-xl text-center mb-8"
           style={{
@@ -63,7 +61,6 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
           Ne te décourage pas, réessaie !
         </p>
 
-        {/* Boutons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full">
           <button
             onClick={onRetry}

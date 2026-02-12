@@ -15,9 +15,7 @@ interface GameRendererProps {
   step: Step;
   onComplete: () => void;
   onDefeat?: () => void;
-  /** Retour à la carte (ex. "j'essaie autre chose" dans le recap QCM) */
   onGoBackToMap?: () => void;
-  /** Ne pas afficher la modal de victoire du jeu (la page affichera sa propre modal, ex. image objet radeau). */
   skipVictoryModal?: boolean;
 }
 

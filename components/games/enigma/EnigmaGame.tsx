@@ -10,7 +10,6 @@ interface EnigmaGameProps {
   step: Step;
   onComplete: () => void;
   onDefeat?: () => void;
-  /** Si true, ne pas afficher la VictoryModal et appeler onComplete() directement (ex. step 1 mission 1 avec modal image dédiée). */
   skipVictoryModal?: boolean;
 }
 
@@ -24,7 +23,6 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation de la réponse (insensible à la casse, trim des espaces)
     const normalizedAnswer = answer.trim().toLowerCase();
     const normalizedCorrect = game.correctAnswer.trim().toLowerCase();
 
@@ -38,14 +36,12 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
       }
       setShowVictory(true);
     } else {
-      // Mauvaise réponse : effet écran rouge + champ en rouge
       console.log("❌ Mauvaise réponse");
       setHasError(true);
       setShowRedFlash(true);
     }
   };
 
-  // Flash rouge court puis disparition (l’input reste en rouge jusqu’au prochain saisie)
   useEffect(() => {
     if (!showRedFlash) return;
     const t = setTimeout(() => setShowRedFlash(false), 200);
@@ -64,7 +60,6 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
 
   return (
     <>
-      {/* Effet écran rouge lors d’une mauvaise réponse */}
       <div
         aria-hidden
         className={`fixed inset-0 z-100 pointer-events-none transition-opacity duration-150 ${
@@ -88,7 +83,6 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
           }}
         >
-          {/* Contenu principal : consigne à la place de "Énigme" + phrase à compléter */}
           <div className="flex flex-row items-start gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
             <div className="flex-1 min-w-0 flex flex-col">
               {(() => {
@@ -116,7 +110,6 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
               })()}
             </div>
 
-            {/* Droite : champ réponse + bouton Envoyer */}
             <form
               onSubmit={handleSubmit}
               className="flex flex-row items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0"
@@ -156,8 +149,6 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
           </div>
         </div>
       </div>
-
-      {/* Modale de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

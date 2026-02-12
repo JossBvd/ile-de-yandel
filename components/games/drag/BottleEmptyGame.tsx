@@ -57,7 +57,7 @@ export function BottleEmptyGame({
                 className="p-2 sm:p-3 rounded-lg border-2 border-gray-300 bg-white"
               >
                 <div className="text-xs sm:text-sm text-gray-800">
-                  {item.name}
+                  {item.content}
                 </div>
               </div>
             ))}
@@ -68,7 +68,6 @@ export function BottleEmptyGame({
         </div>
       </div>
 
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

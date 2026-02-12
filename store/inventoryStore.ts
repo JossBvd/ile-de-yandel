@@ -5,18 +5,14 @@ import { persist } from "zustand/middleware";
 import { RaftPieceId } from "@/types/step";
 import { TOTAL_RAFT_PIECES, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 
-/** ID d’un objet créé par fusion (ex. "fused-1") */
 export type FusedPieceId = string;
 
 interface InventoryState {
   collectedPieces: RaftPieceId[];
-  /** Pièces créées par fusion (3 objets → 1), max MAX_FUSED_RAFT_PIECES */
   fusedRaftPiecesCount: number;
-  /** Objets fusionnés présents dans l’inventaire (prennent la place d’un des 3 objets fusionnés) */
   fusedPieces: FusedPieceId[];
   addPiece: (pieceId: RaftPieceId) => void;
   hasPiece: (pieceId: RaftPieceId) => boolean;
-  /** Consommer 3 pièces pour créer 1 pièce fusion ; l’objet fusionné rejoint l’inventaire. Retourne true si la fusion a eu lieu. */
   consumePiecesForFusion: (pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId]) => boolean;
   getProgress: () => number;
   isRaftComplete: () => boolean;

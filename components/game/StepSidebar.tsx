@@ -9,14 +9,9 @@ interface StepSidebarProps {
   onToggle: () => void;
   missionNumber: string;
   stepNumber: number;
-  /** Contenu des boutons (Indice, Radeau, Retour) déjà fourni par la page */
   children: React.ReactNode;
 }
 
-/**
- * Bande latérale gauche type parchemin : Mission / Etape, icône bouteille, boutons d’action.
- * Ouvrable et fermable via un onglet sur le bord gauche.
- */
 export function StepSidebar({
   isOpen,
   onToggle,
@@ -31,7 +26,7 @@ export function StepSidebar({
       }`}
       aria-label="Panneau mission"
     >
-      {/* Panneau principal (texture papier) — plus étroit sur mobile */}
+      {/* Panneau latéral */}
       <div
         className={`h-full flex flex-col transition-[width] duration-300 ease-out overflow-hidden relative ${
           isOpen
@@ -46,7 +41,7 @@ export function StepSidebar({
           boxShadow: isOpen ? "4px 0 12px rgba(0,0,0,0.15)" : "none",
         }}
       >
-        {/* Titre Mission / Etape — compact sur mobile */}
+        {/* Titre mission / étape */}
         <div className="pt-3 px-4 pb-1 sm:pt-6 sm:pb-2 shrink-0">
           <p className="text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
             Mission {missionNumber}
@@ -56,13 +51,13 @@ export function StepSidebar({
           </p>
         </div>
 
-        {/* Boutons d’action (Indice, Radeau, Retour) */}
+        {/* Boutons d'action */}
         <div className="flex-1 flex flex-col items-start justify-evenly pl-6 sm:pl-8 pr-4 pb-4 pt-2 sm:pt-4 min-h-0 w-full">
           {children}
         </div>
       </div>
 
-      {/* Conteneur onglet (largeur fixe), bouton au premier tiers vertical */}
+      {/* Zone de jeu */}
       <div className="relative h-full shrink-0" style={{ width: TAB_WIDTH }}>
         <button
           type="button"

@@ -10,9 +10,11 @@ import {
 import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
+import { useUIStore } from "@/store/uiStore";
+import { useEffect } from "react";
+import type { MissionId } from "@/types/mission";
 
 
-/** Mission N est débloquée si c'est la mission 1, ou si la mission N-1 est complétée, ou si la mission N est complétée. */
 function isMissionUnlocked(
   missionId: string,
   completedMissions: string[],
@@ -29,6 +31,16 @@ function JournalContent() {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
+  const { setLastViewedCompletedMission } = useUIStore();
+
+  useEffect(() => {
+    const latestCompletedMission = completedMissions.length > 0 
+      ? completedMissions[completedMissions.length - 1] 
+      : null;
+    if (latestCompletedMission) {
+      setLastViewedCompletedMission(latestCompletedMission as MissionId);
+    }
+  }, [completedMissions, setLastViewedCompletedMission]);
 
   const [selectedMissionId, setSelectedMissionId] =
     useState<string>("mission-1");
@@ -57,110 +69,85 @@ function JournalContent() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Banner "Mon journal de bord" — même position sur mobile (paysage) et desktop */}
-      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 md:top-8 md:left-8 z-10">
-        <div
-          className="px-3 py-2 sm:px-6 sm:py-3 rounded-lg"
-          style={{ backgroundColor: "#E6D5B8" }}
-        >
-          <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
-            Mon journal de bord
-          </h1>
+      {/* Titre */}
+      <div className="absolute top-1 left sm:top-1 md:top-6 z-10">
+        <div className="relative w-48 h-16 sm:w-72 sm:h-24 md:w-80 md:h-28">
+          <Image
+            src="/ui/encart_map.webp"
+            alt=""
+            fill
+            className="object-contain object-top-left"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <h1 className="text-sm sm:text-lg md:text-xl font-bold text-gray-800 drop-shadow-sm">
+              Mon journal de bord
+            </h1>
+          </div>
         </div>
       </div>
 
-      {/* Contenu principal : même disposition partout — missions à gauche (tout visible, pas de scroll), détail à droite */}
       <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-row gap-2 sm:gap-4 md:gap-8 p-2 sm:p-4 md:p-8 min-h-0">
-        {/* Liste des missions à gauche — tailles augmentées pour remplir l'espace */}
+        {/* Colonne missions */}
         <div
-          className="journal-missions-column flex flex-col w-1/3 min-w-0 min-h-0 overflow-hidden pt-14 sm:pt-20 md:pt-24 flex-shrink-0 items-center"
-          style={{ containerType: "size", containerName: "journal-missions-column" }}
+          className="journal-missions-column flex flex-col w-1/3 min-w-0 min-h-0 overflow-hidden pl-6 sm:pl-14 md:pl-16 shrink-0 items-center justify-center gap-0"
+          style={{ 
+            containerType: "size", 
+            containerName: "journal-missions-column",
+            paddingTop: "clamp(60px, 10vh, 120px)"
+          }}
         >
           <div
-            className="journal-missions-list flex flex-col w-full items-center origin-top"
-            style={{
-              gap: "clamp(0.75rem, 4cqi, 2rem)",
+            className="journal-picto-ile relative shrink-0 rounded-lg overflow-hidden"
+            style={{ 
+              aspectRatio: "280/170"
             }}
           >
-            {MISSIONS.map((mission) => {
-              const missionNumber = mission.id.split("-")[1];
-              const isSelected = mission.id === selectedMissionId;
-              const isMission1 = mission.id === "mission-1";
-              const isUnlocked = unlockedMissionIds.has(mission.id);
-
-              return (
-                <div
-                  key={mission.id}
-                  className="flex flex-col items-center w-full shrink-0"
-                  style={{
-                    paddingInline: "clamp(0.5rem, 2cqi, 2rem)",
-                  }}
-                >
-                  {isMission1 ? (
-                    <button
-                      onClick={() =>
-                        isUnlocked && setSelectedMissionId(mission.id)
-                      }
-                      disabled={!isUnlocked}
-                      className={`relative w-full aspect-280/170 min-h-0 rounded-lg overflow-hidden transition-all flex items-center justify-center touch-manipulation
-                        ${isUnlocked ? `cursor-pointer ${isSelected ? "scale-105" : "hover:scale-105 active:scale-105"}` : "cursor-not-allowed opacity-50 grayscale"}`}
-                      style={{
-                        maxWidth: "clamp(240px, 100cqi, 480px)",
-                      }}
-                      type="button"
-                      aria-disabled={!isUnlocked}
-                    >
-                      <Image
-                        src="/ui/mission_button.webp"
-                        alt="Mission 1"
-                        fill
-                        className="object-contain object-center"
-                      />
-                      <span
-                        className="absolute inset-x-0 bottom-0 flex items-center justify-center pb-[6%] font-semibold text-gray-800 drop-shadow-sm"
-                        style={{
-                          fontSize: "clamp(1rem, 6cqi, 2rem)",
-                        }}
-                      >
-                        Mission {missionNumber}
-                      </span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() =>
-                        isUnlocked && setSelectedMissionId(mission.id)
-                      }
-                      disabled={!isUnlocked}
-                      className={`rounded-lg transition-all w-full touch-manipulation flex items-center justify-center shrink-0
-                        ${isUnlocked ? `cursor-pointer ${isSelected ? "scale-105" : "hover:scale-105 active:scale-105"}` : "cursor-not-allowed opacity-50"}`}
-                      style={{
-                        backgroundColor: isUnlocked ? "#E6D5B8" : "#b0a090",
-                        padding: "clamp(0.75rem, 4cqi, 1.75rem) clamp(1rem, 5cqi, 3rem)",
-                        minHeight: "clamp(50px, 12cqi, 80px)",
-                        maxWidth: "clamp(240px, 100cqi, 450px)",
-                      }}
-                      type="button"
-                      aria-disabled={!isUnlocked}
-                    >
-                      <span
-                        className={`font-semibold ${
-                          isSelected ? "text-gray-900" : isUnlocked ? "text-gray-700" : "text-gray-500"
-                        }`}
-                        style={{
-                          fontSize: "clamp(0.875rem, 5cqi, 1.5rem)",
-                        }}
-                      >
-                        Mission {missionNumber}
-                      </span>
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+            <Image
+              src="/ui/picto_ile.webp"
+              alt=""
+              fill
+              className="object-contain object-center"
+            />
+          </div>
+          <div className="flex flex-col w-full shrink-0 -mt-2 sm:-mt-4 md:-mt-6 items-center gap-0.5 sm:gap-1.5 md:gap-2.5">
+          {MISSIONS.map((mission) => {
+            const missionNumber = mission.id.split("-")[1];
+            const isUnlocked = unlockedMissionIds.has(mission.id);
+            return (
+              <button
+                key={mission.id}
+                onClick={() =>
+                  isUnlocked && setSelectedMissionId(mission.id)
+                }
+                disabled={!isUnlocked}
+                className={`journal-encart-mission relative shrink-0 rounded-none overflow-hidden transition-all touch-manipulation outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-700/50 focus-visible:ring-inset ${
+                  isUnlocked
+                    ? "cursor-pointer hover:opacity-95"
+                    : "cursor-not-allowed opacity-50"
+                }`}
+                style={{ 
+                  flexShrink: 0
+                }}
+                type="button"
+                aria-label={`Mission ${missionNumber}`}
+                aria-disabled={!isUnlocked}
+              >
+                <Image
+                  src="/ui/encart_journal.webp"
+                  alt={`Mission ${missionNumber}`}
+                  fill
+                  className="object-contain object-center"
+                />
+                <span className="journal-encart-text absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm pointer-events-none">
+                  Mission {missionNumber}
+                </span>
+              </button>
+            );
+          })}
           </div>
         </div>
 
-        {/* Vue détaillée à droite — encadrée type parchemin, même emplacement que desktop */}
+        {/* Détail mission */}
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {selectedMission && (
             <div
@@ -170,11 +157,14 @@ function JournalContent() {
                 boxShadow: "2px 4px 12px rgba(0, 0, 0, 0.12)",
               }}
             >
-              <div
-                className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg w-fit self-center"
-                style={{ backgroundColor: "#d4c4a0" }}
-              >
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold text-gray-800">
+              <div className="relative w-full max-w-[200px] h-12 sm:h-14 md:h-16 self-center shrink-0">
+                <Image
+                  src="/ui/encart_journal.webp"
+                  alt=""
+                  fill
+                  className="object-contain object-center"
+                />
+                <span className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm text-base sm:text-lg md:text-xl">
                   Mission {selectedMissionId.split("-")[1]}
                 </span>
               </div>
@@ -183,8 +173,7 @@ function JournalContent() {
                 {[1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className="rounded-full px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 shadow-md"
-                    className="bg-orange-500"
+                    className="rounded-full px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 shadow-md bg-orange-500"
                   >
                     <p className="text-white text-xs sm:text-sm md:text-base lg:text-lg font-medium text-center">
                       Ressource enseignant
@@ -197,12 +186,12 @@ function JournalContent() {
         </div>
       </div>
 
-      {/* Bouton retour — même position en bas à droite */}
-      <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 md:bottom-8 md:right-8 z-10">
+      {/* Bouton retour */}
+      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-8 md:left-8 z-10">
         <IconButton
           icon="/ui/icon_back.webp"
           alt="Retour"
-          onClick={() => router.back()}
+          onClick={() => router.push("/carte-de-l-ile")}
           label="Retour"
         />
       </div>

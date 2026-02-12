@@ -17,14 +17,15 @@ import { ClickableBackground } from "@/components/game/ClickableBackground";
 import { StepBackground } from "@/components/game/StepBackground";
 import { IconButton } from "@/components/ui/IconButton";
 import { DefeatModal } from "@/components/ui/DefeatModal";
+import { MissionCompleteModal } from "@/components/ui/MissionCompleteModal";
 import { BackgroundHintZone } from "@/types/step";
 
 function StepPageContent() {
   const params = useParams();
   const router = useRouter();
-  const missionId = params.missionId as string; // ex: "mission-1"
-  const stepSlug = params.stepSlug as string; // ex: "step-1"
-  const stepId = getStepIdFromSlug(missionId, stepSlug); // ex: "mission-1-step-1"
+  const missionId = params.missionId as string;
+  const stepSlug = params.stepSlug as string;
+  const stepId = getStepIdFromSlug(missionId, stepSlug);
 
   const { completedSteps, setCurrentStepId, completeStep, completeMission } =
     useGameProgress();
@@ -33,17 +34,19 @@ function StepPageContent() {
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
-  const [generalHintModal, setGeneralHintModal] = useState<{ title: string; hint: string } | null>(null);
+  const [generalHintModal, setGeneralHintModal] = useState<{
+    title: string;
+    hint: string;
+  } | null>(null);
   const [showDefeatModal, setShowDefeatModal] = useState(false);
-  /** Modal "objet récupéré pour le radeau" (ex. ficelle step 1 mission 1) : image à afficher ou null */
-  const [raftObjectModalImage, setRaftObjectModalImage] = useState<string | null>(null);
-  /** True quand l'user a cliqué sur l'icône radeau : on ne doit pas rediriger vers le step suivant. */
-  const navigatingToRaftRef = React.useRef(false);
+  const [raftObjectModalImage, setRaftObjectModalImage] = useState<
+    string | null
+  >(null);
+  const [showMissionCompleteModal, setShowMissionCompleteModal] = useState(false);
 
   const step = getStepById(stepId);
   const mission = getMissionById(missionId);
 
-  // Intro narrative uniquement au step 1 de la mission ; les steps suivants enchaînent directement sur le jeu
   const isFirstStepOfMission = Boolean(mission && mission.steps[0] === stepId);
 
   React.useEffect(() => {
@@ -51,28 +54,11 @@ function StepPageContent() {
     setCurrentStepId(step.id);
   }, [step, setCurrentStepId]);
 
-  // Si on arrive sur un step déjà complété (ex. retour depuis la page radeau), rediriger vers le step suivant ou la carte (sauf si l'user vient de cliquer sur l'icône radeau)
-  React.useEffect(() => {
-    if (!step || !mission || raftObjectModalImage) return;
-    if (navigatingToRaftRef.current) {
-      navigatingToRaftRef.current = false;
-      return;
-    }
-    if (!completedSteps.includes(step.id)) return;
-    const nextStepId = getNextStep(mission, completedSteps);
-    if (nextStepId) {
-      router.replace(getStepPath(missionId, nextStepId));
-    } else {
-      router.replace("/carte-de-l-ile");
-    }
-  }, [step, mission, missionId, completedSteps, router, raftObjectModalImage]);
 
-  // Réinitialiser l’affichage narrative quand on change de step (ex. step 1 → step 2)
   React.useEffect(() => {
     setShowNarrative(isFirstStepOfMission);
   }, [stepId, isFirstStepOfMission]);
 
-  /** Enregistre la complétion du step et l’ajout de la pièce (sans naviguer). Utilisé quand l’user part vers le radeau depuis la modal. */
   function applyStepCompletionOnly() {
     if (!step || !mission) return;
     completeStep(step.id);
@@ -82,7 +68,6 @@ function StepPageContent() {
     }
   }
 
-  /** Applique complétion du step, ajout pièce radeau, et navigation (utilisé après fermeture de la modal "objet récupéré" si affichée). */
   function applyStepCompletionAndNavigate() {
     if (!step || !mission) {
       router.push("/carte-de-l-ile");
@@ -103,19 +88,22 @@ function StepPageContent() {
 
   const handleGameComplete = () => {
     if (!step) return;
-    // Step 1 mission 1 : afficher la modal "premier objet récupéré" (ficelle) avant de compléter
     if (step.id === "mission-1-step-1") {
-      setRaftObjectModalImage("/missions/mission-1/step-1/M1_S1_popup-ficelle.webp");
+      setRaftObjectModalImage(
+        "/missions/mission-1/step-1/M1_S1_popup-ficelle.webp",
+      );
       return;
     }
-    // Step 2 mission 1 : afficher la modal avec l'image de l'aiguille
     if (step.id === "mission-1-step-2") {
-      setRaftObjectModalImage("/missions/mission-1/step-2/M1_S2_popup-aiguille.webp");
+      setRaftObjectModalImage(
+        "/missions/mission-1/step-2/M1_S2_popup-aiguille.webp",
+      );
       return;
     }
-    // Step 3 mission 1 : afficher la modal avec l'image du tissu
     if (step.id === "mission-1-step-3") {
-      setRaftObjectModalImage("/missions/mission-1/step-3/M1_S3_popup-tissu.webp");
+      setRaftObjectModalImage(
+        "/missions/mission-1/step-3/M1_S3_popup-tissu.webp",
+      );
       return;
     }
     applyStepCompletionAndNavigate();
@@ -123,7 +111,11 @@ function StepPageContent() {
 
   const handleRaftObjectModalClose = () => {
     setRaftObjectModalImage(null);
-    applyStepCompletionAndNavigate();
+    if (step?.id === "mission-1-step-3") {
+      setShowMissionCompleteModal(true);
+    } else {
+      applyStepCompletionAndNavigate();
+    }
   };
 
   const handleContinueFromNarrative = () => {
@@ -138,7 +130,6 @@ function StepPageContent() {
   const handleDefeatRetry = () => {
     console.log("🔄 L'utilisateur réessaie");
     setShowDefeatModal(false);
-    // On recharge la page pour réinitialiser le jeu
     window.location.reload();
   };
 
@@ -148,7 +139,35 @@ function StepPageContent() {
     router.push("/carte-de-l-ile");
   };
 
-  // Afficher l’intro narrative uniquement au premier step de la mission
+  const handleMissionCompleteJournal = () => {
+    setShowMissionCompleteModal(false);
+    if (step) {
+      applyStepCompletionOnly();
+    }
+    router.push("/journal-de-bord");
+  };
+
+  const handleMissionCompleteRaft = () => {
+    setShowMissionCompleteModal(false);
+    if (step) {
+      applyStepCompletionOnly();
+    }
+    router.push("/radeau");
+  };
+
+  const handleMissionCompleteMap = () => {
+    setShowMissionCompleteModal(false);
+    if (step && mission) {
+      applyStepCompletionOnly();
+      const updatedCompletedSteps = [...completedSteps, step.id];
+      const nextStepId = getNextStep(mission, updatedCompletedSteps);
+      if (!nextStepId) {
+        completeMission(missionId);
+      }
+    }
+    router.push("/carte-de-l-ile");
+  };
+
   if (!step) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -167,8 +186,12 @@ function StepPageContent() {
     );
   }
 
-  // Ne pas afficher la narrative si le step est déjà complété (redirection vers step suivant en cours, évite un flash)
-  if (isFirstStepOfMission && showNarrative && step.narrative && !completedSteps.includes(step.id)) {
+  if (
+    isFirstStepOfMission &&
+    showNarrative &&
+    step.narrative &&
+    !completedSteps.includes(step.id)
+  ) {
     return (
       <div
         className="fixed inset-0 overflow-hidden"
@@ -181,7 +204,7 @@ function StepPageContent() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Sur mobile paysage : conteneur dans les 2/3 gauche (pas dans le dernier tiers à droite) */}
+        {/* Conteneur narrative */}
         <div className="absolute left-[8%] max-w-[58%] w-full top-[10%] overflow-y-auto sm:left-[10%] sm:max-w-2xl sm:w-[85%] sm:top-1/3 sm:max-h-none sm:overflow-visible sm:transform sm:-translate-y-1/2">
           <div
             className="relative rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl bg-cover bg-center bg-no-repeat"
@@ -217,17 +240,11 @@ function StepPageContent() {
     );
   }
 
-  // Step déjà complété (ex. retour depuis le radeau) : écran neutre le temps de la redirection, évite tout flash
-  if (completedSteps.includes(step.id)) {
-    return <div className="fixed inset-0 bg-black" aria-hidden="true" />;
-  }
 
-  // Numéro de mission et d’étape pour l’affichage (ex. "Mission 1", "Etape 1")
   const missionNumber = missionId?.replace("mission-", "") ?? "1";
   const stepIndex = mission?.steps.indexOf(stepId) ?? 0;
   const stepNumber = stepIndex + 1;
 
-  // Afficher le mini-jeu
   return (
     <div
       className="fixed inset-0 overflow-hidden bg-black flex"
@@ -236,7 +253,7 @@ function StepPageContent() {
         height: isRotated ? `${height}px` : "100dvh",
       }}
     >
-      {/* Zone latérale gauche fixe */}
+      {/* Barre latérale */}
       <div
         className="relative shrink-0 flex flex-col z-20"
         style={{
@@ -250,9 +267,8 @@ function StepPageContent() {
           overflowY: "auto",
         }}
       >
-        {/* Conteneur interne pour garantir l'espace minimum */}
         <div className="flex flex-col min-h-0 flex-1">
-          {/* Titre Mission / Etape */}
+          {/* Titre mission / étape */}
           <div className="pt-2 px-3 pb-1 sm:pt-3 sm:px-4 sm:pb-1 md:pt-6 md:pb-2 shrink-0">
             <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
               Mission {missionNumber}
@@ -262,12 +278,15 @@ function StepPageContent() {
             </p>
           </div>
 
-          {/* Icône bouteille principale - taille adaptative avec espace flexible */}
-          <div className="flex items-center justify-center py-2 sm:py-3 md:py-4 shrink-0" style={{ 
-            minHeight: "clamp(50px, 10vh, 100px)",
-            maxHeight: "clamp(80px, 25vh, 150px)",
-            flex: "0 1 auto"
-          }}>
+          {/* Icône bouteille */}
+          <div
+            className="flex items-center justify-center py-2 sm:py-3 md:py-4 shrink-0"
+            style={{
+              minHeight: "clamp(50px, 10vh, 100px)",
+              maxHeight: "clamp(80px, 25vh, 150px)",
+              flex: "0 1 auto",
+            }}
+          >
             <div className="relative w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
               <Image
                 src="/ui/icon_bottle.webp"
@@ -279,7 +298,7 @@ function StepPageContent() {
             </div>
           </div>
 
-          {/* Boutons d'action (Indice, Radeau, Retour) - toujours visibles en bas */}
+          {/* Boutons d'action */}
           <div className="flex flex-col gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pl-4 pr-3 pb-3 pt-1 sm:pl-6 sm:pr-4 sm:pb-4 sm:pt-2 md:pl-8 md:pt-4 shrink-0 mt-auto">
             <IconButton
               icon="/ui/icon_clue.webp"
@@ -288,7 +307,8 @@ function StepPageContent() {
                 if (step.hint) {
                   setGeneralHintModal({
                     title: "Indice",
-                    hint: step.hint.text || step.hint.simplifiedInstruction || "",
+                    hint:
+                      step.hint.text || step.hint.simplifiedInstruction || "",
                   });
                 }
               }}
@@ -317,7 +337,7 @@ function StepPageContent() {
         </div>
       </div>
 
-      {/* Zone de contenu principal */}
+      {/* Zone de jeu */}
       <div className="flex-1 relative overflow-hidden">
         {step.backgroundHintZones && step.backgroundHintZones.length > 0 ? (
           <ClickableBackground
@@ -350,14 +370,12 @@ function StepPageContent() {
         )}
       </div>
 
-      {/* Modal de défaite */}
       <DefeatModal
         isOpen={showDefeatModal}
         onRetry={handleDefeatRetry}
         onGoBack={handleDefeatGoBack}
       />
 
-      {/* Modal = image seule (texte déjà dans l’image), clic pour fermer */}
       {raftObjectModalImage && (
         <div
           className="fixed z-50 flex items-center justify-center p-4"
@@ -374,7 +392,10 @@ function StepPageContent() {
           aria-modal="true"
           aria-label="Objet récupéré"
         >
-          <div className="relative w-full max-w-lg" style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}>
+          <div
+            className="relative w-full max-w-lg"
+            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+          >
             <Image
               src={raftObjectModalImage}
               alt="Objet récupéré pour le radeau"
@@ -384,7 +405,6 @@ function StepPageContent() {
               style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
-            {/* Icône en bas à droite : next → step suivant */}
             <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12">
               <button
                 type="button"
@@ -405,7 +425,6 @@ function StepPageContent() {
         </div>
       )}
 
-      {/* Modal indice */}
       {hintModal && (
         <div
           className="fixed z-50 flex items-center justify-center p-4"
@@ -424,8 +443,10 @@ function StepPageContent() {
           aria-label="Indice"
         >
           {hintModal.image && !hintModal.hint ? (
-            // Modal image seule (comme la modal radeau)
-            <div className="relative w-full max-w-4xl" style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}>
+            <div
+              className="relative w-full max-w-4xl"
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+            >
               <Image
                 src={hintModal.image}
                 alt={hintModal.title ?? "Indice"}
@@ -437,7 +458,6 @@ function StepPageContent() {
               />
             </div>
           ) : (
-            // Modal avec texte (format original)
             <div
               className="relative rounded-3xl p-12 max-w-xl w-[92%] shadow-2xl flex flex-col"
               style={{
@@ -497,7 +517,6 @@ function StepPageContent() {
         </div>
       )}
 
-      {/* Modal indice général (depuis le bouton Indice) */}
       {generalHintModal && (
         <div
           className="fixed z-50 flex items-center justify-center p-4"
@@ -554,6 +573,14 @@ function StepPageContent() {
           </div>
         </div>
       )}
+
+      <MissionCompleteModal
+        isOpen={showMissionCompleteModal}
+        missionId={missionId}
+        onJournalClick={handleMissionCompleteJournal}
+        onRaftClick={handleMissionCompleteRaft}
+        onMapClick={handleMissionCompleteMap}
+      />
     </div>
   );
 }

@@ -91,7 +91,6 @@ export function DragSelectImageGame({
         </div>
       </div>
 
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

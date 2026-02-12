@@ -71,8 +71,6 @@ export function ImageClickGame({
   const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const coords = getImageCoordinates(event.clientX, event.clientY);
     if (!coords) return;
-
-    // Vérifier si le clic est dans une zone
     for (const zone of game.clickableZones) {
       if (zone.type === "circle") {
         const distance = Math.sqrt(
@@ -89,8 +87,6 @@ export function ImageClickGame({
         }
       }
     }
-
-    // Clic en dehors d'une zone valide : afficher directement la modal de défaite
     console.log(
       "❌ Clic en dehors d'une zone - Affichage de la modal de défaite",
     );
@@ -149,8 +145,6 @@ export function ImageClickGame({
           </div>
         </div>
       </div>
-
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

@@ -18,7 +18,7 @@ export function VictoryModal({
   isOpen,
   onContinue,
   raftPieceName = "Pièce du radeau",
-  raftPieceImage = "/ui/icon_right.webp", // Placeholder en attendant les vraies images
+  raftPieceImage = "/ui/icon_right.webp",
 }: VictoryModalProps) {
   if (!isOpen) return null;
 
@@ -40,7 +40,6 @@ export function VictoryModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Titre avec coche verte */}
         <div className="flex items-center justify-center gap-2 mb-6">
           <h2
             className="text-xl sm:text-2xl md:text-3xl font-bold text-center"
@@ -61,13 +60,11 @@ export function VictoryModal({
           </div>
         </div>
 
-        {/* Conteneur de la pièce collectée */}
         <div className="flex items-center gap-4 sm:gap-6 mb-8">
-          {/* Image de la pièce - placeholder en attendant les assets du client */}
           <div
             className="w-24 h-24 sm:w-28 sm:h-28 relative shrink-0 rounded-lg overflow-hidden"
             style={{
-              backgroundColor: "#87CEEB", // Bleu ciel placeholder
+              backgroundColor: "#87CEEB",
               border: "3px solid #5DADE2",
             }}
           >
@@ -79,7 +76,6 @@ export function VictoryModal({
             />
           </div>
 
-          {/* Texte de la pièce */}
           <div className="flex-1 min-w-0">
             <p
               className="text-sm sm:text-base mb-1"
@@ -100,7 +96,6 @@ export function VictoryModal({
           </div>
         </div>
 
-        {/* Bouton retour / continuer en bas à droite */}
         <button
           type="button"
           onClick={onContinue}
@@ -116,7 +111,6 @@ export function VictoryModal({
           />
         </button>
 
-        {/* Clic sur la modal pour continuer */}
         <button
           onClick={onContinue}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"

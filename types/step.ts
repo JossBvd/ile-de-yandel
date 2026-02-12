@@ -35,7 +35,6 @@ export interface ImageOption {
   src: string;
   alt: string;
   info?: string;
-  /** URL d'une image à afficher en modal au clic sur le bouton info (remplace la modal texte) */
   infoImage?: string;
 }
 
@@ -59,7 +58,6 @@ export interface ClickableZone {
   height?: number;
 }
 
-// Données de jeu par type
 export interface QCMGameData {
   type: "qcm";
   question: string;
@@ -105,12 +103,9 @@ export interface DragOrderImagesGameData {
   slotsCount: number;
 }
 
-/** Énigme : texte + champ de réponse + bouton Envoyer */
 export interface EnigmaGameData {
   type: "enigma";
-  /** Énoncé de l'énigme affiché dans le panneau */
   text: string;
-  /** Réponse correcte (insensible à la casse) */
   correctAnswer: string;
 }
 
@@ -124,20 +119,15 @@ export type GameData =
   | ImageClickGameData
   | EnigmaGameData;
 
-/** Zone cliquable sur le fond (image de step) : affiche un indice au clic. x, y, radius en % (0-100). */
 export interface BackgroundHintZone {
   x: number;
   y: number;
   radius: number;
-  /** Texte de l'indice (description de l'objet). */
   hint: string;
-  /** Titre affiché sur le parchemin (ex. "objet"). */
   title?: string;
-  /** URL de l'image illustrant l'objet (optionnel). */
   image?: string;
 }
 
-/** Step = un mini-jeu complet. */
 export interface Step {
   id: StepId;
   title: string;
@@ -146,7 +136,6 @@ export interface Step {
   location?: string;
   raftPiece?: RaftPieceId;
   backgroundImage?: string;
-  /** Zones cliquables sur le fond : clic = afficher l'indice (modal). */
   backgroundHintZones?: BackgroundHintZone[];
   hint?: Hint;
   game: GameData;

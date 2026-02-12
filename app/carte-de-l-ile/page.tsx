@@ -14,8 +14,9 @@ import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
 import { isMissionCompleted, getNextStep } from "@/lib/engine/missionEngine";
+import { useUIStore } from "@/store/uiStore";
+import type { MissionId } from "@/types/mission";
 
-/** Noms affichés dans la popup de démarrage (lieu de l'île) */
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-1": "L'épave de l'avion",
   "mission-2": "Mission 2",
@@ -36,11 +37,10 @@ function HomeContent() {
     resetMissionSteps,
   } = useGameProgress();
   const { collectedPieces, reset: resetInventory } = useInventory();
-  // Détection si on est sur mobile (< 768px)
+  const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
 
-  // Une mission est débloquée si la mission précédente a déjà été complétée.
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
     const prevMission = getMissionById(missionId);
@@ -50,9 +50,9 @@ function HomeContent() {
   };
 
   const isMissionNew = (missionId: string, available: boolean) =>
-    missionId !== "mission-1" &&
     available &&
-    !completedSteps.some((id) => id.startsWith(`${missionId}-`));
+    !completedSteps.some((id) => id.startsWith(`${missionId}-`)) &&
+    !viewedMissions.has(missionId as MissionId);
 
   const hasPendingFusionForMission = (missionId: string) => {
     if (!completedMissions.includes(missionId)) return false;
@@ -63,13 +63,12 @@ function HomeContent() {
     if (pieceIds.length !== 3) return false;
     return pieceIds.every((id) => collectedPieces.includes(id));
   };
-  const showRaftNew = completedMissions.some(hasPendingFusionForMission);
+  const showRaftNew = !raftViewed && completedMissions.some(hasPendingFusionForMission);
 
-  // Positionnement étalé : 1 centre-gauche, 3 et 4 en haut, 2 et 5 en bas — occupent l'espace
   const missions = [
     {
       id: "mission-1",
-      available: true, // Toujours disponible
+      available: true,
       positionMobile: {
         top: "50%",
         left: "12%",
@@ -139,10 +138,17 @@ function HomeContent() {
     },
   ];
 
+  const latestCompletedMission = completedMissions.length > 0 
+    ? completedMissions[completedMissions.length - 1] 
+    : null;
+  const showJournalNew = latestCompletedMission !== lastViewedCompletedMission && 
+    missions.some((m) => m.available);
+
   const handleMissionClick = (missionId: string, available: boolean) => {
     if (!available) return;
     const mission = getMissionById(missionId);
     if (!mission) return;
+    markMissionAsViewed(missionId as MissionId);
     setSelectedMissionId(missionId);
   };
 
@@ -177,8 +183,8 @@ function HomeContent() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Encart titre */}
-      <div className="absolute top-8 left sm:top-4 md:top-12 z-10">
+      {/* Titre */}
+      <div className="absolute top-4 left sm:top-2 md:top-8 z-10">
         <div className="relative w-60 h-20 sm:w-72 sm:h-24 md:w-80 md:h-28">
           <Image
             src="/ui/encart_map.webp"
@@ -194,7 +200,7 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* Bouton reset en haut à droite */}
+      {/* Bouton reset */}
       <div className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-16 md:right-4 z-10">
         <button
           onClick={() => {
@@ -205,6 +211,7 @@ function HomeContent() {
             ) {
               resetProgress();
               resetInventory();
+              resetUI();
               window.location.reload();
             }
           }}
@@ -215,7 +222,7 @@ function HomeContent() {
         </button>
       </div>
 
-      {/* Conteneur relatif pour les missions - adaptatif selon l'écran */}
+      {/* Conteneur missions */}
       <div className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[85%] sm:w-[80%] sm:h-[88%] md:w-[70%] md:h-[88%]">
         <div className="relative h-full w-full">
           {missions.map((missionConfig) => {
@@ -241,7 +248,6 @@ function HomeContent() {
                     : missionConfig.positionDesktop
                 }
               >
-                {/* Tailles adaptatives : image + texte sur le parchemin */}
                 <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-52 lg:h-52">
                   <Image
                     src={
@@ -274,20 +280,42 @@ function HomeContent() {
           })}
         </div>
       </div>
-
-      {/* Menu + Radeau en bas à gauche : menu à gauche, radeau à droite (inactif pour l’instant) */}
+      {/* Menu et radeau */}
       <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-4 md:left-4 z-10 flex items-center gap-2">
-        <IconButton
-          icon="/ui/icon_menu.webp"
-          alt="Journal de bord"
-          onClick={() => router.push("/journal-de-bord")}
-          label="Menu"
-        />
+        <div className="relative">
+          <IconButton
+            icon="/ui/icon_menu.webp"
+            alt="Journal de bord"
+            onClick={() => {
+              const latestCompletedMission = completedMissions.length > 0 
+                ? completedMissions[completedMissions.length - 1] 
+                : null;
+              if (latestCompletedMission) {
+                setLastViewedCompletedMission(latestCompletedMission as MissionId);
+              }
+              router.push("/journal-de-bord");
+            }}
+            label="Menu"
+          />
+          {showJournalNew && (
+            <div className="absolute top-0 right-0 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+              <Image
+                src="/ui/icon_new.webp"
+                alt="Nouveau"
+                fill
+                className="object-contain"
+              />
+            </div>
+          )}
+        </div>
         <div className="relative">
           <IconButton
             icon="/ui/icon_radeau.webp"
             alt="Radeau"
-            onClick={() => router.push("/radeau")}
+            onClick={() => {
+              markRaftAsViewed();
+              router.push("/radeau");
+            }}
             label="Radeau"
           />
           {showRaftNew && (
@@ -303,7 +331,6 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* Modal de démarrage de mission */}
       {selectedMissionId && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -324,7 +351,8 @@ function HomeContent() {
               <button
                 type="button"
                 onClick={handleExploreMission}
-                className="px-8 py-4 sm:px-12 sm:py-6 md:px-14 md:py-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors text-xl sm:text-2xl md:text-3xl lg:text-4xl"
+                disabled={selectedMissionId === "mission-2"}
+                className="px-8 py-4 sm:px-12 sm:py-6 md:px-14 md:py-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors text-xl sm:text-2xl md:text-3xl lg:text-4xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
               >
                 Jouer !
               </button>

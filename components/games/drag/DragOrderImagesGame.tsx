@@ -24,7 +24,9 @@ export function DragOrderImagesGame({
   const [lockedSlots, setLockedSlots] = useState<boolean[]>(
     Array(game.slotsCount).fill(false),
   );
-  const [infoModalImageUrl, setInfoModalImageUrl] = useState<string | null>(null);
+  const [infoModalImageUrl, setInfoModalImageUrl] = useState<string | null>(
+    null,
+  );
   const [showVictory, setShowVictory] = useState(false);
 
   const handleSubmit = () => {
@@ -72,7 +74,6 @@ export function DragOrderImagesGame({
 
   return (
     <>
-      {/* Panneau beige en haut avec titre et instruction */}
       <div className="absolute top-5 left-2 right-2 sm:top-7 sm:left-4 sm:right-4 md:top-9 md:left-6 md:right-6 z-10 pointer-events-none">
         <div
           className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-5 lg:p-6 shadow-xl border-2 border-amber-800/30 pointer-events-auto"
@@ -89,8 +90,6 @@ export function DragOrderImagesGame({
           </p>
         </div>
       </div>
-
-      {/* Zone des images sources - positionnée en haut du milieu de l'écran */}
       <div className="absolute top-[32%] sm:top-[30%] md:top-[32%] lg:top-[34%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pointer-events-auto">
           {game.sourceImages.map((image) => {
@@ -125,7 +124,6 @@ export function DragOrderImagesGame({
                     draggable={false}
                   />
                 </div>
-                {/* Bouton info : ouvre l'image indice en modal si infoImage est défini */}
                 {image.infoImage && (
                   <button
                     onClick={(e) => {
@@ -145,11 +143,8 @@ export function DragOrderImagesGame({
           })}
         </div>
       </div>
-
-      {/* Zone de dépôt : slots + bouton Envoyer - positionnée en bas du milieu */}
       <div className="absolute bottom-[8%] sm:bottom-[10%] md:bottom-[12%] lg:bottom-[14%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 pointer-events-auto">
-          {/* Les slots */}
           {slots.map((imageId, index) => {
             const isLocked = lockedSlots[index];
             const image = imageId
@@ -199,7 +194,9 @@ export function DragOrderImagesGame({
                         className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
                         aria-label="Voir l'indice"
                       >
-                        <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
+                        <span className="text-white text-[10px] sm:text-xs font-bold">
+                          i
+                        </span>
                       </button>
                     )}
                   </>
@@ -222,8 +219,6 @@ export function DragOrderImagesGame({
               </div>
             );
           })}
-
-          {/* Bouton Envoyer (icône bouteille) à droite des slots */}
           <div className="relative flex flex-col items-center">
             <button
               onClick={handleSubmit}
@@ -242,8 +237,6 @@ export function DragOrderImagesGame({
           </div>
         </div>
       </div>
-
-      {/* Modal indice : image seule, clic pour fermer */}
       {infoModalImageUrl && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 pointer-events-auto"
@@ -252,9 +245,7 @@ export function DragOrderImagesGame({
           aria-modal="true"
           aria-label="Indice"
         >
-          <div
-            className="relative w-full max-w-2xl max-h-[90vh] flex items-center justify-center cursor-pointer"
-          >
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex items-center justify-center cursor-pointer">
             <Image
               src={infoModalImageUrl}
               alt="Indice"
@@ -266,8 +257,6 @@ export function DragOrderImagesGame({
           </div>
         </div>
       )}
-
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}

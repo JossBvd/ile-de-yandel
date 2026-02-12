@@ -71,7 +71,7 @@ export function BasketFillGame({
                 }`}
               >
                 <div className="text-xs sm:text-sm text-gray-800">
-                  {item.name}
+                  {item.label}
                 </div>
               </button>
             ))}
@@ -82,7 +82,6 @@ export function BasketFillGame({
         </div>
       </div>
 
-      {/* Modal de victoire */}
       <VictoryModal
         isOpen={showVictory}
         onContinue={handleContinue}
