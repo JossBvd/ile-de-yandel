@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useOrientation } from '@/hooks/useOrientation';
 
@@ -13,18 +12,16 @@ import { useOrientation } from '@/hooks/useOrientation';
  */
 export function LandscapeEnforcer() {
   const { isLandscape } = useOrientation();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || isLandscape) {
+  if (isLandscape) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-10000 bg-gray-900 flex flex-col items-center justify-center p-6">
+    <div 
+      className="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center p-6"
+      style={{ zIndex: 99999 }}
+    >
       <div className="flex flex-col items-center justify-center max-w-md text-center space-y-8">
         <div className="relative w-32 h-32 animate-bounce">
           <Image

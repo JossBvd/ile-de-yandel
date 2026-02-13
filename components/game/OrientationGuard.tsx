@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useOrientation } from '@/hooks/useOrientation';
+import { LandscapeEnforcer } from './LandscapeEnforcer';
 
 interface OrientationContextType {
   isRotated: boolean;
@@ -21,8 +21,13 @@ interface OrientationGuardProps {
   children: React.ReactNode;
 }
 
+/**
+ * Composant qui fournit le contexte d'orientation et affiche un message
+ * si l'utilisateur est en mode portrait (pour l'inciter à tourner son appareil)
+ * 
+ * Cette approche évite les problèmes de rotation CSS avec le drag & drop
+ */
 export function OrientationGuard({ children }: OrientationGuardProps) {
-  const { isLandscape } = useOrientation();
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -47,64 +52,6 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
     };
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-    
-    const needsRotation = !isLandscape;
-    if (needsRotation) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [isLandscape, mounted]);
-
-  const needsRotation = mounted && !isLandscape;
-
-  const rotatedWidth = needsRotation ? dimensions.height : dimensions.width;
-  const rotatedHeight = needsRotation ? dimensions.width : dimensions.height;
-
-  if (needsRotation && dimensions.width > 0 && dimensions.height > 0) {
-    return (
-      <OrientationContext.Provider
-        value={{
-          isRotated: true,
-          width: rotatedWidth,
-          height: rotatedHeight,
-        }}
-      >
-        <div
-          className="fixed overflow-hidden"
-          style={{
-            width: `${rotatedWidth}px`,
-            height: `${rotatedHeight}px`,
-            transform: 'rotate(90deg)',
-            transformOrigin: 'center center',
-            left: '50%',
-            top: '50%',
-            marginLeft: `-${rotatedWidth / 2}px`,
-            marginTop: `-${rotatedHeight / 2}px`,
-            zIndex: 9999,
-          }}
-        >
-          {children}
-        </div>
-      </OrientationContext.Provider>
-    );
-  }
-
   const defaultWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
   const defaultHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
 
@@ -112,10 +59,11 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
     <OrientationContext.Provider
       value={{
         isRotated: false,
-        width: dimensions.width || defaultWidth,
-        height: dimensions.height || defaultHeight,
+        width: dimensions.width > 0 ? dimensions.width : defaultWidth,
+        height: dimensions.height > 0 ? dimensions.height : defaultHeight,
       }}
     >
+      <LandscapeEnforcer />
       {children}
     </OrientationContext.Provider>
   );
