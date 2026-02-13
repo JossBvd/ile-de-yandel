@@ -8,6 +8,7 @@ import {
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePWAMode } from "@/hooks/usePWAMode";
 import { getMissionById, getStepsByMissionId } from "@/data/missions";
 import { getStepPath } from "@/lib/navigation";
 import { IconButton } from "@/components/ui/IconButton";
@@ -40,6 +41,7 @@ function HomeContent() {
   const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
+  const { isPWAFullscreen } = usePWAMode();
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -176,7 +178,7 @@ function HomeContent() {
       className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100dvh",
+        height: isRotated ? `${height}px` : isPWAFullscreen ? `${height}px` : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
