@@ -13,6 +13,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { useDndSensors } from "@/hooks/useDndSensors";
+import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 
 interface DraggableImageProps {
   image: ImageOption;
@@ -165,6 +166,7 @@ export function DragOrderImagesGame({
   const [showVictory, setShowVictory] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const sensors = useDndSensors();
+  const collisionDetection = useDndCollisionDetection();
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -245,6 +247,7 @@ export function DragOrderImagesGame({
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >

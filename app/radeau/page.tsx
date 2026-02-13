@@ -21,6 +21,7 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 import { useDndSensors } from "@/hooks/useDndSensors";
+import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 
 const INVENTORY_SLOTS_COUNT = 15;
 
@@ -194,6 +195,7 @@ function RadeauContent() {
     fusedRaftPiecesCount < MAX_FUSED_RAFT_PIECES;
 
   const sensors = useDndSensors();
+  const collisionDetection = useDndCollisionDetection();
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -252,7 +254,12 @@ function RadeauContent() {
   const activePiece = activeId ? getRaftPieceById(activeId as RaftPieceId) : null;
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={collisionDetection}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       <div
         className="relative flex w-full h-full overflow-hidden flex-nowrap"
         style={{
