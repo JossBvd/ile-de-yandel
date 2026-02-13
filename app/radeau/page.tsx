@@ -148,10 +148,9 @@ function DroppableSlot({ index, pieceId, onRemove }: Omit<DroppableSlotProps, "o
 interface RadeauContentProps {
   mergeSlots: (RaftPieceId | null)[];
   setMergeSlots: React.Dispatch<React.SetStateAction<(RaftPieceId | null)[]>>;
-  activeId: string | null;
 }
 
-function RadeauContent({ mergeSlots, setMergeSlots, activeId }: RadeauContentProps) {
+function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
   const {
@@ -498,34 +497,33 @@ function RadeauWrapper() {
         <RadeauContent 
           mergeSlots={mergeSlots}
           setMergeSlots={setMergeSlots}
-          activeId={activeId}
         />
+        <DragOverlay>
+          {activePiece ? (
+            <div className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
+              style={{
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
+              }}
+            >
+              {activePiece.image ? (
+                <div className="relative w-full h-full">
+                  <Image
+                    src={activePiece.image}
+                    alt={activePiece.name || "Pièce du radeau"}
+                    fill
+                    className="object-contain"
+                    draggable={false}
+                  />
+                </div>
+              ) : (
+                <span className="font-semibold text-gray-700 text-xs text-center">
+                  {activePiece.name?.replace(new RegExp("^Pièce \\d+ - "), "") ?? "?"}
+                </span>
+              )}
+            </div>
+          ) : null}
+        </DragOverlay>
       </RotatedContainer>
-      <DragOverlay>
-        {activePiece ? (
-          <div className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
-            style={{
-              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-            }}
-          >
-            {activePiece.image ? (
-              <div className="relative w-full h-full">
-                <Image
-                  src={activePiece.image}
-                  alt={activePiece.name || "Pièce du radeau"}
-                  fill
-                  className="object-contain"
-                  draggable={false}
-                />
-              </div>
-            ) : (
-              <span className="font-semibold text-gray-700 text-xs text-center">
-                {activePiece.name?.replace(new RegExp("^Pièce \\d+ - "), "") ?? "?"}
-              </span>
-            )}
-          </div>
-        ) : null}
-      </DragOverlay>
     </DndContext>
   );
 }
