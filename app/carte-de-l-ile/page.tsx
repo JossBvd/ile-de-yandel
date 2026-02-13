@@ -8,7 +8,6 @@ import {
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { usePWAMode } from "@/hooks/usePWAMode";
 import { getMissionById, getStepsByMissionId } from "@/data/missions";
 import { getStepPath } from "@/lib/navigation";
 import { IconButton } from "@/components/ui/IconButton";
@@ -41,13 +40,11 @@ function HomeContent() {
   const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
-  const { isPWAFullscreen } = usePWAMode();
   
   // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
   // height < 600 = mobile très petit, height < 800 = mobile/tablette, height >= 800 = desktop
   const isSmallScreen = height < 600;
   const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -195,15 +192,15 @@ function HomeContent() {
       <div 
         className="absolute z-10"
         style={{
-          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '32px',
-          left: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
+          left: 0,
         }}
       >
         <div 
           className="relative"
           style={{
-            width: isSmallScreen ? '180px' : isMediumScreen ? '240px' : '320px',
-            height: isSmallScreen ? '60px' : isMediumScreen ? '80px' : '112px',
+            width: isSmallScreen ? '220px' : isMediumScreen ? '300px' : '400px',
+            height: isSmallScreen ? '75px' : isMediumScreen ? '100px' : '140px',
           }}
         >
           <Image
@@ -216,7 +213,7 @@ function HomeContent() {
             <h1 
               className="font-bold text-gray-800 drop-shadow-sm"
               style={{
-                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.5rem',
+                fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : '1.875rem',
               }}
             >
               Carte de l&apos;île
@@ -292,8 +289,8 @@ function HomeContent() {
                 <div 
                   className="relative"
                   style={{
-                    width: isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px',
-                    height: isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px',
+                    width: isSmallScreen ? '150px' : isMediumScreen ? '200px' : '280px',
+                    height: isSmallScreen ? '150px' : isMediumScreen ? '200px' : '280px',
                   }}
                 >
                   <Image
@@ -310,10 +307,10 @@ function HomeContent() {
                     <div 
                       className="absolute z-10 pointer-events-none"
                       style={{
-                        top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-                        right: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-                        width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
-                        height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                        top: isSmallScreen ? '10px' : isMediumScreen ? '14px' : '20px',
+                        right: isSmallScreen ? '10px' : isMediumScreen ? '14px' : '20px',
+                        width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '48px',
+                        height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '48px',
                       }}
                     >
                       <Image
@@ -328,7 +325,7 @@ function HomeContent() {
                     <span 
                       className="font-semibold text-gray-800 drop-shadow-sm"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.25rem',
                       }}
                     >
                       Mission {missionNumber}
