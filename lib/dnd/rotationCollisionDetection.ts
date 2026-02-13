@@ -63,23 +63,27 @@ export function createRotationCollisionDetection(
     const viewportCenterX = viewportWidth / 2;
     const viewportCenterY = viewportHeight / 2;
     
-    // Coordonnées relatives au coin supérieur gauche du conteneur pivoté
-    // (en supposant que le conteneur est centré sur le viewport)
-    const containerLeft = viewportCenterX - rotatedWidth / 2;
-    const containerTop = viewportCenterY - rotatedHeight / 2;
-    
-    // Coordonnées relatives au coin supérieur gauche du conteneur dans le système viewport
-    const relX_viewport = x_viewport - containerLeft;
-    const relY_viewport = y_viewport - containerTop;
+    // Coordonnées relatives au centre du viewport
+    const relX_viewport = x_viewport - viewportCenterX;
+    const relY_viewport = y_viewport - viewportCenterY;
     
     // Transformation vers le système du conteneur pivoté
-    // Après rotation de 90° horaire :
-    // - X visuel = Y viewport
-    // - Y visuel = rotatedWidth - X viewport
-    const transformedX = relY_viewport;
-    const transformedY = rotatedWidth - relX_viewport;
+    // 
+    // Rotation de 90° horaire : un point (x, y) se transforme en (y, -x)
+    // Donc l'inverse (rotation anti-horaire de 90°) : (x, y) se transforme en (-y, x)
+    // 
+    // Pour transformer du viewport vers le conteneur :
+    // - Un mouvement vers la droite dans le viewport (relX augmente) 
+    //   doit devenir un mouvement vers le bas dans le conteneur (Y augmente)
+    // - Un mouvement vers le bas dans le viewport (relY augmente)
+    //   doit devenir un mouvement vers la gauche dans le conteneur (X diminue)
+    //
+    // Donc : transformedX = -relY_viewport, transformedY = relX_viewport
+    // Mais on doit aussi décaler pour recentrer dans le système du conteneur pivoté
+    const transformedX = rotatedWidth / 2 - relY_viewport;
+    const transformedY = rotatedHeight / 2 + relX_viewport;
     
-    // Coordonnées absolues dans le système du conteneur pivoté
+    // Coordonnées transformées dans le système du conteneur pivoté
     const transformedPointerCoordinates = {
       x: transformedX,
       y: transformedY,
