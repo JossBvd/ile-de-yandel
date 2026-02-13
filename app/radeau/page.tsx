@@ -34,7 +34,13 @@ interface DraggableItemProps {
   canDrag: boolean;
 }
 
-function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: DraggableItemProps) {
+function DraggableItem({
+  id,
+  piece,
+  isInMergeSlot,
+  isFused,
+  canDrag,
+}: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
     disabled: !canDrag || isInMergeSlot,
@@ -57,7 +63,9 @@ function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: Draggable
       {...listeners}
       {...attributes}
       className={`w-full aspect-square min-w-0 min-h-0 rounded border-2 flex items-center justify-center overflow-hidden touch-none border-white bg-[#93c5fd]/80 ${
-        !canDrag ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
+        !canDrag
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-grab active:cursor-grabbing"
       } ${isDragging ? "opacity-50" : ""}`}
       style={{
         boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
@@ -98,7 +106,11 @@ interface DroppableSlotProps {
   onRemove: () => void;
 }
 
-function DroppableSlot({ index, pieceId, onRemove }: Omit<DroppableSlotProps, "onDrop">) {
+function DroppableSlot({
+  index,
+  pieceId,
+  onRemove,
+}: Omit<DroppableSlotProps, "onDrop">) {
   const piece = pieceId ? getRaftPieceById(pieceId) : null;
   const hasPiece = Boolean(pieceId);
   const { setNodeRef, isOver } = useDroppable({
@@ -148,9 +160,14 @@ function DroppableSlot({ index, pieceId, onRemove }: Omit<DroppableSlotProps, "o
 interface RadeauContentProps {
   mergeSlots: (RaftPieceId | null)[];
   setMergeSlots: React.Dispatch<React.SetStateAction<(RaftPieceId | null)[]>>;
+  activeId: string | null;
 }
 
-function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
+function RadeauContent({
+  mergeSlots,
+  setMergeSlots,
+  activeId,
+}: RadeauContentProps) {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
   const {
@@ -168,7 +185,7 @@ function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
   const inMergeSlots = new Set(
     mergeSlots.filter((id): id is RaftPieceId => id !== null),
   );
-  
+
   const mission1Order = ["piece-1-1", "piece-1-2", "piece-1-3"];
   const sortedMissionPieces = [...collectedPieces].sort((a, b) => {
     const aIndex = mission1Order.indexOf(a);
@@ -180,11 +197,15 @@ function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
     if (bIndex !== -1) return 1;
     return 0;
   });
-  const inventoryItems: { id: string; type: "mission" | "fused"; isInMergeSlot?: boolean }[] = [
-    ...sortedMissionPieces.map((id) => ({ 
-      id, 
+  const inventoryItems: {
+    id: string;
+    type: "mission" | "fused";
+    isInMergeSlot?: boolean;
+  }[] = [
+    ...sortedMissionPieces.map((id) => ({
+      id,
       type: "mission" as const,
-      isInMergeSlot: inMergeSlots.has(id)
+      isInMergeSlot: inMergeSlots.has(id),
     })),
     ...fusedPieces.map((id) => ({ id, type: "fused" as const })),
   ].slice(0, INVENTORY_SLOTS_COUNT);
@@ -212,14 +233,14 @@ function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
   };
 
   return (
-      <div
-        className="relative flex w-full h-full overflow-hidden flex-nowrap"
-        style={{
-          width: isRotated ? `${width}px` : "100vw",
-          height: isRotated ? `${height}px` : "100dvh",
-          minHeight: isRotated ? undefined : "100dvh",
-        }}
-      >
+    <div
+      className="relative flex w-full h-full overflow-hidden flex-nowrap"
+      style={{
+        width: isRotated ? `${width}px` : "100vw",
+        height: isRotated ? `${height}px` : "100dvh",
+        minHeight: isRotated ? undefined : "100dvh",
+      }}
+    >
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -253,7 +274,8 @@ function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
           className="absolute z-10 flex flex-col items-center"
           style={{
             left: "calc(50% + clamp(3rem, 8vw, 6rem))",
-            transform: "translateX(-50%) translateY(clamp(0.375rem, 1.5vh, 1.5rem))",
+            transform:
+              "translateX(-50%) translateY(clamp(0.375rem, 1.5vh, 1.5rem))",
             bottom: "clamp(3rem, 10vh, 5rem)",
             gap: "clamp(0.25rem, 1vh, 0.5rem)",
           }}
@@ -436,7 +458,7 @@ function RadeauContent({ mergeSlots, setMergeSlots }: RadeauContentProps) {
           </button>
         </div>
       </div>
-      </div>
+    </div>
   );
 }
 
@@ -444,7 +466,11 @@ function RadeauWrapper() {
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([null, null, null]);
+  const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([
+    null,
+    null,
+    null,
+  ]);
 
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);
@@ -484,7 +510,9 @@ function RadeauWrapper() {
     }
   };
 
-  const activePiece = activeId ? getRaftPieceById(activeId as RaftPieceId) : null;
+  const activePiece = activeId
+    ? getRaftPieceById(activeId as RaftPieceId)
+    : null;
 
   return (
     <DndContext
@@ -494,36 +522,39 @@ function RadeauWrapper() {
       onDragEnd={handleDragEnd}
     >
       <RotatedContainer>
-        <RadeauContent 
+        <RadeauContent
           mergeSlots={mergeSlots}
           setMergeSlots={setMergeSlots}
+          activeId={activeId}
         />
-        <DragOverlay>
-          {activePiece ? (
-            <div className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
-              style={{
-                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-              }}
-            >
-              {activePiece.image ? (
-                <div className="relative w-full h-full">
-                  <Image
-                    src={activePiece.image}
-                    alt={activePiece.name || "Pièce du radeau"}
-                    fill
-                    className="object-contain"
-                    draggable={false}
-                  />
-                </div>
-              ) : (
-                <span className="font-semibold text-gray-700 text-xs text-center">
-                  {activePiece.name?.replace(new RegExp("^Pièce \\d+ - "), "") ?? "?"}
-                </span>
-              )}
-            </div>
-          ) : null}
-        </DragOverlay>
       </RotatedContainer>
+      <DragOverlay>
+        {activePiece ? (
+          <div
+            className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
+            style={{
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
+            }}
+          >
+            {activePiece.image ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={activePiece.image}
+                  alt={activePiece.name || "Pièce du radeau"}
+                  fill
+                  className="object-contain"
+                  draggable={false}
+                />
+              </div>
+            ) : (
+              <span className="font-semibold text-gray-700 text-xs text-center">
+                {activePiece.name?.replace(new RegExp("^Pièce \\d+ - "), "") ??
+                  "?"}
+              </span>
+            )}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 }
