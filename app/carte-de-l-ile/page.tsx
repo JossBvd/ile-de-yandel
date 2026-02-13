@@ -173,11 +173,10 @@ function HomeContent() {
 
   return (
     <div
-      className="relative overflow-y-auto overflow-x-hidden"
+      className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
-        minHeight: isRotated ? undefined : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -185,8 +184,8 @@ function HomeContent() {
       }}
     >
       {/* Titre */}
-      <div className="absolute top-2 left-2 sm:top-2 md:top-8 z-10">
-        <div className="relative w-40 h-14 sm:w-72 sm:h-24 md:w-80 md:h-28">
+      <div className="absolute top-4 left sm:top-2 md:top-8 z-10">
+        <div className="relative w-60 h-20 sm:w-72 sm:h-24 md:w-80 md:h-28">
           <Image
             src="/ui/encart_map.webp"
             alt=""
@@ -194,7 +193,7 @@ function HomeContent() {
             className="object-contain object-top-left"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-xs sm:text-lg md:text-2xl font-bold text-gray-800 drop-shadow-sm">
+            <h1 className="text-base sm:text-lg md:text-2xl font-bold text-gray-800 drop-shadow-sm">
               Carte de l&apos;île
             </h1>
           </div>
@@ -216,7 +215,7 @@ function HomeContent() {
               window.location.reload();
             }
           }}
-          className="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors text-xs sm:text-base"
+          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors text-sm sm:text-base"
           title="Réinitialiser la progression"
         >
           🔄 Reset
@@ -224,7 +223,7 @@ function HomeContent() {
       </div>
 
       {/* Conteneur missions */}
-      <div className={`absolute ${isMobile ? 'top-[100px]' : 'top-1/2'} left-[60%] transform -translate-x-1/2 ${isMobile ? '' : '-translate-y-1/2'} w-[90%] ${isMobile ? 'min-h-[calc(100vh-180px)] pb-24' : 'h-[85%]'} sm:w-[80%] sm:h-[88%] md:w-[70%] md:h-[88%] md:top-1/2 md:-translate-y-1/2`}>
+      <div className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[85%] sm:w-[80%] sm:h-[88%] md:w-[70%] md:h-[88%]">
         <div className="relative h-full w-full">
           {missions.map((missionConfig) => {
             const mission = getMissionById(missionConfig.id);
