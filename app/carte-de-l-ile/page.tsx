@@ -42,6 +42,12 @@ function HomeContent() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  // height < 600 = mobile très petit, height < 800 = mobile/tablette, height >= 800 = desktop
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -178,7 +184,7 @@ function HomeContent() {
       className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : isPWAFullscreen ? `${height}px` : "100dvh",
+        height: isRotated ? `${height}px` : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -186,8 +192,20 @@ function HomeContent() {
       }}
     >
       {/* Titre */}
-      <div className="absolute top-4 left sm:top-2 md:top-8 z-10">
-        <div className="relative w-60 h-20 sm:w-72 sm:h-24 md:w-80 md:h-28">
+      <div 
+        className="absolute z-10"
+        style={{
+          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '32px',
+          left: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+        }}
+      >
+        <div 
+          className="relative"
+          style={{
+            width: isSmallScreen ? '180px' : isMediumScreen ? '240px' : '320px',
+            height: isSmallScreen ? '60px' : isMediumScreen ? '80px' : '112px',
+          }}
+        >
           <Image
             src="/ui/encart_map.webp"
             alt=""
@@ -195,7 +213,12 @@ function HomeContent() {
             className="object-contain object-top-left"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-base sm:text-sm md:text-lg lg:text-2xl font-bold text-gray-800 drop-shadow-sm">
+            <h1 
+              className="font-bold text-gray-800 drop-shadow-sm"
+              style={{
+                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.5rem',
+              }}
+            >
               Carte de l&apos;île
             </h1>
           </div>
@@ -203,7 +226,13 @@ function HomeContent() {
       </div>
 
       {/* Bouton reset */}
-      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-16 md:right-4 z-10">
+      <div 
+        className="absolute z-10"
+        style={{
+          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '64px',
+          right: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+        }}
+      >
         <button
           onClick={() => {
             if (
@@ -217,7 +246,11 @@ function HomeContent() {
               window.location.reload();
             }
           }}
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors text-sm sm:text-base"
+          className="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors"
+          style={{
+            padding: isSmallScreen ? '6px 12px' : isMediumScreen ? '8px 16px' : '8px 16px',
+            fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+          }}
           title="Réinitialiser la progression"
         >
           🔄 Reset
@@ -225,7 +258,13 @@ function HomeContent() {
       </div>
 
       {/* Conteneur missions */}
-      <div className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[85%] sm:w-[80%] sm:h-[88%] md:w-[70%] md:h-[88%]">
+      <div 
+        className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2"
+        style={{
+          width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '70%',
+          height: isSmallScreen ? '85%' : isMediumScreen ? '87%' : '88%',
+        }}
+      >
         <div className="relative h-full w-full">
           {missions.map((missionConfig) => {
             const mission = getMissionById(missionConfig.id);
@@ -250,7 +289,13 @@ function HomeContent() {
                     : missionConfig.positionDesktop
                 }
               >
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-52 lg:h-52">
+                <div 
+                  className="relative"
+                  style={{
+                    width: isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px',
+                    height: isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px',
+                  }}
+                >
                   <Image
                     src={
                       missionConfig.available
@@ -262,7 +307,15 @@ function HomeContent() {
                     className="object-contain"
                   />
                   {isMissionNew(missionConfig.id, missionConfig.available) && (
-                    <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 md:top-4 md:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none">
+                    <div 
+                      className="absolute z-10 pointer-events-none"
+                      style={{
+                        top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+                        right: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+                        width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                        height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                      }}
+                    >
                       <Image
                         src="/ui/icon_new.webp"
                         alt="Nouveau"
@@ -272,7 +325,12 @@ function HomeContent() {
                     </div>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center pt-[50%] pointer-events-none">
-                    <span className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold text-gray-800 drop-shadow-sm">
+                    <span 
+                      className="font-semibold text-gray-800 drop-shadow-sm"
+                      style={{
+                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+                      }}
+                    >
                       Mission {missionNumber}
                     </span>
                   </div>
@@ -283,7 +341,14 @@ function HomeContent() {
         </div>
       </div>
       {/* Menu et radeau */}
-      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-4 md:left-4 z-10 flex items-center gap-2">
+      <div 
+        className="absolute z-10 flex items-center"
+        style={{
+          bottom: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+          left: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+          gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+        }}
+      >
         <div className="relative">
           <IconButton
             icon="/ui/icon_menu.webp"
@@ -300,7 +365,13 @@ function HomeContent() {
             label="Menu"
           />
           {showJournalNew && (
-            <div className="absolute top-0 right-0 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+            <div 
+              className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
+              style={{
+                width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+              }}
+            >
               <Image
                 src="/ui/icon_new.webp"
                 alt="Nouveau"
@@ -321,7 +392,13 @@ function HomeContent() {
             label="Radeau"
           />
           {showRaftNew && (
-            <div className="absolute top-0 right-0 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+            <div 
+              className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
+              style={{
+                width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+              }}
+            >
               <Image
                 src="/ui/icon_new.webp"
                 alt="Nouveau"
@@ -346,7 +423,12 @@ function HomeContent() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
-              <h2 className="m-0 text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 text-center drop-shadow-sm">
+              <h2 
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm"
+                style={{
+                  fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem',
+                }}
+              >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
                   getMissionById(selectedMissionId)?.title}
               </h2>
@@ -354,7 +436,12 @@ function HomeContent() {
                 type="button"
                 onClick={handleExploreMission}
                 disabled={selectedMissionId === "mission-2"}
-                className="px-8 py-4 sm:px-12 sm:py-6 md:px-14 md:py-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors text-xl sm:text-2xl md:text-3xl lg:text-4xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
+                style={{
+                  padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px',
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem',
+                }}
+              
               >
                 Jouer !
               </button>

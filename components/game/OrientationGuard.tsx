@@ -36,34 +36,7 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
     const updateDimensions = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      
-      // Détecter si on est en mode PWA fullscreen
-      const isPWAFullscreen = typeof window !== 'undefined' && (
-        window.matchMedia('(display-mode: standalone)').matches ||
-        window.matchMedia('(display-mode: fullscreen)').matches ||
-        (window.navigator as any).standalone === true
-      );
-      
-      // En mode PWA fullscreen, simuler la hauteur réduite avec la barre de navigation Android
-      // La barre de navigation Android prend généralement entre 48px et 72px selon les appareils
-      // On utilise une réduction dynamique basée sur la hauteur de l'écran
-      let effectiveHeight = height;
-      if (isPWAFullscreen && height < 1000) {
-        // Seulement sur mobile/tablette en mode paysage
-        // Calculer la réduction pour simuler la barre de navigation Android
-        // Sur petits écrans (< 600px), la barre prend ~7% de la hauteur
-        // Sur écrans moyens (600-800px), la barre prend ~6% de la hauteur
-        // Sur grands écrans (> 800px), la barre prend ~5% de la hauteur
-        let reductionPercent = 0.05;
-        if (height < 600) {
-          reductionPercent = 0.07;
-        } else if (height < 800) {
-          reductionPercent = 0.06;
-        }
-        effectiveHeight = Math.floor(height * (1 - reductionPercent));
-      }
-      
-      setDimensions({ width, height: effectiveHeight });
+      setDimensions({ width, height });
     };
     updateDimensions();
     const timeoutId = setTimeout(updateDimensions, 100);
