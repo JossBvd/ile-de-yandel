@@ -2,9 +2,137 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Step, DragOrderImagesGameData } from "@/types/step";
+import { Step, DragOrderImagesGameData, ImageOption } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
+import { useDragAndDrop, useDropZone } from "@/hooks/useDragAndDrop";
+
+interface DraggableImageProps {
+  image: ImageOption;
+  isInSlot: boolean;
+  onInfoClick: (url: string) => void;
+}
+
+function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
+  const dragHandlers = useDragAndDrop(image.id, !isInSlot, "imageId");
+
+  if (isInSlot) {
+    return (
+      <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg border-2 border-dashed border-white/40 bg-black/20" />
+    );
+  }
+
+  return (
+    <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group">
+      <div
+        {...dragHandlers}
+        className="absolute inset-0 cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
+      >
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          className="object-cover"
+          draggable={false}
+        />
+      </div>
+      {image.infoImage && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onInfoClick(image.infoImage!);
+          }}
+          className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
+          aria-label="Voir l'indice"
+        >
+          <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+interface DroppableSlotProps {
+  index: number;
+  imageId: string | null;
+  image: ImageOption | null | undefined;
+  isLocked: boolean;
+  onDrop: (id: string, index: number) => void;
+  onInfoClick: (url: string) => void;
+}
+
+function DroppableSlot({
+  index,
+  imageId,
+  image,
+  isLocked,
+  onDrop,
+  onInfoClick,
+}: DroppableSlotProps) {
+  const dropHandlers = useDropZone(
+    (id) => {
+      if (!isLocked) {
+        onDrop(id, index);
+      }
+    },
+    !isLocked,
+    "imageId"
+  );
+
+  return (
+    <div
+      {...dropHandlers}
+      className={`relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-md sm:rounded-lg transition-all ${
+        isLocked
+          ? "border-2 sm:border-4 border-green-500 bg-green-100/50 shadow-xl shadow-green-500/30"
+          : imageId
+            ? "border-2 sm:border-4 border-blue-500 bg-blue-100/50 shadow-lg"
+            : "border-2 sm:border-4 border-dashed border-white/60 bg-black/30 shadow-inner"
+      }`}
+    >
+      {image && (
+        <>
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            className="object-cover rounded-md"
+          />
+          {image.infoImage && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onInfoClick(image.infoImage!);
+              }}
+              className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
+              aria-label="Voir l'indice"
+            >
+              <span className="text-white text-[10px] sm:text-xs font-bold">
+                i
+              </span>
+            </button>
+          )}
+        </>
+      )}
+      {isLocked && (
+        <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-md sm:rounded-lg pointer-events-none">
+          <svg
+            className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-md"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface DragOrderImagesGameProps {
   step: Step;
@@ -92,55 +220,14 @@ export function DragOrderImagesGame({
       </div>
       <div className="absolute top-[32%] sm:top-[30%] md:top-[32%] lg:top-[34%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pointer-events-auto">
-          {game.sourceImages.map((image) => {
-            const inSlot = isImageInSlot(image.id);
-            if (inSlot) {
-              return (
-                <div
-                  key={image.id}
-                  className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg border-2 border-dashed border-white/40 bg-black/20"
-                />
-              );
-            }
-
-            return (
-              <div
-                key={image.id}
-                className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group"
-              >
-                <div
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.effectAllowed = "move";
-                    e.dataTransfer.setData("imageId", image.id);
-                  }}
-                  className="absolute inset-0 cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    className="object-cover"
-                    draggable={false}
-                  />
-                </div>
-                {image.infoImage && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setInfoModalImageUrl(image.infoImage!);
-                    }}
-                    className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
-                    aria-label="Voir l'indice"
-                  >
-                    <span className="text-white text-[10px] sm:text-xs font-bold">
-                      i
-                    </span>
-                  </button>
-                )}
-              </div>
-            );
-          })}
+          {game.sourceImages.map((image) => (
+            <DraggableImage
+              key={image.id}
+              image={image}
+              isInSlot={isImageInSlot(image.id)}
+              onInfoClick={setInfoModalImageUrl}
+            />
+          ))}
         </div>
       </div>
       <div className="absolute bottom-[8%] sm:bottom-[10%] md:bottom-[12%] lg:bottom-[14%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
@@ -152,71 +239,19 @@ export function DragOrderImagesGame({
               : null;
 
             return (
-              <div
+              <DroppableSlot
                 key={`slot-${index}`}
-                onDragOver={(e) => {
-                  if (!isLocked) {
-                    e.preventDefault();
-                  }
+                index={index}
+                imageId={imageId}
+                image={image}
+                isLocked={isLocked}
+                onDrop={(id, idx) => {
+                  const newSlots = [...slots];
+                  newSlots[idx] = id;
+                  setSlots(newSlots);
                 }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (!isLocked) {
-                    const draggedImageId = e.dataTransfer.getData("imageId");
-                    const newSlots = [...slots];
-                    newSlots[index] = draggedImageId;
-                    setSlots(newSlots);
-                  }
-                }}
-                className={`relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-md sm:rounded-lg transition-all ${
-                  isLocked
-                    ? "border-2 sm:border-4 border-green-500 bg-green-100/50 shadow-xl shadow-green-500/30"
-                    : imageId
-                      ? "border-2 sm:border-4 border-blue-500 bg-blue-100/50 shadow-lg"
-                      : "border-2 sm:border-4 border-dashed border-white/60 bg-black/30 shadow-inner"
-                }`}
-              >
-                {image && (
-                  <>
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      className="object-cover rounded-md"
-                    />
-                    {image.infoImage && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setInfoModalImageUrl(image.infoImage!);
-                        }}
-                        className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
-                        aria-label="Voir l'indice"
-                      >
-                        <span className="text-white text-[10px] sm:text-xs font-bold">
-                          i
-                        </span>
-                      </button>
-                    )}
-                  </>
-                )}
-                {isLocked && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-md sm:rounded-lg pointer-events-none">
-                    <svg
-                      className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-md"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
+                onInfoClick={setInfoModalImageUrl}
+              />
             );
           })}
           <div className="relative flex flex-col items-center">
