@@ -13,6 +13,7 @@ import { useUIStore } from "@/store/uiStore";
 import { getRaftPieceById, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 import type { RaftPieceId } from "@/types/step";
 import { useEffect } from "react";
+import { useDragAndDrop, useDropZone } from "@/hooks/useDragAndDrop";
 
 const INVENTORY_SLOTS_COUNT = 15;
 
@@ -25,6 +26,8 @@ interface DraggableItemProps {
 }
 
 function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: DraggableItemProps) {
+  const dragHandlers = useDragAndDrop(id, canDrag, "pieceId");
+
   if (isInMergeSlot) {
     return (
       <div
@@ -38,13 +41,7 @@ function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: Draggable
 
   return (
     <div
-      draggable={canDrag}
-      onDragStart={(e) => {
-        if (canDrag) {
-          e.dataTransfer.effectAllowed = "move";
-          e.dataTransfer.setData("pieceId", id);
-        }
-      }}
+      {...dragHandlers}
       className={`w-full aspect-square min-w-0 min-h-0 rounded border-2 flex items-center justify-center overflow-hidden touch-manipulation border-white bg-[#93c5fd]/80 ${
         !canDrag ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
       }`}
@@ -93,6 +90,16 @@ function DroppableSlot({ index, pieceId, onDrop, onRemove }: DroppableSlotProps)
   const hasPiece = Boolean(pieceId);
   const [isOver, setIsOver] = useState(false);
 
+  const dropHandlers = useDropZone(
+    (id) => {
+      if (!hasPiece) {
+        onDrop(id, index);
+      }
+    },
+    !hasPiece,
+    "pieceId"
+  );
+
   return (
     <div
       className="min-w-0 min-h-0 flex"
@@ -101,24 +108,9 @@ function DroppableSlot({ index, pieceId, onDrop, onRemove }: DroppableSlotProps)
       <button
         type="button"
         onClick={onRemove}
-        onDragOver={(e) => {
-          if (!hasPiece) {
-            e.preventDefault();
-            setIsOver(true);
-          }
-        }}
+        {...dropHandlers}
         onDragLeave={() => {
           setIsOver(false);
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          setIsOver(false);
-          if (!hasPiece) {
-            const draggedPieceId = e.dataTransfer.getData("pieceId");
-            if (draggedPieceId) {
-              onDrop(draggedPieceId, index);
-            }
-          }
         }}
         className={`w-full h-full aspect-square min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-manipulation transition-colors ${
           isOver ? "bg-gray-700/80" : ""
