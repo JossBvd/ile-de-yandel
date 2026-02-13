@@ -411,19 +411,34 @@ function HomeContent() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           onClick={() => setSelectedMissionId(null)}
+          style={{
+            padding: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+          }}
         >
           <div
-            className="relative w-[80vw] max-w-md aspect-4/3 bg-cover bg-center bg-no-repeat rounded-3xl shadow-2xl"
+            className="relative bg-cover bg-center bg-no-repeat rounded-3xl shadow-2xl"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
+              width: isSmallScreen ? '90%' : isMediumScreen ? '75%' : '60%',
+              maxWidth: isSmallScreen ? '400px' : isMediumScreen ? '500px' : '600px',
+              aspectRatio: isSmallScreen ? '4/3' : isMediumScreen ? '4/3' : '3/2',
+              borderRadius: isSmallScreen ? '16px' : isMediumScreen ? '20px' : '24px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
+            <div 
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{
+                gap: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '48px',
+                padding: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '40px',
+              }}
+            >
               <h2 
                 className="m-0 font-bold text-gray-800 text-center drop-shadow-sm"
                 style={{
-                  fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem',
+                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.5rem' : '2rem',
+                  lineHeight: '1.2',
+                  padding: isSmallScreen ? '0 8px' : isMediumScreen ? '0 12px' : '0 16px',
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
@@ -435,10 +450,10 @@ function HomeContent() {
                 disabled={selectedMissionId === "mission-2"}
                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
                 style={{
-                  padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px',
-                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem',
+                  padding: isSmallScreen ? '10px 20px' : isMediumScreen ? '14px 28px' : '18px 36px',
+                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1.25rem' : '1.75rem',
+                  minWidth: isSmallScreen ? '120px' : isMediumScreen ? '160px' : '200px',
                 }}
-              
               >
                 Jouer !
               </button>

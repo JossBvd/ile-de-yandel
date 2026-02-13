@@ -299,7 +299,7 @@ function StepPageContent() {
       <div
         className="relative shrink-0 flex flex-col z-20"
         style={{
-          width: "clamp(200px, 20vw, 250px)",
+          width: isSmallScreen ? '140px' : isMediumScreen ? '160px' : '180px',
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -310,49 +310,40 @@ function StepPageContent() {
         }}
       >
         <div className="flex flex-col min-h-0 flex-1">
-          {/* Titre mission / étape */}
+          {/* Titre mission / étape avec icône bouteille */}
           <div 
-            className="shrink-0"
+            className="shrink-0 flex items-start justify-between"
             style={{
-              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
-              paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+              paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '10px' : '12px',
+              paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '10px' : '12px',
               paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '8px',
             }}
           >
-            <p 
-              className="font-bold text-gray-800 drop-shadow-sm"
-              style={{
-                fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : '1.5rem',
-              }}
-            >
-              Mission {missionNumber}
-            </p>
-            <p 
-              className="font-semibold text-gray-700 opacity-90"
-              style={{
-                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
-              }}
-            >
-              Etape {stepNumber}
-            </p>
-          </div>
-
-          {/* Icône bouteille */}
-          <div
-            className="flex items-center justify-center shrink-0"
-            style={{
-              minHeight: "clamp(50px, 10vh, 100px)",
-              maxHeight: "clamp(80px, 25vh, 150px)",
-              flex: "0 1 auto",
-              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-              paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-            }}
-          >
+            <div className="flex-1 min-w-0">
+              <p 
+                className="font-bold text-gray-800 drop-shadow-sm"
+                style={{
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                }}
+              >
+                Mission {missionNumber}
+              </p>
+              <p 
+                className="font-semibold text-gray-700 opacity-90"
+                style={{
+                  fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+                }}
+              >
+                Etape {stepNumber}
+              </p>
+            </div>
             <div 
-              className="relative"
+              className="relative shrink-0"
               style={{
-                width: isSmallScreen ? '56px' : isMediumScreen ? '72px' : isLargeScreen ? '80px' : '112px',
-                height: isSmallScreen ? '56px' : isMediumScreen ? '72px' : isLargeScreen ? '80px' : '112px',
+                width: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '56px',
+                height: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '56px',
+                marginLeft: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
               }}
             >
               <Image
@@ -370,9 +361,9 @@ function StepPageContent() {
             className="flex flex-col shrink-0 mt-auto"
             style={{
               gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-              paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
-              paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-              paddingBottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '10px' : '12px',
+              paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '10px' : '12px',
+              paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '20px' : '24px',
               paddingTop: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '16px',
             }}
           >

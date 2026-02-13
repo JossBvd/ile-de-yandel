@@ -98,9 +98,11 @@ export function QCMGame({
         }}
       >
         <div 
-          className="w-full flex-1 overflow-visible flex flex-col pointer-events-auto justify-center"
+          className="w-full flex-1 overflow-visible flex flex-col pointer-events-auto"
           style={{
             gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '20px',
+            justifyContent: 'flex-start',
+            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
           }}
         >
           <div
@@ -111,6 +113,8 @@ export function QCMGame({
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
               borderRadius: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isLargeScreen ? '20px' : '20px',
               padding: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '20px',
+              maxHeight: `${height / 3}px`,
+              overflowY: 'auto',
             }}
           >
             <h2 
