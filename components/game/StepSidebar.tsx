@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useOrientationContext } from "./OrientationGuard";
 
 const TAB_WIDTH = 44;
 
@@ -19,21 +20,32 @@ export function StepSidebar({
   stepNumber,
   children,
 }: StepSidebarProps) {
+  const { height } = useOrientationContext();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
+  
+  const sidebarWidth = isOpen 
+    ? (isSmallScreen ? '244px' : isMediumScreen ? '264px' : '294px')
+    : '44px';
+  const panelWidth = isOpen
+    ? (isSmallScreen ? '200px' : isMediumScreen ? '220px' : '250px')
+    : '0px';
+  
   return (
     <div
-      className={`absolute left-0 top-0 bottom-0 z-20 flex transition-[width] duration-300 ease-out ${
-        isOpen ? "w-[244px] sm:w-[264px] md:w-[294px]" : "w-11"
-      }`}
+      className="absolute left-0 top-0 bottom-0 z-20 flex transition-[width] duration-300 ease-out"
+      style={{ width: sidebarWidth }}
       aria-label="Panneau mission"
     >
       {/* Panneau latéral */}
       <div
-        className={`h-full flex flex-col transition-[width] duration-300 ease-out overflow-hidden relative ${
-          isOpen
-            ? "w-[200px] min-w-[200px] sm:w-[220px] sm:min-w-[220px] md:w-[250px] md:min-w-[250px]"
-            : "w-0 min-w-0"
-        }`}
+        className="h-full flex flex-col transition-[width] duration-300 ease-out overflow-hidden relative"
         style={{
+          width: panelWidth,
+          minWidth: isOpen ? panelWidth : '0px',
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -42,17 +54,42 @@ export function StepSidebar({
         }}
       >
         {/* Titre mission / étape */}
-        <div className="pt-3 px-4 pb-1 sm:pt-6 sm:pb-2 shrink-0">
-          <p className="text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
+        <div 
+          className="shrink-0"
+          style={{
+            paddingTop: isSmallScreen ? '12px' : isMediumScreen ? '24px' : '24px',
+            paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
+          }}
+        >
+          <p 
+            className="font-bold text-gray-800 drop-shadow-sm"
+            style={{
+              fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : '1.5rem',
+            }}
+          >
             Mission {missionNumber}
           </p>
-          <p className="text-base md:text-lg font-semibold text-gray-700 opacity-90">
+          <p 
+            className="font-semibold text-gray-700 opacity-90"
+            style={{
+              fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.125rem',
+            }}
+          >
             Etape {stepNumber}
           </p>
         </div>
 
         {/* Boutons d'action */}
-        <div className="flex-1 flex flex-col items-start justify-evenly pl-6 sm:pl-8 pr-4 pb-4 pt-2 sm:pt-4 min-h-0 w-full">
+        <div 
+          className="flex-1 flex flex-col items-start justify-evenly min-h-0 w-full"
+          style={{
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '32px',
+            paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '16px',
+          }}
+        >
           {children}
         </div>
       </div>

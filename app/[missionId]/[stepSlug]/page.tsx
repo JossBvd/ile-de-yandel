@@ -31,6 +31,11 @@ function StepPageContent() {
     useGameProgress();
   const { addPiece } = useInventory();
   const { isRotated, width, height } = useOrientationContext();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
@@ -205,25 +210,58 @@ function StepPageContent() {
         }}
       >
         {/* Conteneur narrative */}
-        <div className="absolute left-[8%] max-w-[58%] w-full top-[10%] overflow-y-auto sm:left-[10%] sm:max-w-2xl sm:w-[85%] sm:top-1/3 sm:max-h-none sm:overflow-visible sm:transform sm:-translate-y-1/2">
+        <div 
+          className="absolute overflow-y-auto"
+          style={{
+            left: isSmallScreen ? '8%' : isMediumScreen ? '10%' : '10%',
+            maxWidth: isSmallScreen ? '58%' : isMediumScreen ? '85%' : '85%',
+            width: isSmallScreen ? '100%' : isMediumScreen ? '85%' : '85%',
+            top: isSmallScreen ? '10%' : isMediumScreen ? '33.333%' : '33.333%',
+            maxHeight: isSmallScreen ? '80%' : 'none',
+            overflow: isSmallScreen ? 'auto' : 'visible',
+            transform: isSmallScreen ? 'none' : 'translateY(-50%)',
+          }}
+        >
           <div
-            className="relative rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl bg-cover bg-center bg-no-repeat"
+            className="relative rounded-3xl shadow-xl bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
+              padding: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '40px',
             }}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6">
+            <h2 
+              className="font-bold text-gray-800"
+              style={{
+                fontSize: isSmallScreen ? '1.5rem' : isMediumScreen ? '1.875rem' : '2.25rem',
+                marginBottom: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '24px',
+              }}
+            >
               {step.title}
             </h2>
-            <div className="mb-6 sm:mb-8 pr-14 sm:pr-16 md:pr-20">
-              <p className="text-gray-800 text-base sm:text-lg md:text-xl italic leading-relaxed whitespace-pre-line">
+            <div 
+              style={{
+                marginBottom: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '32px',
+                paddingRight: isSmallScreen ? '56px' : isMediumScreen ? '64px' : '80px',
+              }}
+            >
+              <p 
+                className="text-gray-800 italic leading-relaxed whitespace-pre-line"
+                style={{
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                }}
+              >
                 {step.narrative}
               </p>
             </div>
             <button
               type="button"
               onClick={handleContinueFromNarrative}
-              className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 p-2 rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="absolute rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              style={{
+                bottom: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                right: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                padding: '8px',
+              }}
               aria-label="Continuer"
             >
               <Image
@@ -231,7 +269,11 @@ function StepPageContent() {
                 alt=""
                 width={64}
                 height={64}
-                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                className="object-contain"
+                style={{
+                  width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                }}
               />
             </button>
           </div>
@@ -269,25 +311,50 @@ function StepPageContent() {
       >
         <div className="flex flex-col min-h-0 flex-1">
           {/* Titre mission / étape */}
-          <div className="pt-2 px-3 pb-1 sm:pt-3 sm:px-4 sm:pb-1 md:pt-6 md:pb-2 shrink-0">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
+          <div 
+            className="shrink-0"
+            style={{
+              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
+              paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '8px',
+            }}
+          >
+            <p 
+              className="font-bold text-gray-800 drop-shadow-sm"
+              style={{
+                fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : '1.5rem',
+              }}
+            >
               Mission {missionNumber}
             </p>
-            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 opacity-90">
+            <p 
+              className="font-semibold text-gray-700 opacity-90"
+              style={{
+                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+              }}
+            >
               Etape {stepNumber}
             </p>
           </div>
 
           {/* Icône bouteille */}
           <div
-            className="flex items-center justify-center py-2 sm:py-3 md:py-4 shrink-0"
+            className="flex items-center justify-center shrink-0"
             style={{
               minHeight: "clamp(50px, 10vh, 100px)",
               maxHeight: "clamp(80px, 25vh, 150px)",
               flex: "0 1 auto",
+              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+              paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
             }}
           >
-            <div className="relative w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
+            <div 
+              className="relative"
+              style={{
+                width: isSmallScreen ? '56px' : isMediumScreen ? '72px' : isLargeScreen ? '80px' : '112px',
+                height: isSmallScreen ? '56px' : isMediumScreen ? '72px' : isLargeScreen ? '80px' : '112px',
+              }}
+            >
               <Image
                 src="/ui/icon_bottle.webp"
                 alt="Bouteille à la mer"
@@ -299,7 +366,16 @@ function StepPageContent() {
           </div>
 
           {/* Boutons d'action */}
-          <div className="flex flex-col gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pl-4 pr-3 pb-3 pt-1 sm:pl-6 sm:pr-4 sm:pb-4 sm:pt-2 md:pl-8 md:pt-4 shrink-0 mt-auto">
+          <div 
+            className="flex flex-col shrink-0 mt-auto"
+            style={{
+              gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
+              paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+              paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingBottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingTop: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '16px',
+            }}
+          >
             <IconButton
               icon="/ui/icon_clue.webp"
               alt="Indice"
@@ -405,7 +481,13 @@ function StepPageContent() {
               style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
-            <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12">
+            <div 
+              className="absolute"
+              style={{
+                bottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+                right: isSmallScreen ? '32px' : isMediumScreen ? '48px' : '48px',
+              }}
+            >
               <button
                 type="button"
                 onClick={handleRaftObjectModalClose}
@@ -417,7 +499,11 @@ function StepPageContent() {
                   alt=""
                   width={64}
                   height={64}
-                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                  className="object-contain"
+                  style={{
+                    width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                    height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                  }}
                 />
               </button>
             </div>
@@ -470,7 +556,13 @@ function StepPageContent() {
             >
               <div className="flex flex-1 min-h-0 flex-col justify-center">
                 <div className="flex gap-4 items-center">
-                  <div className="shrink-0 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center">
+                  <div 
+                    className="shrink-0 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center"
+                    style={{
+                      width: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
+                      height: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
+                    }}
+                  >
                     {hintModal.image ? (
                       <Image
                         src={hintModal.image}

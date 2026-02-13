@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useOrientationContext } from '@/components/game/OrientationGuard';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,6 +13,12 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const { height } = useOrientationContext();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -68,7 +75,15 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 z-50 animate-slide-up">
+    <div 
+      className="fixed z-50 animate-slide-up"
+      style={{
+        bottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+        left: isSmallScreen ? '16px' : isMediumScreen ? 'auto' : 'auto',
+        right: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+        width: isSmallScreen ? 'calc(100% - 32px)' : isMediumScreen ? '384px' : '384px',
+      }}
+    >
       <div className="bg-white rounded-lg shadow-xl border-2 border-amber-500 p-4 flex flex-col gap-3">
         <div className="flex items-start gap-3">
           <div className="relative w-12 h-12 shrink-0">

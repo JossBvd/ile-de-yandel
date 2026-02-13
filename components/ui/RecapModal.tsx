@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useOrientationContext } from "@/components/game/OrientationGuard";
 
 interface RecapModalProps {
   isOpen: boolean;
@@ -30,33 +31,89 @@ export function RecapModal({
   onRetry,
   onGoBack,
 }: RecapModalProps) {
+  const { height } = useOrientationContext();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
+  
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 md:p-5 bg-black/60 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 overflow-y-auto"
+      style={{
+        padding: isSmallScreen ? '4px' : isMediumScreen ? '16px' : '20px',
+      }}
       onClick={(e) => e.stopPropagation()}
     >
       <div
-        className="relative flex flex-col w-full h-[96dvh] max-h-[96dvh] sm:h-auto sm:max-h-[min(92dvh,92dvh)] sm:max-w-2xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl overflow-hidden"
+        className="relative flex flex-col shadow-2xl overflow-hidden"
         style={{
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "3px solid #8B7355",
+          width: '100%',
+          height: isSmallScreen ? '96dvh' : 'auto',
+          maxHeight: isSmallScreen ? '96dvh' : '92dvh',
+          maxWidth: isSmallScreen ? '100%' : isMediumScreen ? '672px' : isLargeScreen ? '896px' : '1280px',
+          borderRadius: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '24px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex items-center justify-end shrink-0 pt-5 pr-5 pb-0 pl-6 lg:pt-6 lg:pr-6 lg:pl-8">
-          <h2 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800 italic">
+        <header 
+          className="flex items-center justify-end shrink-0"
+          style={{
+            paddingTop: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+            paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+            paddingBottom: '0',
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '32px',
+          }}
+        >
+          <h2 
+            className="font-bold text-gray-800 italic"
+            style={{
+              fontSize: isSmallScreen ? '1.5rem' : isMediumScreen ? '1.875rem' : '2.25rem',
+            }}
+          >
             RECAP
           </h2>
         </header>
 
-        <div className="flex flex-1 min-h-0 overflow-auto items-center justify-center px-3 sm:px-5 pb-20 sm:pb-20 lg:pb-24 pt-2 lg:pt-4">
-          <div className="flex flex-row gap-3 sm:gap-6 lg:gap-8 xl:gap-10 w-full max-w-full">
-            <div className="flex shrink-0 w-[40%] sm:w-auto sm:flex-1 min-w-0 flex-col items-center justify-center gap-3 sm:gap-4 lg:gap-5 py-2 sm:py-4 lg:py-8">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 relative shrink-0">
+        <div 
+          className="flex flex-1 min-h-0 overflow-auto items-center justify-center"
+          style={{
+            paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '20px' : '20px',
+            paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '20px' : '20px',
+            paddingBottom: isSmallScreen ? '80px' : isMediumScreen ? '80px' : '96px',
+            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '8px' : '16px',
+          }}
+        >
+          <div 
+            className="flex flex-row w-full max-w-full"
+            style={{
+              gap: isSmallScreen ? '12px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
+            }}
+          >
+            <div 
+              className="flex shrink-0 min-w-0 flex-col items-center justify-center"
+              style={{
+                width: isSmallScreen ? '40%' : 'auto',
+                flex: isSmallScreen ? 'none' : '1',
+                gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isLargeScreen ? '20px' : '20px',
+                paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+                paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+              }}
+            >
+              <div 
+                className="relative shrink-0"
+                style={{
+                  width: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isLargeScreen ? '80px' : '96px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isLargeScreen ? '80px' : '96px',
+                }}
+              >
                 <Image
                   src={
                     hasPassed ? "/ui/icon_right.webp" : "/ui/icon_false.webp"
@@ -67,21 +124,51 @@ export function RecapModal({
                   className="object-contain w-full h-full"
                 />
               </div>
-              <div className="min-w-0 w-full flex-initial text-center px-1">
-                <h3 className="text-base sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 uppercase leading-tight">
+              <div 
+                className="min-w-0 w-full flex-initial text-center"
+                style={{
+                  paddingLeft: '4px',
+                  paddingRight: '4px',
+                }}
+              >
+                <h3 
+                  className="font-bold text-gray-900 uppercase leading-tight"
+                  style={{
+                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : isLargeScreen ? '1.5rem' : '1.875rem',
+                  }}
+                >
                   {hasPassed ? "Mission accomplie !" : "TU Y ES PRESQUE !"}
                 </h3>
                 {hasPassed ? (
                   <>
                     {missionMessage ? (
-                      <p className="text-sm sm:text-base lg:text-lg text-gray-700 italic mt-1 line-clamp-2 max-w-[90%] mx-auto">
+                      <p 
+                        className="text-gray-700 italic line-clamp-2 mx-auto"
+                        style={{
+                          fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.125rem',
+                          marginTop: '4px',
+                          maxWidth: '90%',
+                        }}
+                      >
                         {missionMessage}
                       </p>
                     ) : null}
                     {raftPieceName ? (
-                      <div className="flex items-center justify-center gap-2 mt-3 sm:mt-4">
+                      <div 
+                        className="flex items-center justify-center"
+                        style={{
+                          gap: '8px',
+                          marginTop: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+                        }}
+                      >
                         {raftPieceImage ? (
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 relative shrink-0">
+                          <div 
+                            className="relative shrink-0"
+                            style={{
+                              width: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '48px',
+                              height: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '48px',
+                            }}
+                          >
                             <Image
                               src={raftPieceImage}
                               alt=""
@@ -91,7 +178,12 @@ export function RecapModal({
                             />
                           </div>
                         ) : null}
-                        <p className="text-sm sm:text-base font-semibold text-gray-800">
+                        <p 
+                          className="font-semibold text-gray-800"
+                          style={{
+                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1rem',
+                          }}
+                        >
                           Tu as collecté : {raftPieceName}
                         </p>
                       </div>
@@ -99,8 +191,13 @@ export function RecapModal({
                   </>
                 ) : (
                   <p
-                    className="text-sm sm:text-base lg:text-lg mt-1 max-w-[90%] mx-auto"
-                    style={{ color: "#34495E" }}
+                    className="mx-auto"
+                    style={{ 
+                      color: "#34495E",
+                      fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.125rem',
+                      marginTop: '4px',
+                      maxWidth: '90%',
+                    }}
                   >
                     Ne te décourage pas, réessaie !
                   </p>
@@ -109,7 +206,13 @@ export function RecapModal({
             </div>
 
             <div className="flex flex-1 min-w-0 flex-col justify-center">
-              <ul className="space-y-2 sm:space-y-2.5 lg:space-y-3">
+              <ul 
+                style={{
+                  gap: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isLargeScreen ? '12px' : '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
                 {Array.from({ length: totalQuestions }, (_, i) => {
                   const questionNumber = i + 1;
                   const isCorrect = results[questionNumber];
@@ -118,12 +221,28 @@ export function RecapModal({
                   return (
                     <li
                       key={questionNumber}
-                      className="flex items-center justify-between gap-2 sm:gap-3 py-1"
+                      className="flex items-center justify-between"
+                      style={{
+                        gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '12px',
+                        paddingTop: '4px',
+                        paddingBottom: '4px',
+                      }}
                     >
-                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <div 
+                        className="flex items-center min-w-0"
+                        style={{
+                          gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '12px',
+                        }}
+                      >
                         {hasAnswered ? (
                           isCorrect ? (
-                            <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 shrink-0 relative">
+                            <div 
+                              className="shrink-0 relative"
+                              style={{
+                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                              }}
+                            >
                               <Image
                                 src="/ui/icon_right.webp"
                                 alt="Correct"
@@ -133,7 +252,13 @@ export function RecapModal({
                               />
                             </div>
                           ) : (
-                            <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 shrink-0 relative">
+                            <div 
+                              className="shrink-0 relative"
+                              style={{
+                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                              }}
+                            >
                               <Image
                                 src="/ui/icon_false.webp"
                                 alt="Incorrect"
@@ -144,9 +269,20 @@ export function RecapModal({
                             </div>
                           )
                         ) : (
-                          <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 shrink-0 rounded-full bg-gray-300" />
+                          <div 
+                            className="shrink-0 rounded-full bg-gray-300"
+                            style={{
+                              width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                              height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                            }}
+                          />
                         )}
-                        <span className="text-sm sm:text-base lg:text-lg xl:text-xl font-semibold text-gray-800 truncate">
+                        <span 
+                          className="font-semibold text-gray-800 truncate"
+                          style={{
+                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
+                          }}
+                        >
                           Question {questionNumber}
                         </span>
                       </div>
@@ -154,7 +290,14 @@ export function RecapModal({
                         <button
                           type="button"
                           onClick={() => onReviewQuestion(questionNumber)}
-                          className="shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm sm:text-base font-bold rounded-full transition-all hover:scale-105 active:scale-95 touch-manipulation"
+                          className="shrink-0 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-all hover:scale-105 active:scale-95 touch-manipulation"
+                          style={{
+                            paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
+                            paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
+                            paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
+                            paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
+                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1rem',
+                          }}
                         >
                           Correction
                         </button>
@@ -171,7 +314,11 @@ export function RecapModal({
           <button
             type="button"
             onClick={onContinue}
-            className="absolute bottom-5 right-5 lg:bottom-6 lg:right-6 p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
+            className="absolute p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
+            style={{
+              bottom: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              right: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+            }}
             aria-label="Continuer"
           >
             <Image
@@ -179,19 +326,38 @@ export function RecapModal({
               alt=""
               width={48}
               height={48}
-              className="block w-12 h-12 lg:w-14 lg:h-14"
+              className="block object-contain"
+              style={{
+                width: isSmallScreen ? '48px' : isMediumScreen ? '48px' : '56px',
+                height: isSmallScreen ? '48px' : isMediumScreen ? '48px' : '56px',
+              }}
             />
           </button>
         ) : (
-          <div className="absolute bottom-5 left-5 right-5 lg:bottom-6 lg:left-6 lg:right-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-end">
+          <div 
+            className="absolute flex justify-end"
+            style={{
+              bottom: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              left: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              right: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              flexDirection: isSmallScreen ? 'column' : 'row',
+              gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+            }}
+          >
             {onRetry && (
               <button
                 type="button"
                 onClick={onRetry}
-                className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold text-lg sm:text-xl transition-all hover:scale-105 shadow-lg border-2 border-[#229954] min-w-0"
+                className="rounded-full font-bold transition-all hover:scale-105 shadow-lg border-2 border-[#229954] min-w-0"
                 style={{
                   backgroundColor: "#27AE60",
                   color: "white",
+                  flex: isSmallScreen ? '1' : 'none',
+                  paddingLeft: '24px',
+                  paddingRight: '24px',
+                  paddingTop: '12px',
+                  paddingBottom: '12px',
+                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : '1.25rem',
                 }}
               >
                 j&apos;y retourne !
@@ -201,10 +367,16 @@ export function RecapModal({
               <button
                 type="button"
                 onClick={onGoBack}
-                className="flex-1 sm:flex-none px-6 py-3 rounded-full font-bold text-lg sm:text-xl transition-all hover:scale-105 shadow-lg border-2 border-[#229954] min-w-0"
+                className="rounded-full font-bold transition-all hover:scale-105 shadow-lg border-2 border-[#229954] min-w-0"
                 style={{
                   backgroundColor: "#27AE60",
                   color: "white",
+                  flex: isSmallScreen ? '1' : 'none',
+                  paddingLeft: '24px',
+                  paddingRight: '24px',
+                  paddingTop: '12px',
+                  paddingBottom: '12px',
+                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : '1.25rem',
                 }}
               >
                 j&apos;essaie autre chose

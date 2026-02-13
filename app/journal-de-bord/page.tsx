@@ -32,6 +32,11 @@ function JournalContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
   const { setLastViewedCompletedMission } = useUIStore();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
 
   useEffect(() => {
     const latestCompletedMission = completedMissions.length > 0 
@@ -70,8 +75,20 @@ function JournalContent() {
       }}
     >
       {/* Titre */}
-      <div className="absolute top-1 left sm:top-1 md:top-6 z-10">
-        <div className="relative w-48 h-16 sm:w-72 sm:h-24 md:w-80 md:h-28">
+      <div 
+        className="absolute z-10"
+        style={{
+          top: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+          left: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+        }}
+      >
+        <div 
+          className="relative"
+          style={{
+            width: isSmallScreen ? '192px' : isMediumScreen ? '288px' : '320px',
+            height: isSmallScreen ? '64px' : isMediumScreen ? '96px' : '112px',
+          }}
+        >
           <Image
             src="/ui/encart_map.webp"
             alt=""
@@ -79,21 +96,33 @@ function JournalContent() {
             className="object-contain object-top-left"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-sm sm:text-lg md:text-xl font-bold text-gray-800 drop-shadow-sm">
+            <h1 
+              className="font-bold text-gray-800 drop-shadow-sm"
+              style={{
+                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+              }}
+            >
               Mon journal de bord
             </h1>
           </div>
         </div>
       </div>
 
-      <div className="absolute top-0 left-0 right-0 bottom-0 flex flex-row gap-2 sm:gap-4 md:gap-8 p-2 sm:p-4 md:p-8 min-h-0">
+      <div 
+        className="absolute top-0 left-0 right-0 bottom-0 flex flex-row min-h-0"
+        style={{
+          gap: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+          padding: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+        }}
+      >
         {/* Colonne missions */}
         <div
-          className="journal-missions-column flex flex-col w-1/3 min-w-0 min-h-0 overflow-hidden pl-6 sm:pl-14 md:pl-16 shrink-0 items-center justify-center gap-0"
+          className="journal-missions-column flex flex-col w-1/3 min-w-0 min-h-0 overflow-hidden shrink-0 items-center justify-center gap-0"
           style={{ 
             containerType: "size", 
             containerName: "journal-missions-column",
-            paddingTop: "clamp(60px, 10vh, 120px)"
+            paddingTop: "clamp(60px, 10vh, 120px)",
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '56px' : '64px',
           }}
         >
           <div
@@ -109,7 +138,13 @@ function JournalContent() {
               className="object-contain object-center"
             />
           </div>
-          <div className="flex flex-col w-full shrink-0 -mt-2 sm:-mt-4 md:-mt-6 items-center gap-0.5 sm:gap-1.5 md:gap-2.5">
+          <div 
+            className="flex flex-col w-full shrink-0 items-center"
+            style={{
+              marginTop: isSmallScreen ? '-8px' : isMediumScreen ? '-16px' : '-24px',
+              gap: isSmallScreen ? '2px' : isMediumScreen ? '6px' : '10px',
+            }}
+          >
           {MISSIONS.map((mission) => {
             const missionNumber = mission.id.split("-")[1];
             const isUnlocked = unlockedMissionIds.has(mission.id);
@@ -151,31 +186,59 @@ function JournalContent() {
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {selectedMission && (
             <div
-              className="flex flex-col gap-2 sm:gap-4 md:gap-6 rounded-xl p-3 sm:p-4 md:p-6 min-h-full flex-1 overflow-y-auto"
+              className="rounded-xl min-h-full flex-1 overflow-y-auto"
               style={{
                 border: "3px solid #c4a574",
                 boxShadow: "2px 4px 12px rgba(0, 0, 0, 0.12)",
+                gap: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '24px',
+                padding: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '24px',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              <div className="relative w-full max-w-[200px] h-12 sm:h-14 md:h-16 self-center shrink-0">
+              <div 
+                className="relative w-full self-center shrink-0"
+                style={{
+                  maxWidth: '200px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                }}
+              >
                 <Image
                   src="/ui/encart_journal.webp"
                   alt=""
                   fill
                   className="object-contain object-center"
                 />
-                <span className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm text-base sm:text-lg md:text-xl">
+                <span 
+                  className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm"
+                  style={{
+                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                  }}
+                >
                   Mission {selectedMissionId.split("-")[1]}
                 </span>
               </div>
 
-              <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
+              <div 
+                className="flex flex-col"
+                style={{
+                  gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+                }}
+              >
                 {[1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className="rounded-full px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 shadow-md bg-orange-500"
+                    className="rounded-full shadow-md bg-orange-500"
+                    style={{
+                      padding: isSmallScreen ? '12px 16px' : isMediumScreen ? '16px 24px' : '20px 32px',
+                    }}
                   >
-                    <p className="text-white text-xs sm:text-sm md:text-base lg:text-lg font-medium text-center">
+                    <p 
+                      className="text-white font-medium text-center"
+                      style={{
+                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
+                      }}
+                    >
                       Ressource enseignant
                     </p>
                   </div>
@@ -187,7 +250,13 @@ function JournalContent() {
       </div>
 
       {/* Bouton retour */}
-      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-8 md:left-8 z-10">
+      <div 
+        className="absolute z-10"
+        style={{
+          bottom: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+          left: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
+        }}
+      >
         <IconButton
           icon="/ui/icon_back.webp"
           alt="Retour"

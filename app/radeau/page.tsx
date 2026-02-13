@@ -170,6 +170,11 @@ function RadeauContent({
 }: RadeauContentProps) {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
+  
+  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
+  const isSmallScreen = height < 600;
+  const isMediumScreen = height >= 600 && height < 800;
+  const isLargeScreen = height >= 800;
   const {
     collectedPieces,
     fusedRaftPiecesCount,
@@ -253,8 +258,20 @@ function RadeauContent({
 
       <div className="relative flex-1 min-w-0 flex flex-col z-10">
         {/* Titre */}
-        <div className="absolute top-1 left sm:top-1 md:top-6 z-10">
-          <div className="relative w-48 h-16 sm:w-72 sm:h-24 md:w-80 md:h-28">
+        <div 
+          className="absolute z-10"
+          style={{
+            top: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+            left: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+          }}
+        >
+          <div 
+            className="relative"
+            style={{
+              width: isSmallScreen ? '192px' : isMediumScreen ? '288px' : '320px',
+              height: isSmallScreen ? '64px' : isMediumScreen ? '96px' : '112px',
+            }}
+          >
             <Image
               src="/ui/encart_map.webp"
               alt=""
@@ -262,7 +279,12 @@ function RadeauContent({
               className="object-contain object-top-left"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <h1 className="text-sm sm:text-lg md:text-xl font-bold text-gray-800 drop-shadow-sm">
+              <h1 
+                className="font-bold text-gray-800 drop-shadow-sm"
+                style={{
+                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                }}
+              >
                 Radeau
               </h1>
             </div>
