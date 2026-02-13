@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  OrientationGuard,
+  OrientationProvider,
+  RotatedContainer,
   useOrientationContext,
-} from "@/components/game/OrientationGuard";
+} from "@/components/game/OrientationProvider";
 import { IconButton } from "@/components/ui/IconButton";
 import { useInventoryStore } from "@/store/inventoryStore";
 import { useUIStore } from "@/store/uiStore";
@@ -144,7 +145,13 @@ function DroppableSlot({ index, pieceId, onRemove }: Omit<DroppableSlotProps, "o
   );
 }
 
-function RadeauContent() {
+interface RadeauContentProps {
+  mergeSlots: (RaftPieceId | null)[];
+  setMergeSlots: React.Dispatch<React.SetStateAction<(RaftPieceId | null)[]>>;
+  activeId: string | null;
+}
+
+function RadeauContent({ mergeSlots, setMergeSlots, activeId }: RadeauContentProps) {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
   const {
@@ -158,12 +165,6 @@ function RadeauContent() {
   useEffect(() => {
     markRaftAsViewed();
   }, [markRaftAsViewed]);
-
-  const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([
-    null,
-    null,
-    null,
-  ]);
 
   const inMergeSlots = new Set(
     mergeSlots.filter((id): id is RaftPieceId => id !== null),
@@ -194,47 +195,7 @@ function RadeauContent() {
     mergeSlots[2] !== null &&
     fusedRaftPiecesCount < MAX_FUSED_RAFT_PIECES;
 
-  const sensors = useDndSensors();
-  const collisionDetection = useDndCollisionDetection();
-  const [activeId, setActiveId] = useState<string | null>(null);
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const pieceId = active.id as string;
-    const slotId = over.id as string;
-
-    if (!slotId.startsWith("merge-slot-")) return;
-
-    const slotIndex = parseInt(slotId.replace("merge-slot-", ""), 10);
-    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= 3) return;
-
-    if (getRaftPieceById(pieceId as RaftPieceId) == null) return;
-
-    if (mergeSlots[slotIndex] === null) {
-      setMergeSlots((prev) => {
-        const next = [...prev];
-        next[slotIndex] = pieceId as RaftPieceId;
-        return next;
-      });
-    } else {
-      const emptySlotIndex = mergeSlots.findIndex((s) => s === null);
-      if (emptySlotIndex !== -1) {
-        setMergeSlots((prev) => {
-          const next = [...prev];
-          next[emptySlotIndex] = pieceId as RaftPieceId;
-          return next;
-        });
-      }
-    }
-  };
-
-  const handleDragStart = (event: { active: { id: string | number } }) => {
-    setActiveId(event.active.id as string);
-  };
+  // handleDragStart et handleDragEnd sont maintenant dans RadeauWrapper
 
   const removeFromMergeSlot = (index: number) => {
     setMergeSlots((prev) => {
@@ -251,15 +212,7 @@ function RadeauContent() {
     if (ok) setMergeSlots([null, null, null]);
   };
 
-  const activePiece = activeId ? getRaftPieceById(activeId as RaftPieceId) : null;
-
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={collisionDetection}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
       <div
         className="relative flex w-full h-full overflow-hidden flex-nowrap"
         style={{
@@ -485,10 +438,72 @@ function RadeauContent() {
         </div>
       </div>
       </div>
+  );
+}
+
+function RadeauWrapper() {
+  const sensors = useDndSensors();
+  const collisionDetection = useDndCollisionDetection();
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([null, null, null]);
+
+  const handleDragStart = (event: DragEndEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const pieceId = active.id as string;
+    const slotId = over.id as string;
+
+    if (!slotId.startsWith("merge-slot-")) return;
+
+    const slotIndex = parseInt(slotId.replace("merge-slot-", ""), 10);
+    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= 3) return;
+
+    if (getRaftPieceById(pieceId as RaftPieceId) == null) return;
+
+    if (mergeSlots[slotIndex] === null) {
+      setMergeSlots((prev) => {
+        const next = [...prev];
+        next[slotIndex] = pieceId as RaftPieceId;
+        return next;
+      });
+    } else {
+      const emptySlotIndex = mergeSlots.findIndex((s) => s === null);
+      if (emptySlotIndex !== -1) {
+        setMergeSlots((prev) => {
+          const next = [...prev];
+          next[emptySlotIndex] = pieceId as RaftPieceId;
+          return next;
+        });
+      }
+    }
+  };
+
+  const activePiece = activeId ? getRaftPieceById(activeId as RaftPieceId) : null;
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={collisionDetection}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <RotatedContainer>
+        <RadeauContent 
+          mergeSlots={mergeSlots}
+          setMergeSlots={setMergeSlots}
+          activeId={activeId}
+        />
+      </RotatedContainer>
       <DragOverlay>
         {activePiece ? (
-          <div
-            className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
+          <div className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
             style={{
               boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
             }}
@@ -517,8 +532,8 @@ function RadeauContent() {
 
 export default function RadeauPage() {
   return (
-    <OrientationGuard>
-      <RadeauContent />
-    </OrientationGuard>
+    <OrientationProvider>
+      <RadeauWrapper />
+    </OrientationProvider>
   );
 }
