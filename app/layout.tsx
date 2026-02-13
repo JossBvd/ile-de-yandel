@@ -50,6 +50,12 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{
+          margin: 0,
+          padding: 0,
+          top: 0,
+          left: 0,
+        }}
       >
         {children}
         <PWAInstallPrompt />
