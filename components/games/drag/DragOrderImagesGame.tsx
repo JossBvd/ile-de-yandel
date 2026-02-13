@@ -5,7 +5,14 @@ import Image from "next/image";
 import { Step, DragOrderImagesGameData, ImageOption } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
-import { useDragAndDrop, useDropZone } from "@/hooks/useDragAndDrop";
+import {
+  DndContext,
+  DragEndEvent,
+  useDraggable,
+  useDroppable,
+  DragOverlay,
+} from "@dnd-kit/core";
+import { useDndSensors } from "@/hooks/useDndSensors";
 
 interface DraggableImageProps {
   image: ImageOption;
@@ -14,7 +21,10 @@ interface DraggableImageProps {
 }
 
 function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
-  const dragHandlers = useDragAndDrop(image.id, !isInSlot, "imageId");
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: image.id,
+    disabled: isInSlot,
+  });
 
   if (isInSlot) {
     return (
@@ -23,19 +33,21 @@ function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
   }
 
   return (
-    <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group">
-      <div
-        {...dragHandlers}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
-      >
-        <Image
-          src={image.src}
-          alt={image.alt}
-          fill
-          className="object-cover"
-          draggable={false}
-        />
-      </div>
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group touch-none ${
+        isDragging ? "opacity-50" : ""
+      }`}
+    >
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        className="object-cover pointer-events-none"
+        draggable={false}
+      />
       {image.infoImage && (
         <button
           onClick={(e) => {
@@ -57,7 +69,6 @@ interface DroppableSlotProps {
   imageId: string | null;
   image: ImageOption | null | undefined;
   isLocked: boolean;
-  onDrop: (id: string, index: number) => void;
   onInfoClick: (url: string) => void;
 }
 
@@ -66,28 +77,24 @@ function DroppableSlot({
   imageId,
   image,
   isLocked,
-  onDrop,
   onInfoClick,
 }: DroppableSlotProps) {
-  const dropHandlers = useDropZone(
-    (id) => {
-      if (!isLocked) {
-        onDrop(id, index);
-      }
-    },
-    !isLocked,
-    "imageId"
-  );
+  const { setNodeRef, isOver } = useDroppable({
+    id: `slot-${index}`,
+    disabled: isLocked,
+  });
 
   return (
     <div
-      {...dropHandlers}
-      className={`relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-md sm:rounded-lg transition-all ${
+      ref={setNodeRef}
+      className={`relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-md sm:rounded-lg transition-all touch-none ${
         isLocked
           ? "border-2 sm:border-4 border-green-500 bg-green-100/50 shadow-xl shadow-green-500/30"
           : imageId
             ? "border-2 sm:border-4 border-blue-500 bg-blue-100/50 shadow-lg"
-            : "border-2 sm:border-4 border-dashed border-white/60 bg-black/30 shadow-inner"
+            : isOver
+              ? "border-2 sm:border-4 border-yellow-400 bg-yellow-100/50 shadow-lg"
+              : "border-2 sm:border-4 border-dashed border-white/60 bg-black/30 shadow-inner"
       }`}
     >
       {image && (
@@ -156,6 +163,37 @@ export function DragOrderImagesGame({
     null,
   );
   const [showVictory, setShowVictory] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useDndSensors();
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over || isLocked(over.id as string)) return;
+
+    const slotId = over.id as string;
+    const slotIndex = parseInt(slotId.replace("slot-", ""), 10);
+
+    if (!isNaN(slotIndex) && slotIndex >= 0 && slotIndex < slots.length) {
+      const imageId = active.id as string;
+      setSlots((prev) => {
+        const newSlots = [...prev];
+        newSlots[slotIndex] = imageId;
+        return newSlots;
+      });
+    }
+  };
+
+  const handleDragStart = (event: { active: { id: string | number } }) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const isLocked = (id: string) => {
+    if (!id.startsWith("slot-")) return false;
+    const index = parseInt(id.replace("slot-", ""), 10);
+    return lockedSlots[index] || false;
+  };
 
   const handleSubmit = () => {
     const correctSet = new Set(game.correctOrder);
@@ -200,8 +238,16 @@ export function DragOrderImagesGame({
 
   const canSubmit = slots.every((slot) => slot !== null);
 
+  const activeImage = activeId
+    ? game.sourceImages.find((img) => img.id === activeId)
+    : null;
+
   return (
-    <>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
       <div className="absolute top-5 left-2 right-2 sm:top-7 sm:left-4 sm:right-4 md:top-9 md:left-6 md:right-6 z-10 pointer-events-none">
         <div
           className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-5 lg:p-6 shadow-xl border-2 border-amber-800/30 pointer-events-auto"
@@ -245,11 +291,6 @@ export function DragOrderImagesGame({
                 imageId={imageId}
                 image={image}
                 isLocked={isLocked}
-                onDrop={(id, idx) => {
-                  const newSlots = [...slots];
-                  newSlots[idx] = id;
-                  setSlots(newSlots);
-                }}
                 onInfoClick={setInfoModalImageUrl}
               />
             );
@@ -298,6 +339,19 @@ export function DragOrderImagesGame({
         raftPieceName={getRaftPieceByStepId(step.id)?.name}
         raftPieceImage={getRaftPieceByStepId(step.id)?.image}
       />
-    </>
+      <DragOverlay>
+        {activeImage ? (
+          <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 shadow-lg opacity-90">
+            <Image
+              src={activeImage.src}
+              alt={activeImage.alt}
+              fill
+              className="object-cover"
+              draggable={false}
+            />
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 }

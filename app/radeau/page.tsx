@@ -13,7 +13,14 @@ import { useUIStore } from "@/store/uiStore";
 import { getRaftPieceById, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 import type { RaftPieceId } from "@/types/step";
 import { useEffect } from "react";
-import { useDragAndDrop, useDropZone } from "@/hooks/useDragAndDrop";
+import {
+  DndContext,
+  DragEndEvent,
+  useDraggable,
+  useDroppable,
+  DragOverlay,
+} from "@dnd-kit/core";
+import { useDndSensors } from "@/hooks/useDndSensors";
 
 const INVENTORY_SLOTS_COUNT = 15;
 
@@ -26,7 +33,10 @@ interface DraggableItemProps {
 }
 
 function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: DraggableItemProps) {
-  const dragHandlers = useDragAndDrop(id, canDrag, "pieceId");
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id,
+    disabled: !canDrag || isInMergeSlot,
+  });
 
   if (isInMergeSlot) {
     return (
@@ -41,10 +51,12 @@ function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: Draggable
 
   return (
     <div
-      {...dragHandlers}
-      className={`w-full aspect-square min-w-0 min-h-0 rounded border-2 flex items-center justify-center overflow-hidden touch-manipulation border-white bg-[#93c5fd]/80 ${
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`w-full aspect-square min-w-0 min-h-0 rounded border-2 flex items-center justify-center overflow-hidden touch-none border-white bg-[#93c5fd]/80 ${
         !canDrag ? "opacity-50 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
-      }`}
+      } ${isDragging ? "opacity-50" : ""}`}
       style={{
         boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
       }}
@@ -81,24 +93,16 @@ function DraggableItem({ id, piece, isInMergeSlot, isFused, canDrag }: Draggable
 interface DroppableSlotProps {
   index: number;
   pieceId: RaftPieceId | null;
-  onDrop: (pieceId: string, slotIndex: number) => void;
   onRemove: () => void;
 }
 
-function DroppableSlot({ index, pieceId, onDrop, onRemove }: DroppableSlotProps) {
+function DroppableSlot({ index, pieceId, onRemove }: Omit<DroppableSlotProps, "onDrop">) {
   const piece = pieceId ? getRaftPieceById(pieceId) : null;
   const hasPiece = Boolean(pieceId);
-  const [isOver, setIsOver] = useState(false);
-
-  const dropHandlers = useDropZone(
-    (id) => {
-      if (!hasPiece) {
-        onDrop(id, index);
-      }
-    },
-    !hasPiece,
-    "pieceId"
-  );
+  const { setNodeRef, isOver } = useDroppable({
+    id: `merge-slot-${index}`,
+    disabled: hasPiece,
+  });
 
   return (
     <div
@@ -107,12 +111,9 @@ function DroppableSlot({ index, pieceId, onDrop, onRemove }: DroppableSlotProps)
     >
       <button
         type="button"
+        ref={setNodeRef}
         onClick={onRemove}
-        {...dropHandlers}
-        onDragLeave={() => {
-          setIsOver(false);
-        }}
-        className={`w-full h-full aspect-square min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-manipulation transition-colors ${
+        className={`w-full h-full aspect-square min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
           isOver ? "bg-gray-700/80" : ""
         }`}
         style={{ borderColor: "#d97706" }}
@@ -192,10 +193,25 @@ function RadeauContent() {
     mergeSlots[2] !== null &&
     fusedRaftPiecesCount < MAX_FUSED_RAFT_PIECES;
 
-  const handleDrop = (pieceId: string, slotIndex: number) => {
+  const sensors = useDndSensors();
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const pieceId = active.id as string;
+    const slotId = over.id as string;
+
+    if (!slotId.startsWith("merge-slot-")) return;
+
+    const slotIndex = parseInt(slotId.replace("merge-slot-", ""), 10);
+    if (isNaN(slotIndex) || slotIndex < 0 || slotIndex >= 3) return;
+
     if (getRaftPieceById(pieceId as RaftPieceId) == null) return;
-    if (slotIndex < 0 || slotIndex >= 3) return;
-    
+
     if (mergeSlots[slotIndex] === null) {
       setMergeSlots((prev) => {
         const next = [...prev];
@@ -214,6 +230,10 @@ function RadeauContent() {
     }
   };
 
+  const handleDragStart = (event: { active: { id: string | number } }) => {
+    setActiveId(event.active.id as string);
+  };
+
   const removeFromMergeSlot = (index: number) => {
     setMergeSlots((prev) => {
       const next = [...prev];
@@ -229,7 +249,10 @@ function RadeauContent() {
     if (ok) setMergeSlots([null, null, null]);
   };
 
+  const activePiece = activeId ? getRaftPieceById(activeId as RaftPieceId) : null;
+
   return (
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div
         className="relative flex w-full h-full overflow-hidden flex-nowrap"
         style={{
@@ -435,7 +458,6 @@ function RadeauContent() {
                 key={i}
                 index={i}
                 pieceId={pieceId}
-                onDrop={handleDrop}
                 onRemove={() => removeFromMergeSlot(i)}
               />
             ))}
@@ -455,7 +477,33 @@ function RadeauContent() {
           </button>
         </div>
       </div>
-      </div>
+      <DragOverlay>
+        {activePiece ? (
+          <div
+            className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
+            style={{
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
+            }}
+          >
+            {activePiece.image ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={activePiece.image}
+                  alt={activePiece.name || "Pièce du radeau"}
+                  fill
+                  className="object-contain"
+                  draggable={false}
+                />
+              </div>
+            ) : (
+              <span className="font-semibold text-gray-700 text-xs text-center">
+                {activePiece.name?.replace(new RegExp("^Pièce \\d+ - "), "") ?? "?"}
+              </span>
+            )}
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 }
 
