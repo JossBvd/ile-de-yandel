@@ -477,6 +477,7 @@ function RadeauContent() {
           </button>
         </div>
       </div>
+      </div>
       <DragOverlay>
         {activePiece ? (
           <div
