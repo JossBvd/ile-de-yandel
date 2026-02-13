@@ -111,9 +111,9 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                     <p 
                       className="text-gray-800 font-bold"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
-                        lineHeight: '1.2',
-                        marginBottom: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
+                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                        lineHeight: '1.4',
+                        marginBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
                       }}
                     >
                       {instruction}
@@ -121,8 +121,8 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                     <p 
                       className="text-gray-800 italic"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
-                        lineHeight: '1.2',
+                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                        lineHeight: '1.4',
                       }}
                     >
                       {sentence}
@@ -133,8 +133,9 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                     <h2 
                       className="text-center font-bold text-gray-900 uppercase tracking-wide"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
-                        marginBottom: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
+                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                        marginBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
+                        lineHeight: '1.3',
                       }}
                     >
                       Énigme
@@ -142,8 +143,8 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                     <p 
                       className="text-gray-800 italic"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
-                        lineHeight: '1.2',
+                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                        lineHeight: '1.4',
                       }}
                     >
                       « {game.text} »
@@ -157,7 +158,7 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
               onSubmit={handleSubmit}
               className="flex flex-row items-center shrink-0"
               style={{
-                gap: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
+                gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
               }}
             >
               <label htmlFor="enigma-answer" className="sr-only">
@@ -177,9 +178,11 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                     : "bg-white border-gray-800 focus:border-amber-600"
                 }`}
                 style={{
-                  width: isSmallScreen ? '60px' : isMediumScreen ? '80px' : '100px',
-                  padding: isSmallScreen ? '4px 6px' : isMediumScreen ? '6px 8px' : '8px 10px',
-                  fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+                  width: isSmallScreen ? '90px' : isMediumScreen ? '120px' : '150px',
+                  padding: isSmallScreen ? '8px 10px' : isMediumScreen ? '10px 12px' : '12px 14px',
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1rem' : '1.125rem',
+                  minHeight: isSmallScreen ? '36px' : isMediumScreen ? '40px' : '44px',
+                  lineHeight: '1.5',
                 }}
               />
               <button
@@ -188,10 +191,10 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                 className="shrink-0 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
                 aria-label="Envoyer"
                 style={{
-                  minWidth: isSmallScreen ? '32px' : isMediumScreen ? '40px' : '48px',
-                  minHeight: isSmallScreen ? '32px' : isMediumScreen ? '40px' : '48px',
-                  width: isSmallScreen ? '32px' : isMediumScreen ? '40px' : '48px',
-                  height: isSmallScreen ? '32px' : isMediumScreen ? '40px' : '48px',
+                  minWidth: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
+                  minHeight: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
+                  width: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
+                  height: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
                 }}
               >
                 <Image
