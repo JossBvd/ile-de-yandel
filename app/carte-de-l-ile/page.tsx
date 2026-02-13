@@ -184,8 +184,8 @@ function HomeContent() {
       }}
     >
       {/* Titre */}
-      <div className="absolute top-1 left-1 sm:top-2 sm:left-2 md:top-8 md:left-4 z-10">
-        <div className="relative w-32 h-12 sm:w-48 sm:h-16 md:w-72 md:h-24 lg:w-80 lg:h-28">
+      <div className="absolute top-4 left sm:top-2 md:top-8 z-10">
+        <div className="relative w-60 h-20 sm:w-72 sm:h-24 md:w-80 md:h-28">
           <Image
             src="/ui/encart_map.webp"
             alt=""
@@ -193,7 +193,7 @@ function HomeContent() {
             className="object-contain object-top-left"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-xs sm:text-sm md:text-lg lg:text-2xl font-bold text-gray-800 drop-shadow-sm">
+            <h1 className="text-base sm:text-sm md:text-lg lg:text-2xl font-bold text-gray-800 drop-shadow-sm">
               Carte de l&apos;île
             </h1>
           </div>
