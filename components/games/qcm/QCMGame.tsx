@@ -100,9 +100,9 @@ export function QCMGame({
         <div 
           className="w-full flex-1 overflow-visible flex flex-col pointer-events-auto"
           style={{
-            gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '20px',
+            gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '10px' : '12px',
             justifyContent: 'flex-start',
-            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+            paddingTop: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
           }}
         >
           <div
@@ -111,17 +111,18 @@ export function QCMGame({
               backgroundColor: "#E8DCC8",
               border: "3px solid #D4B896",
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-              borderRadius: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isLargeScreen ? '20px' : '20px',
-              padding: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '20px',
-              maxHeight: `${height / 3}px`,
+              borderRadius: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '16px',
+              padding: isSmallScreen ? '6px 8px' : isMediumScreen ? '8px 10px' : isLargeScreen ? '10px 12px' : '12px 14px',
+              maxHeight: `${Math.floor(height / 3)}px`,
               overflowY: 'auto',
             }}
           >
             <h2 
               className="font-bold text-gray-900 text-center"
               style={{
-                fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : isLargeScreen ? '1.5rem' : '1.875rem',
-                marginBottom: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
+                marginBottom: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
+                lineHeight: '1.2',
               }}
             >
               {showCorrection
@@ -132,9 +133,10 @@ export function QCMGame({
             </h2>
 
             <p 
-              className="text-gray-800 italic text-center leading-relaxed"
+              className="text-gray-800 italic text-center"
               style={{
-                fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : isLargeScreen ? '1.25rem' : '1.5rem',
+                fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
+                lineHeight: '1.3',
               }}
             >
               {game.question}
@@ -144,8 +146,8 @@ export function QCMGame({
           <div 
             className="w-full grid grid-cols-2 pointer-events-auto"
             style={{
-              gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '20px',
-              padding: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
+              gap: isSmallScreen ? '4px' : isMediumScreen ? '6px' : isLargeScreen ? '8px' : '10px',
+              padding: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
             }}
           >
           {game.options.map((option, index) => {
@@ -176,12 +178,14 @@ export function QCMGame({
                 `}
                 style={{
                   textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  padding: isSmallScreen ? '6px 8px' : isMediumScreen ? '8px 10px' : isLargeScreen ? '10px 12px' : '12px 14px',
                 }}
               >
                 <span 
                   className="font-bold shrink-0"
                   style={{
-                    fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : isLargeScreen ? '1.875rem' : '2.25rem',
+                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : isLargeScreen ? '1.25rem' : '1.5rem',
+                    marginRight: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
                   }}
                 >
                   {option.id}
@@ -189,7 +193,8 @@ export function QCMGame({
                 <span 
                   className="flex-1 text-left"
                   style={{
-                    fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
+                    fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
+                    lineHeight: '1.2',
                   }}
                 >
                   {option.text}
@@ -202,11 +207,11 @@ export function QCMGame({
           <div 
             className={`w-full flex ${isStep2 ? "justify-center" : "justify-between"} items-center pointer-events-auto`}
             style={{
-              paddingTop: isSmallScreen ? '4px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-              minHeight: isSmallScreen ? '2.5rem' : isMediumScreen ? '3rem' : isLargeScreen ? '3.5rem' : '3.5rem',
-              gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '16px',
-              paddingLeft: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
-              paddingRight: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
+              paddingTop: isSmallScreen ? '2px' : isMediumScreen ? '4px' : isLargeScreen ? '6px' : '8px',
+              minHeight: isSmallScreen ? '2rem' : isMediumScreen ? '2.5rem' : isLargeScreen ? '3rem' : '3rem',
+              gap: isSmallScreen ? '4px' : isMediumScreen ? '6px' : isLargeScreen ? '8px' : '10px',
+              paddingLeft: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
+              paddingRight: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
             }}
           >
           {!isStep2 && (

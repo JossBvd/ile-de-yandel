@@ -299,7 +299,7 @@ function StepPageContent() {
       <div
         className="relative shrink-0 flex flex-col z-20"
         style={{
-          width: isSmallScreen ? '140px' : isMediumScreen ? '160px' : '180px',
+          width: "clamp(200px, 20vw, 250px)",
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
