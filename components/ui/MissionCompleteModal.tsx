@@ -45,7 +45,7 @@ export function MissionCompleteModal({
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100vh",
+        height: isRotated ? `${height}px` : "100dvh",
         left: isRotated ? "50%" : "0",
         top: isRotated ? "50%" : "0",
         marginLeft: isRotated ? `-${width / 2}px` : "0",
@@ -62,10 +62,10 @@ export function MissionCompleteModal({
           width: isRotated 
             ? `${Math.min(width * 0.95, height * 0.95 * 16/9)}px` 
             : isSmallScreen 
-              ? `min(98vw, calc(98vh * 16/9))`
-              : `min(95vw, calc(95vh * 16/9))`,
+              ? `min(98vw, calc(98dvh * 16/9))`
+              : `min(95vw, calc(95dvh * 16/9))`,
           maxWidth: isRotated ? `${width * 0.95}px` : isSmallScreen ? "98vw" : "95vw",
-          maxHeight: isRotated ? `${height * 0.95}px` : "95vh",
+          maxHeight: isRotated ? `${height * 0.95}px` : "95dvh",
         }}
       >
         <div className="relative w-full h-full flex items-center justify-center">

@@ -197,7 +197,7 @@ function StepPageContent() {
         className="fixed inset-0 overflow-hidden"
         style={{
           width: isRotated ? `${width}px` : "100vw",
-          height: isRotated ? `${height}px` : "100vh",
+          height: isRotated ? `${height}px` : "100dvh",
           backgroundImage: "url(/ui/background_story_screen.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -263,7 +263,7 @@ function StepPageContent() {
           backgroundPosition: "center",
           borderRight: "3px solid #8B4513",
           boxShadow: "4px 0 12px rgba(0,0,0,0.15)",
-          height: isRotated ? `${height}px` : "100vh",
+          height: isRotated ? `${height}px` : "100dvh",
           overflowY: "auto",
         }}
       >
@@ -382,7 +382,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",
@@ -394,7 +394,7 @@ function StepPageContent() {
         >
           <div
             className="relative w-full max-w-lg"
-            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
           >
             <Image
               src={raftObjectModalImage}
@@ -402,7 +402,7 @@ function StepPageContent() {
               width={800}
               height={600}
               className="w-full h-auto object-contain pointer-events-none"
-              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
             <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12">
@@ -431,7 +431,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",
@@ -445,7 +445,7 @@ function StepPageContent() {
           {hintModal.image && !hintModal.hint ? (
             <div
               className="relative w-full max-w-4xl"
-              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
             >
               <Image
                 src={hintModal.image}
@@ -453,7 +453,7 @@ function StepPageContent() {
                 width={1200}
                 height={800}
                 className="w-full h-auto object-contain pointer-events-none"
-                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
                 sizes="(max-width: 640px) 100vw, 80vw"
               />
             </div>
@@ -523,7 +523,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",

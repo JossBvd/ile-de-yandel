@@ -324,13 +324,13 @@ export function DragOrderImagesGame({
           aria-modal="true"
           aria-label="Indice"
         >
-          <div className="relative w-full max-w-2xl max-h-[90vh] flex items-center justify-center cursor-pointer">
+          <div className="relative w-full max-w-2xl max-h-[90dvh] flex items-center justify-center cursor-pointer">
             <Image
               src={infoModalImageUrl}
               alt="Indice"
               width={800}
               height={600}
-              className="w-full h-auto max-h-[90vh] object-contain pointer-events-none"
+              className="w-full h-auto max-h-[90dvh] object-contain pointer-events-none"
               sizes="(max-width: 640px) 100vw, 42rem"
             />
           </div>

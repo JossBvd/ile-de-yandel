@@ -38,7 +38,7 @@ export function RecapModal({
       onClick={(e) => e.stopPropagation()}
     >
       <div
-        className="relative flex flex-col w-full h-[96dvh] max-h-[96vh] sm:h-auto sm:max-h-[min(92dvh,92vh)] sm:max-w-2xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl overflow-hidden"
+        className="relative flex flex-col w-full h-[96dvh] max-h-[96dvh] sm:h-auto sm:max-h-[min(92dvh,92dvh)] sm:max-w-2xl md:max-w-2xl lg:max-w-4xl xl:max-w-5xl rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl overflow-hidden"
         style={{
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",

@@ -176,7 +176,7 @@ function HomeContent() {
       className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100vh",
+        height: isRotated ? `${height}px` : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
