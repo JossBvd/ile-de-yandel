@@ -69,19 +69,22 @@ export function createRotationCollisionDetection(
     
     // Transformation vers le système du conteneur pivoté
     // 
-    // Rotation de 90° horaire : un point (x, y) se transforme en (y, -x)
-    // Donc l'inverse (rotation anti-horaire de 90°) : (x, y) se transforme en (-y, x)
+    // Contexte :
+    // - Téléphone en mode portrait (width < height)
+    // - Utilisateur tient le téléphone en mode paysage (tourné de 90° anti-horaire)
+    // - Le conteneur CSS est pivoté de 90° horaire pour compenser
     // 
-    // Pour transformer du viewport vers le conteneur :
-    // - Un mouvement vers la droite dans le viewport (relX augmente) 
-    //   doit devenir un mouvement vers le bas dans le conteneur (Y augmente)
-    // - Un mouvement vers le bas dans le viewport (relY augmente)
-    //   doit devenir un mouvement vers la gauche dans le conteneur (X diminue)
-    //
-    // Donc : transformedX = -relY_viewport, transformedY = relX_viewport
-    // Mais on doit aussi décaler pour recentrer dans le système du conteneur pivoté
-    const transformedX = rotatedWidth / 2 - relY_viewport;
-    const transformedY = rotatedHeight / 2 + relX_viewport;
+    // Quand l'utilisateur tient le téléphone tourné de 90° anti-horaire :
+    // - Glissement vers le bas physique = mouvement vers la droite dans le système du téléphone (X+)
+    // - Glissement vers la droite physique = mouvement vers le bas dans le système du téléphone (Y+)
+    // 
+    // Pour corriger les mouvements, on applique une rotation de 90° horaire :
+    // Rotation horaire de 90° : (x, y) → (y, -x)
+    // 
+    // - relX (droite dans système téléphone) → -transformedY (haut dans conteneur pivoté)
+    // - relY (bas dans système téléphone) → transformedX (droite dans conteneur pivoté)
+    const transformedX = rotatedWidth / 2 + relY_viewport;
+    const transformedY = rotatedHeight / 2 - relX_viewport;
     
     // Coordonnées transformées dans le système du conteneur pivoté
     const transformedPointerCoordinates = {
