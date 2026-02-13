@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { useOrientationContext } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface RecapModalProps {
   isOpen: boolean;
@@ -31,12 +31,7 @@ export function RecapModal({
   onRetry,
   onGoBack,
 }: RecapModalProps) {
-  const { height } = useOrientationContext();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge } = useResponsive();
   
   if (!isOpen) return null;
 
@@ -49,16 +44,15 @@ export function RecapModal({
       onClick={(e) => e.stopPropagation()}
     >
       <div
-        className="relative flex flex-col shadow-2xl overflow-hidden"
+        className="relative flex flex-col w-full shadow-2xl overflow-hidden"
         style={{
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "3px solid #8B7355",
-          width: '100%',
-          height: isSmallScreen ? '96dvh' : 'auto',
-          maxHeight: isSmallScreen ? '96dvh' : '92dvh',
-          maxWidth: isSmallScreen ? '100%' : isMediumScreen ? '672px' : isLargeScreen ? '896px' : '1280px',
+          height: isSmallScreen ? '92dvh' : '96dvh',
+          maxHeight: isSmallScreen ? '92dvh' : '96dvh',
+          maxWidth: isSmallScreen ? '100%' : isMediumScreen ? '672px' : isDesktopSmall ? '672px' : isDesktopMedium ? '896px' : '1024px',
           borderRadius: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '24px',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -66,16 +60,16 @@ export function RecapModal({
         <header 
           className="flex items-center justify-end shrink-0"
           style={{
-            paddingTop: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
-            paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+            paddingTop: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
+            paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
             paddingBottom: '0',
-            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '32px',
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '32px',
           }}
         >
           <h2 
             className="font-bold text-gray-800 italic"
             style={{
-              fontSize: isSmallScreen ? '1.5rem' : isMediumScreen ? '1.875rem' : '2.25rem',
+              fontSize: isSmallScreen ? '1.5rem' : isMediumScreen ? '1.875rem' : isDesktopMedium ? '2.25rem' : '2.5rem',
             }}
           >
             RECAP
@@ -88,13 +82,13 @@ export function RecapModal({
             paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '20px' : '20px',
             paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '20px' : '20px',
             paddingBottom: isSmallScreen ? '80px' : isMediumScreen ? '80px' : '96px',
-            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '8px' : '16px',
+            paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '16px',
           }}
         >
           <div 
             className="flex flex-row w-full max-w-full"
             style={{
-              gap: isSmallScreen ? '12px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
+              gap: isSmallScreen ? '12px' : isMediumScreen ? '24px' : isDesktopSmall ? '32px' : isDesktopMedium ? '40px' : '40px',
             }}
           >
             <div 
@@ -102,7 +96,7 @@ export function RecapModal({
               style={{
                 width: isSmallScreen ? '40%' : 'auto',
                 flex: isSmallScreen ? 'none' : '1',
-                gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isLargeScreen ? '20px' : '20px',
+                gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isDesktopSmall ? '20px' : '20px',
                 paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
                 paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
               }}
@@ -110,8 +104,8 @@ export function RecapModal({
               <div 
                 className="relative shrink-0"
                 style={{
-                  width: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isLargeScreen ? '80px' : '96px',
-                  height: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isLargeScreen ? '80px' : '96px',
+                  width: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isDesktopSmall ? '80px' : isDesktopMedium ? '96px' : '96px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '64px' : isDesktopSmall ? '80px' : isDesktopMedium ? '96px' : '96px',
                 }}
               >
                 <Image
@@ -124,17 +118,11 @@ export function RecapModal({
                   className="object-contain w-full h-full"
                 />
               </div>
-              <div 
-                className="min-w-0 w-full flex-initial text-center"
-                style={{
-                  paddingLeft: '4px',
-                  paddingRight: '4px',
-                }}
-              >
+              <div className="min-w-0 w-full flex-initial text-center px-1">
                 <h3 
                   className="font-bold text-gray-900 uppercase leading-tight"
                   style={{
-                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : isLargeScreen ? '1.5rem' : '1.875rem',
+                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : isDesktopSmall ? '1.5rem' : isDesktopMedium ? '1.875rem' : '1.875rem',
                   }}
                 >
                   {hasPassed ? "Mission accomplie !" : "TU Y ES PRESQUE !"}
@@ -143,11 +131,9 @@ export function RecapModal({
                   <>
                     {missionMessage ? (
                       <p 
-                        className="text-gray-700 italic line-clamp-2 mx-auto"
+                        className="text-gray-700 italic mt-1 line-clamp-2 max-w-[90%] mx-auto"
                         style={{
-                          fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.125rem',
-                          marginTop: '4px',
-                          maxWidth: '90%',
+                          fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isDesktopSmall ? '1.125rem' : '1.125rem',
                         }}
                       >
                         {missionMessage}
@@ -155,18 +141,17 @@ export function RecapModal({
                     ) : null}
                     {raftPieceName ? (
                       <div 
-                        className="flex items-center justify-center"
+                        className="flex items-center justify-center gap-2"
                         style={{
-                          gap: '8px',
-                          marginTop: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+                          marginTop: isSmallScreen ? '12px' : '16px',
                         }}
                       >
                         {raftPieceImage ? (
                           <div 
                             className="relative shrink-0"
                             style={{
-                              width: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '48px',
-                              height: isSmallScreen ? '40px' : isMediumScreen ? '48px' : '48px',
+                              width: isSmallScreen ? '40px' : '48px',
+                              height: isSmallScreen ? '40px' : '48px',
                             }}
                           >
                             <Image
@@ -181,7 +166,7 @@ export function RecapModal({
                         <p 
                           className="font-semibold text-gray-800"
                           style={{
-                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1rem',
+                            fontSize: isSmallScreen ? '0.875rem' : '1rem',
                           }}
                         >
                           Tu as collecté : {raftPieceName}
@@ -191,12 +176,10 @@ export function RecapModal({
                   </>
                 ) : (
                   <p
-                    className="mx-auto"
+                    className="mt-1 max-w-[90%] mx-auto"
                     style={{ 
                       color: "#34495E",
-                      fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.125rem',
-                      marginTop: '4px',
-                      maxWidth: '90%',
+                      fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isDesktopSmall ? '1.125rem' : '1.125rem',
                     }}
                   >
                     Ne te décourage pas, réessaie !
@@ -207,10 +190,9 @@ export function RecapModal({
 
             <div className="flex flex-1 min-w-0 flex-col justify-center">
               <ul 
+                className="flex flex-col"
                 style={{
-                  gap: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isLargeScreen ? '12px' : '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
+                  gap: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
                 }}
               >
                 {Array.from({ length: totalQuestions }, (_, i) => {
@@ -221,11 +203,9 @@ export function RecapModal({
                   return (
                     <li
                       key={questionNumber}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between py-1"
                       style={{
                         gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '12px',
-                        paddingTop: '4px',
-                        paddingBottom: '4px',
                       }}
                     >
                       <div 
@@ -239,8 +219,8 @@ export function RecapModal({
                             <div 
                               className="shrink-0 relative"
                               style={{
-                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
-                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
+                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
                               }}
                             >
                               <Image
@@ -255,8 +235,8 @@ export function RecapModal({
                             <div 
                               className="shrink-0 relative"
                               style={{
-                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
-                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                                width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
+                                height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
                               }}
                             >
                               <Image
@@ -272,15 +252,15 @@ export function RecapModal({
                           <div 
                             className="shrink-0 rounded-full bg-gray-300"
                             style={{
-                              width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
-                              height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isLargeScreen ? '32px' : '32px',
+                              width: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
+                              height: isSmallScreen ? '24px' : isMediumScreen ? '28px' : isDesktopSmall ? '32px' : '32px',
                             }}
                           />
                         )}
                         <span 
                           className="font-semibold text-gray-800 truncate"
                           style={{
-                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
+                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isDesktopSmall ? '1.125rem' : isDesktopMedium ? '1.25rem' : '1.25rem',
                           }}
                         >
                           Question {questionNumber}
@@ -292,11 +272,11 @@ export function RecapModal({
                           onClick={() => onReviewQuestion(questionNumber)}
                           className="shrink-0 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-all hover:scale-105 active:scale-95 touch-manipulation"
                           style={{
-                            paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
-                            paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
-                            paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-                            paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-                            fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1rem',
+                            paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isDesktopSmall ? '20px' : '20px',
+                            paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isDesktopSmall ? '20px' : '20px',
+                            paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isDesktopSmall ? '10px' : '10px',
+                            paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isDesktopSmall ? '10px' : '10px',
+                            fontSize: isSmallScreen ? '0.875rem' : '1rem',
                           }}
                         >
                           Correction
@@ -316,8 +296,8 @@ export function RecapModal({
             onClick={onContinue}
             className="absolute p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
             style={{
-              bottom: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
-              right: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              bottom: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
+              right: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
             }}
             aria-label="Continuer"
           >
@@ -326,10 +306,10 @@ export function RecapModal({
               alt=""
               width={48}
               height={48}
-              className="block object-contain"
+              className="block"
               style={{
-                width: isSmallScreen ? '48px' : isMediumScreen ? '48px' : '56px',
-                height: isSmallScreen ? '48px' : isMediumScreen ? '48px' : '56px',
+                width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '56px',
+                height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '56px',
               }}
             />
           </button>
@@ -337,9 +317,9 @@ export function RecapModal({
           <div 
             className="absolute flex justify-end"
             style={{
-              bottom: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
-              left: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
-              right: isSmallScreen ? '20px' : isMediumScreen ? '20px' : '24px',
+              bottom: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
+              left: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
+              right: isSmallScreen ? '20px' : isMediumScreen ? '24px' : '24px',
               flexDirection: isSmallScreen ? 'column' : 'row',
               gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
             }}

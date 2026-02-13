@@ -7,6 +7,7 @@ import {
   OrientationGuard,
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
@@ -32,11 +33,7 @@ function JournalContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
   const { setLastViewedCompletedMission } = useUIStore();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
 
   useEffect(() => {
     const latestCompletedMission = completedMissions.length > 0 
@@ -78,8 +75,8 @@ function JournalContent() {
       <div 
         className="absolute z-10"
         style={{
-          top: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
-          left: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+          top: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '24px',
+          left: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
         }}
       >
         <div 
@@ -122,7 +119,7 @@ function JournalContent() {
             containerType: "size", 
             containerName: "journal-missions-column",
             paddingTop: "clamp(60px, 10vh, 120px)",
-            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '56px' : '64px',
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '48px' : '64px',
           }}
         >
           <div
@@ -186,20 +183,17 @@ function JournalContent() {
         <div className="flex-1 flex flex-col min-w-0 min-h-0">
           {selectedMission && (
             <div
-              className="rounded-xl min-h-full flex-1 overflow-y-auto"
+              className="flex flex-col rounded-xl min-h-full flex-1 overflow-y-auto"
               style={{
                 border: "3px solid #c4a574",
                 boxShadow: "2px 4px 12px rgba(0, 0, 0, 0.12)",
                 gap: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '24px',
                 padding: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '24px',
-                display: 'flex',
-                flexDirection: 'column',
               }}
             >
               <div 
-                className="relative w-full self-center shrink-0"
+                className="relative w-full max-w-[200px] self-center shrink-0"
                 style={{
-                  maxWidth: '200px',
                   height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
                 }}
               >
@@ -230,13 +224,16 @@ function JournalContent() {
                     key={index}
                     className="rounded-full shadow-md bg-orange-500"
                     style={{
-                      padding: isSmallScreen ? '12px 16px' : isMediumScreen ? '16px 24px' : '20px 32px',
+                      paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                      paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                      paddingTop: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
+                      paddingBottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px',
                     }}
                   >
                     <p 
                       className="text-white font-medium text-center"
                       style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
+                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isDesktopMedium ? '1rem' : '1.125rem',
                       }}
                     >
                       Ressource enseignant

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface IconButtonProps {
   icon: string;
@@ -29,6 +30,8 @@ export function IconButton({
   disabled = false,
   className = "",
 }: IconButtonProps) {
+  const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  
   return (
     <button
       type="button"
@@ -47,10 +50,25 @@ export function IconButton({
         alt={alt}
         width={56}
         height={56}
-        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain shrink-0"
+        className="object-contain shrink-0"
+        style={{
+          width: isMobileOrTablet 
+            ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px')
+            : (isDesktopSmall ? '72px' : isDesktopMedium ? '88px' : '104px'),
+          height: isMobileOrTablet 
+            ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px')
+            : (isDesktopSmall ? '72px' : isDesktopMedium ? '88px' : '104px'),
+        }}
       />
       {showLabel && label && (
-        <span className="text-sm sm:text-base font-semibold text-gray-800 drop-shadow-sm whitespace-nowrap">
+        <span 
+          className="font-semibold text-gray-800 drop-shadow-sm whitespace-nowrap"
+          style={{
+            fontSize: isMobileOrTablet 
+              ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+              : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'),
+          }}
+        >
           {label}
         </span>
       )}

@@ -2,17 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { OrientationGuard, useOrientationContext } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 
-function WelcomeContent() {
+export default function WelcomePage() {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
-  const { height } = useOrientationContext();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
 
   useEffect(() => {
     const savedPseudo = localStorage.getItem("playerPseudo");
@@ -48,20 +43,16 @@ function WelcomeContent() {
         <h1 
           className="font-bold text-gray-800 text-center mb-4"
           style={{
-            fontSize: isSmallScreen ? '2rem' : isMediumScreen ? '2.5rem' : '3rem',
+            fontSize: isSmallScreen ? '2rem' : isMediumScreen ? '2.5rem' : isDesktopSmall ? '3rem' : '3.75rem',
           }}
         >
           Île de Yandel
         </h1>
       </div>
 
-      <div 
-        className="absolute left-1/2 transform -translate-x-1/2 flex items-center w-full max-w-2xl"
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center px-4 w-full max-w-2xl"
         style={{
-          bottom: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '32px',
           gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
         }}
       >
         <input
@@ -72,7 +63,10 @@ function WelcomeContent() {
           placeholder="PSEUDO"
           className="flex-1 rounded-none border-2 border-gray-400 focus:border-orange-500 focus:outline-none text-center bg-white shadow-lg text-black"
           style={{
-            padding: isSmallScreen ? '12px 20px' : isMediumScreen ? '14px 24px' : '16px 24px',
+            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '24px',
+            paddingRight: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '24px',
+            paddingTop: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
             fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
           }}
           maxLength={20}
@@ -83,21 +77,16 @@ function WelcomeContent() {
           disabled={!pseudo.trim()}
           className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-full transition-colors uppercase shadow-lg"
           style={{
-            padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '14px 28px' : '16px 32px',
-            fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : '1.5rem',
+            paddingLeft: isSmallScreen ? '32px' : isMediumScreen ? '32px' : '32px',
+            paddingRight: isSmallScreen ? '32px' : isMediumScreen ? '32px' : '32px',
+            paddingTop: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : '1.5rem',
           }}
         >
           JOUER !
         </button>
       </div>
     </div>
-  );
-}
-
-export default function WelcomePage() {
-  return (
-    <OrientationGuard>
-      <WelcomeContent />
-    </OrientationGuard>
   );
 }

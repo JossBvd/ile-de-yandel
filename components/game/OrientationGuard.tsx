@@ -29,7 +29,7 @@ interface OrientationGuardProps {
  */
 export function OrientationGuard({ children }: OrientationGuardProps) {
   const [mounted, setMounted] = useState(false);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
 
   useEffect(() => {
     setMounted(true);
@@ -52,15 +52,12 @@ export function OrientationGuard({ children }: OrientationGuardProps) {
     };
   }, []);
 
-  const defaultWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
-  const defaultHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
-
   return (
     <OrientationContext.Provider
       value={{
         isRotated: false,
-        width: dimensions.width > 0 ? dimensions.width : defaultWidth,
-        height: dimensions.height > 0 ? dimensions.height : defaultHeight,
+        width: dimensions.width,
+        height: dimensions.height,
       }}
     >
       <LandscapeEnforcer />

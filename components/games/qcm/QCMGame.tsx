@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Step, QCMGameData } from "@/types/step";
-import { useOrientationContext } from "@/components/game/OrientationGuard";
 
 interface QCMGameProps {
   step: Step;
@@ -30,12 +29,6 @@ export function QCMGame({
     Record<number, number>
   >({});
   const [results, setResults] = useState<Record<number, boolean>>({});
-  const { height } = useOrientationContext();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
 
   const goToQuestion = (questionNum: number) => {
     setCurrentQuestion(questionNum);
@@ -85,224 +78,143 @@ export function QCMGame({
     }
   };
 
-
   return (
     <>
-      <div 
-        className="absolute left-0 right-0 z-10 pointer-events-none flex flex-col"
-        style={{
-          top: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-          bottom: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-          paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '24px',
-          paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isLargeScreen ? '16px' : '24px',
-        }}
-      >
-        <div 
-          className="w-full flex-1 overflow-visible flex flex-col pointer-events-auto"
-          style={{
-            gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '10px' : '12px',
-            justifyContent: 'flex-start',
-            paddingTop: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
-          }}
-        >
+      <div className="absolute top-4 sm:top-6 md:top-8 lg:top-10 bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 left-0 right-0 pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-2 sm:pr-3 md:pr-4 lg:pr-6 z-10 pointer-events-none flex flex-col">
+        <div className="w-full flex-1 overflow-visible flex flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto justify-center">
           <div
-            className="w-full shadow-xl pointer-events-auto"
+            className="w-full rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl pointer-events-auto"
             style={{
               backgroundColor: "#E8DCC8",
               border: "3px solid #D4B896",
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-              borderRadius: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '16px',
-              padding: isSmallScreen ? '6px 8px' : isMediumScreen ? '8px 10px' : isLargeScreen ? '10px 12px' : '12px 14px',
-              maxHeight: `${Math.floor(height / 3)}px`,
-              overflowY: 'auto',
             }}
           >
-            <h2 
-              className="font-bold text-gray-900 text-center"
-              style={{
-                fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
-                marginBottom: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
-                lineHeight: '1.2',
-              }}
-            >
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 text-center">
               {showCorrection
                 ? `Correction question ${currentQuestion}`
                 : totalQuestions === 1
-                ? step.title
-                : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
+                  ? step.title
+                  : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
             </h2>
 
-            <p 
-              className="text-gray-800 italic text-center"
-              style={{
-                fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
-                lineHeight: '1.3',
-              }}
-            >
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-800 italic text-center leading-relaxed">
               {game.question}
             </p>
           </div>
 
-          <div 
-            className="w-full grid grid-cols-2 pointer-events-auto"
-            style={{
-              gap: isSmallScreen ? '4px' : isMediumScreen ? '6px' : isLargeScreen ? '8px' : '10px',
-              padding: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
-            }}
-          >
-          {game.options.map((option, index) => {
-            const isCorrectOption = game.correctAnswers.includes(index);
+          <div className="w-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto p-1 sm:p-2">
+            {game.options.map((option, index) => {
+              const isCorrectOption = game.correctAnswers.includes(index);
 
-            let buttonColor =
-              "bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 hover:scale-105 active:scale-95";
+              let buttonColor =
+                "bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 hover:scale-105 active:scale-95";
 
-            if (showCorrection) {
-              if (isCorrectOption) {
-                buttonColor = "bg-correct-answer";
-              } else {
-                buttonColor = "bg-incorrect-answer";
+              if (showCorrection) {
+                if (isCorrectOption) {
+                  buttonColor = "bg-correct-answer";
+                } else {
+                  buttonColor = "bg-incorrect-answer";
+                }
               }
-            }
 
-            return (
-              <button
-                key={option.id}
-                onClick={() => handleOptionClick(index)}
-                disabled={showCorrection}
-                className={`
-                  font-bold transition-all duration-300 transform
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => handleOptionClick(index)}
+                  disabled={showCorrection}
+                  className={`
+                  py-3 sm:py-4 md:py-5 lg:py-6 px-3 sm:px-5 md:px-7 lg:px-9 rounded-xl sm:rounded-2xl md:rounded-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold
+                  transition-all duration-300 transform
                   ${buttonColor}
-                  text-white shadow-lg hover:shadow-xl
+                  text-white
+                  shadow-lg hover:shadow-xl
                   ${showCorrection ? "cursor-default" : ""}
-                  focus:outline-none focus:ring-orange-300 flex items-center
+                  focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-orange-300
+                  flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5
                 `}
-                style={{
-                  textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                  padding: isSmallScreen ? '6px 8px' : isMediumScreen ? '8px 10px' : isLargeScreen ? '10px 12px' : '12px 14px',
-                }}
-              >
-                <span 
-                  className="font-bold shrink-0"
                   style={{
-                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : isLargeScreen ? '1.25rem' : '1.5rem',
-                    marginRight: isSmallScreen ? '4px' : isMediumScreen ? '6px' : '8px',
+                    textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                   }}
                 >
-                  {option.id}
-                </span>
-                <span 
-                  className="flex-1 text-left"
-                  style={{
-                    fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
-                    lineHeight: '1.2',
-                  }}
-                >
-                  {option.text}
-                </span>
-              </button>
-            );
-          })}
+                  <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold shrink-0">
+                    {option.id}
+                  </span>
+                  <span className="flex-1 text-left text-sm sm:text-base md:text-lg lg:text-xl">
+                    {option.text}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          <div 
-            className={`w-full flex ${isStep2 ? "justify-center" : "justify-between"} items-center pointer-events-auto`}
-            style={{
-              paddingTop: isSmallScreen ? '2px' : isMediumScreen ? '4px' : isLargeScreen ? '6px' : '8px',
-              minHeight: isSmallScreen ? '2rem' : isMediumScreen ? '2.5rem' : isLargeScreen ? '3rem' : '3rem',
-              gap: isSmallScreen ? '4px' : isMediumScreen ? '6px' : isLargeScreen ? '8px' : '10px',
-              paddingLeft: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
-              paddingRight: isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px',
-            }}
+          <div
+            className={`w-full flex ${isStep2 ? "justify-center" : "justify-between"} items-center pt-1 sm:pt-2 md:pt-3 lg:pt-4 min-h-[2.5rem] sm:min-h-[3rem] md:min-h-[3.5rem] gap-2 sm:gap-3 md:gap-4 pointer-events-auto px-1 sm:px-2`}
           >
-          {!isStep2 && (
-            <div className="min-w-0 flex-1 flex justify-start">
-              {currentQuestion > 1 ? (
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className="font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
-                  style={{
-                    paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '16px' : isLargeScreen ? '24px' : '32px',
-                    paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '16px' : isLargeScreen ? '24px' : '32px',
-                    paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                    paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                    fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isLargeScreen ? '1rem' : '1.125rem',
-                  }}
-                >
-                  ← Question précédente
-                </button>
+            {!isStep2 && (
+              <div className="min-w-0 flex-1 flex justify-start">
+                {currentQuestion > 1 ? (
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className="px-2 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 lg:py-4 text-xs sm:text-sm md:text-base lg:text-lg font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                  >
+                    ← Question précédente
+                  </button>
+                ) : (
+                  <span
+                    className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
+                    aria-hidden="true"
+                  >
+                    ←
+                  </span>
+                )}
+              </div>
+            )}
+            <div
+              className={`min-w-0 ${isStep2 ? "w-full flex justify-center" : "flex-1 flex justify-end"}`}
+            >
+              {showCorrection ? (
+                currentQuestion === totalQuestions &&
+                results[currentQuestion] === false ? (
+                  <button
+                    type="button"
+                    onClick={handleRetryQuiz}
+                    className={`px-4 sm:px-6 md:px-8 lg:px-9 xl:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 xl:py-4.5 text-sm sm:text-base md:text-lg lg:text-xl xl:text-xl font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
+                      isStep2
+                        ? "w-auto min-w-[140px] sm:min-w-[160px] md:min-w-[180px] lg:min-w-[200px]"
+                        : ""
+                    }`}
+                  >
+                    Rejouer
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleContinue}
+                    className={`px-4 sm:px-6 md:px-8 lg:px-9 xl:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 xl:py-4.5 text-sm sm:text-base md:text-lg lg:text-xl xl:text-xl font-bold text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
+                      isStep2
+                        ? "bg-orange-500 hover:bg-orange-600 w-auto min-w-[140px] sm:min-w-[160px] md:min-w-[180px] lg:min-w-[200px]"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
+                  >
+                    {currentQuestion < totalQuestions
+                      ? "Question suivante →"
+                      : "Terminer"}
+                  </button>
+                )
               ) : (
                 <span
-                  className="inline-block w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
-                  style={{
-                    paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                    paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                  }}
+                  className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
                   aria-hidden="true"
                 >
-                  ←
+                  →
                 </span>
               )}
             </div>
-          )}
-          <div className={`min-w-0 ${isStep2 ? "w-full flex justify-center" : "flex-1 flex justify-end"}`}>
-            {showCorrection ? (
-              currentQuestion === totalQuestions && results[currentQuestion] === false ? (
-                <button
-                  type="button"
-                  onClick={handleRetryQuiz}
-                  className="font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
-                  style={{
-                    paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-                    paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-                    paddingTop: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '18px',
-                    paddingBottom: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '18px',
-                    fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
-                    minWidth: isStep2 ? (isSmallScreen ? '140px' : isMediumScreen ? '160px' : isLargeScreen ? '180px' : '200px') : 'auto',
-                  }}
-                >
-                  Rejouer
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  className={`font-bold text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
-                    isStep2 
-                      ? "bg-orange-500 hover:bg-orange-600" 
-                      : "bg-green-600 hover:bg-green-700"
-                  }`}
-                  style={{
-                    paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-                    paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '24px' : isLargeScreen ? '32px' : '40px',
-                    paddingTop: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '18px',
-                    paddingBottom: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isLargeScreen ? '14px' : '18px',
-                    fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isLargeScreen ? '1.125rem' : '1.25rem',
-                    minWidth: isStep2 ? (isSmallScreen ? '140px' : isMediumScreen ? '160px' : isLargeScreen ? '180px' : '200px') : 'auto',
-                  }}
-                >
-                  {currentQuestion < totalQuestions
-                    ? "Question suivante →"
-                    : "Terminer"}
-                </button>
-              )
-            ) : (
-              <span
-                className="inline-block w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
-                style={{
-                  paddingTop: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                  paddingBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : isLargeScreen ? '12px' : '16px',
-                }}
-                aria-hidden="true"
-              >
-                →
-              </span>
-            )}
           </div>
         </div>
-        </div>
       </div>
-
     </>
   );
 }

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Step, EnigmaGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
-import { useOrientationContext } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface EnigmaGameProps {
   step: Step;
@@ -14,18 +14,19 @@ interface EnigmaGameProps {
   skipVictoryModal?: boolean;
 }
 
-export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGameProps) {
+export function EnigmaGame({
+  step,
+  onComplete,
+  skipVictoryModal,
+}: EnigmaGameProps) {
   const game = step.game as EnigmaGameData;
-  const { height } = useOrientationContext();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
   const [answer, setAnswer] = useState("");
   const [showVictory, setShowVictory] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
   
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
+  const isStep1 = step.id.endsWith('-step-1');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,76 +78,42 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
           boxShadow: "inset 0 0 80px 20px rgba(200, 0, 0, 0.2)",
         }}
       />
-      <div 
+      <div
         className="absolute left-0 right-0 z-10 pointer-events-none"
         style={{
-          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-          paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-          paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-          maxHeight: `${Math.floor(height / 3)}px`,
+          top: isStep1 ? '0' : (isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px'),
+          paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px',
+          paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px',
+          maxHeight: isStep1 ? "33.333%" : "33vh",
         }}
       >
         <div
-          className="shadow-xl border-2 border-amber-800/30 flex flex-col pointer-events-auto bg-cover bg-center bg-no-repeat w-full overflow-y-auto"
+          className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl border-2 border-amber-800/30 flex flex-col gap-1.5 sm:gap-2 md:gap-3 pointer-events-auto bg-cover bg-center bg-no-repeat w-full max-h-full overflow-y-auto"
           style={{
             backgroundImage: "url(/backgrounds/paper_texture.webp)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            borderRadius: isSmallScreen ? '10px' : isMediumScreen ? '12px' : '14px',
-            padding: isSmallScreen ? '6px 8px' : isMediumScreen ? '8px 10px' : '10px 12px',
-            gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
           }}
         >
-          <div 
-            className="flex flex-row items-start"
-            style={{
-              gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-            }}
-          >
+          <div className="flex flex-row items-start gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
             <div className="flex-1 min-w-0 flex flex-col">
               {(() => {
                 const [instruction, sentence] = game.text.split(/\n\n/, 2);
                 const hasTwoParts = sentence !== undefined;
                 return hasTwoParts ? (
                   <>
-                    <p 
-                      className="text-gray-800 font-bold"
-                      style={{
-                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
-                        lineHeight: '1.4',
-                        marginBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-                      }}
-                    >
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight mb-0.5 sm:mb-1 md:mb-2 font-bold">
                       {instruction}
                     </p>
-                    <p 
-                      className="text-gray-800 italic"
-                      style={{
-                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
-                        lineHeight: '1.4',
-                      }}
-                    >
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
                       {sentence}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h2 
-                      className="text-center font-bold text-gray-900 uppercase tracking-wide"
-                      style={{
-                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
-                        marginBottom: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-                        lineHeight: '1.3',
-                      }}
-                    >
+                    <h2 className="text-center text-sm sm:text-base md:text-lg font-bold text-gray-900 uppercase tracking-wide mb-0.5 sm:mb-1 md:mb-2">
                       Énigme
                     </h2>
-                    <p 
-                      className="text-gray-800 italic"
-                      style={{
-                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
-                        lineHeight: '1.4',
-                      }}
-                    >
+                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
                       « {game.text} »
                     </p>
                   </>
@@ -156,10 +123,7 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
 
             <form
               onSubmit={handleSubmit}
-              className="flex flex-row items-center shrink-0"
-              style={{
-                gap: isSmallScreen ? '6px' : isMediumScreen ? '8px' : '10px',
-              }}
+              className="flex flex-row items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0"
             >
               <label htmlFor="enigma-answer" className="sr-only">
                 Champ réponse
@@ -172,30 +136,17 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                 placeholder="Réponse"
                 autoComplete="off"
                 name={`enigma-answer-${step.id}`}
-                className={`rounded border-2 text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
+                className={`w-24 sm:w-28 md:w-36 lg:w-40 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base rounded border-2 text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
                   hasError
                     ? "bg-red-100 border-red-500 focus:border-red-600"
                     : "bg-white border-gray-800 focus:border-amber-600"
                 }`}
-                style={{
-                  width: isSmallScreen ? '90px' : isMediumScreen ? '120px' : '150px',
-                  padding: isSmallScreen ? '8px 10px' : isMediumScreen ? '10px 12px' : '12px 14px',
-                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1rem' : '1.125rem',
-                  minHeight: isSmallScreen ? '36px' : isMediumScreen ? '40px' : '44px',
-                  lineHeight: '1.5',
-                }}
               />
               <button
                 type="submit"
                 disabled={!answer.trim()}
-                className="shrink-0 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
+                className="shrink-0 min-w-[32px] min-h-[32px] w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
                 aria-label="Envoyer"
-                style={{
-                  minWidth: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
-                  minHeight: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
-                  width: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
-                  height: isSmallScreen ? '44px' : isMediumScreen ? '52px' : '60px',
-                }}
               >
                 <Image
                   src="/ui/icon_bottle_send.webp"

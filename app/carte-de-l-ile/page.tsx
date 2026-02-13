@@ -8,6 +8,8 @@ import {
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePWAMode } from "@/hooks/usePWAMode";
+import { useResponsive } from "@/hooks/useResponsive";
 import { getMissionById, getStepsByMissionId } from "@/data/missions";
 import { getStepPath } from "@/lib/navigation";
 import { IconButton } from "@/components/ui/IconButton";
@@ -40,11 +42,8 @@ function HomeContent() {
   const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  // height < 600 = mobile très petit, height < 800 = mobile/tablette, height >= 800 = desktop
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
+  const { isPWAFullscreen } = usePWAMode();
+  const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -192,15 +191,21 @@ function HomeContent() {
       <div 
         className="absolute z-10"
         style={{
-          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
-          left: 0,
+          top: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          left: '0',
         }}
       >
         <div 
           className="relative"
           style={{
-            width: isSmallScreen ? '220px' : isMediumScreen ? '300px' : '400px',
-            height: isSmallScreen ? '75px' : isMediumScreen ? '100px' : '140px',
+            width: isMobileOrTablet 
+              ? (isSmallScreen ? '180px' : isMediumScreen ? '240px' : '280px')
+              : (isDesktopSmall ? '400px' : isDesktopMedium ? '480px' : '560px'),
+            height: isMobileOrTablet 
+              ? (isSmallScreen ? '60px' : isMediumScreen ? '80px' : '100px')
+              : (isDesktopSmall ? '140px' : isDesktopMedium ? '160px' : '180px'),
           }}
         >
           <Image
@@ -213,7 +218,9 @@ function HomeContent() {
             <h1 
               className="font-bold text-gray-800 drop-shadow-sm"
               style={{
-                fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.25rem' : '1.875rem',
+                fontSize: isMobileOrTablet 
+                  ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.25rem')
+                  : (isDesktopSmall ? '1.75rem' : isDesktopMedium ? '2rem' : '2.25rem'),
               }}
             >
               Carte de l&apos;île
@@ -226,8 +233,12 @@ function HomeContent() {
       <div 
         className="absolute z-10"
         style={{
-          top: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '64px',
-          right: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+          top: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          right: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '16px' : isDesktopMedium ? '24px' : '32px'),
         }}
       >
         <button
@@ -245,8 +256,12 @@ function HomeContent() {
           }}
           className="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors"
           style={{
-            padding: isSmallScreen ? '6px 12px' : isMediumScreen ? '8px 16px' : '8px 16px',
-            fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem',
+            padding: isMobileOrTablet 
+              ? (isSmallScreen ? '6px 12px' : isMediumScreen ? '8px 16px' : '10px 20px')
+              : (isDesktopSmall ? '10px 20px' : isDesktopMedium ? '12px 24px' : '14px 28px'),
+            fontSize: isMobileOrTablet 
+              ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+              : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'),
           }}
           title="Réinitialiser la progression"
         >
@@ -258,8 +273,12 @@ function HomeContent() {
       <div 
         className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2"
         style={{
-          width: isSmallScreen ? '90%' : isMediumScreen ? '85%' : '70%',
-          height: isSmallScreen ? '85%' : isMediumScreen ? '87%' : '88%',
+          width: isMobileOrTablet 
+            ? (isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%')
+            : (isDesktopSmall ? '65%' : isDesktopMedium ? '60%' : '55%'),
+          height: isMobileOrTablet 
+            ? (isSmallScreen ? '85%' : isMediumScreen ? '87%' : '88%')
+            : (isDesktopSmall ? '88%' : isDesktopMedium ? '90%' : '92%'),
         }}
       >
         <div className="relative h-full w-full">
@@ -289,8 +308,12 @@ function HomeContent() {
                 <div 
                   className="relative"
                   style={{
-                    width: isSmallScreen ? '150px' : isMediumScreen ? '200px' : '280px',
-                    height: isSmallScreen ? '150px' : isMediumScreen ? '200px' : '280px',
+                    width: isMobileOrTablet 
+                      ? (isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px')
+                      : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
+                    height: isMobileOrTablet 
+                      ? (isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px')
+                      : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
                   }}
                 >
                   <Image
@@ -307,10 +330,18 @@ function HomeContent() {
                     <div 
                       className="absolute z-10 pointer-events-none"
                       style={{
-                        top: isSmallScreen ? '10px' : isMediumScreen ? '14px' : '20px',
-                        right: isSmallScreen ? '10px' : isMediumScreen ? '14px' : '20px',
-                        width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '48px',
-                        height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '48px',
+                        top: isMobileOrTablet 
+                          ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+                          : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+                        right: isMobileOrTablet 
+                          ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+                          : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+                        width: isMobileOrTablet 
+                          ? (isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px')
+                          : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
+                        height: isMobileOrTablet 
+                          ? (isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px')
+                          : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
                       }}
                     >
                       <Image
@@ -325,7 +356,9 @@ function HomeContent() {
                     <span 
                       className="font-semibold text-gray-800 drop-shadow-sm"
                       style={{
-                        fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.25rem',
+                        fontSize: isMobileOrTablet 
+                          ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+                          : (isDesktopSmall ? '1.25rem' : isDesktopMedium ? '1.5rem' : '1.75rem'),
                       }}
                     >
                       Mission {missionNumber}
@@ -341,9 +374,15 @@ function HomeContent() {
       <div 
         className="absolute z-10 flex items-center"
         style={{
-          bottom: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-          left: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
-          gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px',
+          bottom: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          left: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          gap: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '20px' : isDesktopMedium ? '24px' : '32px'),
         }}
       >
         <div className="relative">
@@ -411,34 +450,19 @@ function HomeContent() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           onClick={() => setSelectedMissionId(null)}
-          style={{
-            padding: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
-          }}
         >
           <div
-            className="relative bg-cover bg-center bg-no-repeat rounded-3xl shadow-2xl"
+            className="relative w-[80vw] max-w-md aspect-4/3 bg-cover bg-center bg-no-repeat rounded-3xl shadow-2xl"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
-              width: isSmallScreen ? '90%' : isMediumScreen ? '75%' : '60%',
-              maxWidth: isSmallScreen ? '400px' : isMediumScreen ? '500px' : '600px',
-              aspectRatio: isSmallScreen ? '4/3' : isMediumScreen ? '4/3' : '3/2',
-              borderRadius: isSmallScreen ? '16px' : isMediumScreen ? '20px' : '24px',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div 
-              className="absolute inset-0 flex flex-col items-center justify-center"
-              style={{
-                gap: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '48px',
-                padding: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '40px',
-              }}
-            >
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
               <h2 
                 className="m-0 font-bold text-gray-800 text-center drop-shadow-sm"
                 style={{
-                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.5rem' : '2rem',
-                  lineHeight: '1.2',
-                  padding: isSmallScreen ? '0 8px' : isMediumScreen ? '0 12px' : '0 16px',
+                  fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem',
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
@@ -450,10 +474,10 @@ function HomeContent() {
                 disabled={selectedMissionId === "mission-2"}
                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
                 style={{
-                  padding: isSmallScreen ? '10px 20px' : isMediumScreen ? '14px 28px' : '18px 36px',
-                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1.25rem' : '1.75rem',
-                  minWidth: isSmallScreen ? '120px' : isMediumScreen ? '160px' : '200px',
+                  padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px',
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem',
                 }}
+              
               >
                 Jouer !
               </button>

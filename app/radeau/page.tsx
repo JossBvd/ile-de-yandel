@@ -8,6 +8,7 @@ import {
   RotatedContainer,
   useOrientationContext,
 } from "@/components/game/OrientationProvider";
+import { useResponsive } from "@/hooks/useResponsive";
 import { IconButton } from "@/components/ui/IconButton";
 import { useInventoryStore } from "@/store/inventoryStore";
 import { useUIStore } from "@/store/uiStore";
@@ -170,11 +171,6 @@ function RadeauContent({
 }: RadeauContentProps) {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
-  
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
   const {
     collectedPieces,
     fusedRaftPiecesCount,
@@ -182,6 +178,7 @@ function RadeauContent({
     consumePiecesForFusion,
   } = useInventoryStore();
   const { markRaftAsViewed } = useUIStore();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall } = useResponsive();
 
   useEffect(() => {
     markRaftAsViewed();
@@ -261,8 +258,8 @@ function RadeauContent({
         <div 
           className="absolute z-10"
           style={{
-            top: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
-            left: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '24px',
+            top: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '24px',
+            left: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
           }}
         >
           <div 

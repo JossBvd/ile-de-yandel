@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useOrientationContext } from "./OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 
 const TAB_WIDTH = 44;
 
@@ -20,37 +20,30 @@ export function StepSidebar({
   stepNumber,
   children,
 }: StepSidebarProps) {
-  const { height } = useOrientationContext();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall } = useResponsive();
   
-  // Déterminer les tailles basées sur la hauteur de l'écran pour le mode PWA
-  const isSmallScreen = height < 600;
-  const isMediumScreen = height >= 600 && height < 800;
-  const isLargeScreen = height >= 800;
-  
-  const sidebarWidth = isOpen 
-    ? (isSmallScreen ? '244px' : isMediumScreen ? '264px' : '294px')
-    : '44px';
-  const panelWidth = isOpen
-    ? (isSmallScreen ? '200px' : isMediumScreen ? '220px' : '250px')
-    : '0px';
+  const sidebarWidth = isSmallScreen ? '160px' : isMediumScreen ? '200px' : '250px';
+  const totalWidth = isSmallScreen ? '204px' : isMediumScreen ? '244px' : '294px';
   
   return (
     <div
       className="absolute left-0 top-0 bottom-0 z-20 flex transition-[width] duration-300 ease-out"
-      style={{ width: sidebarWidth }}
+      style={{
+        width: isOpen ? totalWidth : '44px',
+      }}
       aria-label="Panneau mission"
     >
       {/* Panneau latéral */}
       <div
         className="h-full flex flex-col transition-[width] duration-300 ease-out overflow-hidden relative"
         style={{
-          width: panelWidth,
-          minWidth: isOpen ? panelWidth : '0px',
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRight: isOpen ? "3px solid #8B4513" : "none",
           boxShadow: isOpen ? "4px 0 12px rgba(0,0,0,0.15)" : "none",
+          width: isOpen ? sidebarWidth : '0',
+          minWidth: isOpen ? sidebarWidth : '0',
         }}
       >
         {/* Titre mission / étape */}
@@ -59,13 +52,14 @@ export function StepSidebar({
           style={{
             paddingTop: isSmallScreen ? '12px' : isMediumScreen ? '24px' : '24px',
             paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
-            paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
+            paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            paddingBottom: isSmallScreen ? '4px' : '8px',
           }}
         >
           <p 
             className="font-bold text-gray-800 drop-shadow-sm"
             style={{
-              fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : '1.5rem',
+              fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : isDesktopSmall ? '1.5rem' : '1.5rem',
             }}
           >
             Mission {missionNumber}
@@ -73,7 +67,7 @@ export function StepSidebar({
           <p 
             className="font-semibold text-gray-700 opacity-90"
             style={{
-              fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.125rem',
+              fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1rem' : isDesktopSmall ? '1.125rem' : '1.125rem',
             }}
           >
             Etape {stepNumber}
