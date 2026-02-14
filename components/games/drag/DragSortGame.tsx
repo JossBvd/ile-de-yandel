@@ -3,13 +3,10 @@
 import React, { useState } from "react";
 import {
   DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
+import { useDndSensors } from "@/hooks/useDndSensors";
+import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 import {
   arrayMove,
   SortableContext,
@@ -36,13 +33,8 @@ export function DragSortGame({
   const game = step.game as DragSortGameData;
   const [items, setItems] = useState(game.items);
   const [showVictory, setShowVictory] = useState(false);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
+  const sensors = useDndSensors();
+  const collisionDetection = useDndCollisionDetection();
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -87,7 +79,7 @@ export function DragSortGame({
         </p>
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={collisionDetection}
           onDragEnd={handleDragEnd}
         >
           <SortableContext items={items} strategy={verticalListSortingStrategy}>

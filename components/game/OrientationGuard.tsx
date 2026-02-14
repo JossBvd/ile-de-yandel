@@ -1,7 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useOrientation } from '@/hooks/useOrientation';
+import { createContext, useContext, useLayoutEffect, useEffect, useState } from 'react';
+import { LandscapeEnforcer } from './LandscapeEnforcer';
 
 interface OrientationContextType {
   isRotated: boolean;
@@ -19,103 +19,49 @@ export const useOrientationContext = () => useContext(OrientationContext);
 
 interface OrientationGuardProps {
   children: React.ReactNode;
+  /** Si true, n'affiche pas l'overlay "mode paysage requis" (ex. page d'accueil en portrait) */
+  allowPortrait?: boolean;
 }
 
-export function OrientationGuard({ children }: OrientationGuardProps) {
-  const { isLandscape } = useOrientation();
+/**
+ * Composant qui fournit le contexte d'orientation et affiche un message
+ * si l'utilisateur est en mode portrait (pour l'inciter à tourner son appareil).
+ * Avec allowPortrait, l'overlay paysage est désactivé (pour la page d'accueil).
+ */
+export function OrientationGuard({ children, allowPortrait = false }: OrientationGuardProps) {
   const [mounted, setMounted] = useState(false);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
 
-  useEffect(() => {
-    setMounted(true);
+  useLayoutEffect(() => {
     const updateDimensions = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      setDimensions({ width, height });
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
     updateDimensions();
     const timeoutId = setTimeout(updateDimensions, 100);
     window.addEventListener('resize', updateDimensions);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(updateDimensions, 100);
-    });
-    
+    const handleOrientationChange = () => setTimeout(updateDimensions, 100);
+    window.addEventListener('orientationchange', handleOrientationChange);
+
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', updateDimensions);
-      window.removeEventListener('orientationchange', updateDimensions);
+      window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
-    
-    const needsRotation = !isLandscape;
-    if (needsRotation) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [isLandscape, mounted]);
-
-  const needsRotation = mounted && !isLandscape;
-
-  const rotatedWidth = needsRotation ? dimensions.height : dimensions.width;
-  const rotatedHeight = needsRotation ? dimensions.width : dimensions.height;
-
-  if (needsRotation && dimensions.width > 0 && dimensions.height > 0) {
-    return (
-      <OrientationContext.Provider
-        value={{
-          isRotated: true,
-          width: rotatedWidth,
-          height: rotatedHeight,
-        }}
-      >
-        <div
-          className="fixed overflow-hidden"
-          style={{
-            width: `${rotatedWidth}px`,
-            height: `${rotatedHeight}px`,
-            transform: 'rotate(90deg)',
-            transformOrigin: 'center center',
-            left: '50%',
-            top: '50%',
-            marginLeft: `-${rotatedWidth / 2}px`,
-            marginTop: `-${rotatedHeight / 2}px`,
-            zIndex: 9999,
-          }}
-        >
-          {children}
-        </div>
-      </OrientationContext.Provider>
-    );
-  }
-
-  const defaultWidth = typeof window !== 'undefined' ? window.innerWidth : 1920;
-  const defaultHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
+    setMounted(true);
+  }, []);
 
   return (
     <OrientationContext.Provider
       value={{
         isRotated: false,
-        width: dimensions.width || defaultWidth,
-        height: dimensions.height || defaultHeight,
+        width: dimensions.width,
+        height: dimensions.height,
       }}
     >
+      {!allowPortrait && <LandscapeEnforcer />}
       {children}
     </OrientationContext.Provider>
   );

@@ -10,9 +10,6 @@ Il doit résoudre un quiz pour obtenir la deuxième pièce de son radeau.`,
   location: "Sur la plage",
   raftPiece: "piece-1-2",
   backgroundImage: "/missions/mission-1/step-2/M1_S2_background_quiz.webp",
-  hint: {
-    text: "Relis bien la question et élimine les réponses qui ne collent pas au texte.",
-  },
   game: {
     type: "qcm",
     question: "Quel est le principal avantage d'un tissu synthétique pour résister aux conditions marines ?",

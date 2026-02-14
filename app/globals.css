@@ -25,10 +25,78 @@
   }
 }
 
+/* Reset pour éliminer les espaces */
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
 body {
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+}
+
+/* Prévention du scroll sur mobile - uniquement sur les pages de jeu */
+@media (max-width: 1024px) {
+  html {
+    overflow: hidden;
+    height: 100%;
+    height: -webkit-fill-available;
+    touch-action: pan-x pan-y;
+  }
+
+  body {
+    overflow: hidden;
+    height: 100%;
+    height: -webkit-fill-available;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* Pour les pages qui doivent être scrollables */
+.scrollable {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Support du safe-area pour les encoche */
+@supports (padding: max(0px)) {
+  .safe-area-inset {
+    padding-top: max(env(safe-area-inset-top), 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* Animation pour le prompt d'installation */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }
 
 /* Animations personnalisées */
@@ -110,12 +178,12 @@ body {
   .journal-picto-ile {
     width: clamp(150px, 88cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(145px, 90cqi, 100%);
     height: clamp(45px, 9cqh, 72px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.75rem, 5cqi, 1.4rem);
   }
@@ -126,12 +194,12 @@ body {
   .journal-picto-ile {
     width: clamp(180px, 75cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(160px, 80cqi, 100%);
     height: clamp(50px, 8cqh, 75px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.875rem, 5cqi, 1.5rem);
   }
@@ -141,12 +209,12 @@ body {
   .journal-picto-ile {
     width: clamp(200px, 70cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(175px, 75cqi, 100%);
     height: clamp(55px, 8.5cqh, 80px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.9rem, 5cqi, 1.6rem);
   }

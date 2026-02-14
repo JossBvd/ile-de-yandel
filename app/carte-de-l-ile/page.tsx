@@ -8,6 +8,8 @@ import {
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { usePWAMode } from "@/hooks/usePWAMode";
+import { useResponsive } from "@/hooks/useResponsive";
 import { getMissionById, getStepsByMissionId } from "@/data/missions";
 import { getStepPath } from "@/lib/navigation";
 import { IconButton } from "@/components/ui/IconButton";
@@ -40,6 +42,8 @@ function HomeContent() {
   const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
+  const { isPWAFullscreen } = usePWAMode();
+  const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -176,7 +180,7 @@ function HomeContent() {
       className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100vh",
+        height: isRotated ? `${height}px` : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -184,8 +188,26 @@ function HomeContent() {
       }}
     >
       {/* Titre */}
-      <div className="absolute top-4 left sm:top-2 md:top-8 z-10">
-        <div className="relative w-60 h-20 sm:w-72 sm:h-24 md:w-80 md:h-28">
+      <div 
+        className="absolute z-10"
+        style={{
+          top: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          left: '0',
+        }}
+      >
+        <div 
+          className="relative"
+          style={{
+            width: isMobileOrTablet 
+              ? (isSmallScreen ? '180px' : isMediumScreen ? '240px' : '280px')
+              : (isDesktopSmall ? '400px' : isDesktopMedium ? '480px' : '560px'),
+            height: isMobileOrTablet 
+              ? (isSmallScreen ? '60px' : isMediumScreen ? '80px' : '100px')
+              : (isDesktopSmall ? '140px' : isDesktopMedium ? '160px' : '180px'),
+          }}
+        >
           <Image
             src="/ui/encart_map.webp"
             alt=""
@@ -193,7 +215,14 @@ function HomeContent() {
             className="object-contain object-top-left"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <h1 className="text-base sm:text-lg md:text-2xl font-bold text-gray-800 drop-shadow-sm">
+            <h1 
+              className="font-bold text-gray-800 drop-shadow-sm"
+              style={{
+                fontSize: isMobileOrTablet 
+                  ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.25rem')
+                  : (isDesktopSmall ? '1.75rem' : isDesktopMedium ? '2rem' : '2.25rem'),
+              }}
+            >
               Carte de l&apos;île
             </h1>
           </div>
@@ -201,7 +230,17 @@ function HomeContent() {
       </div>
 
       {/* Bouton reset */}
-      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 md:top-16 md:right-4 z-10">
+      <div 
+        className="absolute z-10"
+        style={{
+          top: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          right: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '16px' : isDesktopMedium ? '24px' : '32px'),
+        }}
+      >
         <button
           onClick={() => {
             if (
@@ -212,10 +251,21 @@ function HomeContent() {
               resetProgress();
               resetInventory();
               resetUI();
-              window.location.reload();
+              router.push("/");
             }
           }}
-          className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors text-sm sm:text-base"
+          className="bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-colors touch-manipulation"
+          style={{
+            padding: isMobileOrTablet 
+              ? (isSmallScreen ? '12px 16px' : isMediumScreen ? '14px 20px' : '16px 24px')
+              : (isDesktopSmall ? '10px 20px' : isDesktopMedium ? '12px 24px' : '14px 28px'),
+            fontSize: isMobileOrTablet 
+              ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem')
+              : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'),
+            minHeight: isMobileOrTablet ? '44px' : 'auto',
+            minWidth: isMobileOrTablet ? '80px' : 'auto',
+          }}
+          aria-label="Réinitialiser la progression"
           title="Réinitialiser la progression"
         >
           🔄 Reset
@@ -223,7 +273,17 @@ function HomeContent() {
       </div>
 
       {/* Conteneur missions */}
-      <div className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[85%] sm:w-[80%] sm:h-[88%] md:w-[70%] md:h-[88%]">
+      <div 
+        className="absolute top-1/2 left-[60%] transform -translate-x-1/2 -translate-y-1/2"
+        style={{
+          width: isMobileOrTablet 
+            ? (isSmallScreen ? '90%' : isMediumScreen ? '85%' : '80%')
+            : (isDesktopSmall ? '65%' : isDesktopMedium ? '60%' : '55%'),
+          height: isMobileOrTablet 
+            ? (isSmallScreen ? '85%' : isMediumScreen ? '87%' : '88%')
+            : (isDesktopSmall ? '88%' : isDesktopMedium ? '90%' : '92%'),
+        }}
+      >
         <div className="relative h-full w-full">
           {missions.map((missionConfig) => {
             const mission = getMissionById(missionConfig.id);
@@ -231,15 +291,29 @@ function HomeContent() {
 
             const missionNumber = missionConfig.id.split("-")[1];
 
+            const missionTitle = mission.title ?? `Mission ${missionNumber}`;
+            const ariaLabel = missionConfig.available
+              ? `Accéder à ${missionTitle}`
+              : `${missionTitle}, verrouillée`;
+
             return (
               <div
                 key={missionConfig.id}
+                role="button"
+                tabIndex={0}
+                aria-label={ariaLabel}
                 onClick={() =>
                   handleMissionClick(missionConfig.id, missionConfig.available)
                 }
-                className={`absolute flex flex-col items-center justify-center transition-all ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleMissionClick(missionConfig.id, missionConfig.available);
+                  }
+                }}
+                className={`absolute flex flex-col items-center justify-center transition-all touch-manipulation ${
                   missionConfig.available
-                    ? "cursor-pointer hover:scale-105"
+                    ? "cursor-pointer hover:scale-105 active:scale-95"
                     : "cursor-not-allowed opacity-50"
                 }`}
                 style={
@@ -248,7 +322,19 @@ function HomeContent() {
                     : missionConfig.positionDesktop
                 }
               >
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-52 lg:h-52">
+                <div 
+                  className="relative"
+                  style={{
+                    width: isMobileOrTablet 
+                      ? (isSmallScreen ? '140px' : isMediumScreen ? '180px' : '220px')
+                      : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
+                    height: isMobileOrTablet 
+                      ? (isSmallScreen ? '140px' : isMediumScreen ? '180px' : '220px')
+                      : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
+                    minWidth: isMobileOrTablet ? 48 : undefined,
+                    minHeight: isMobileOrTablet ? 48 : undefined,
+                  }}
+                >
                   <Image
                     src={
                       missionConfig.available
@@ -260,7 +346,23 @@ function HomeContent() {
                     className="object-contain"
                   />
                   {isMissionNew(missionConfig.id, missionConfig.available) && (
-                    <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 md:top-4 md:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none">
+                    <div 
+                      className="absolute z-10 pointer-events-none"
+                      style={{
+                        top: isMobileOrTablet 
+                          ? (isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px')
+                          : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+                        right: isMobileOrTablet 
+                          ? (isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px')
+                          : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+                        width: isMobileOrTablet 
+                          ? (isSmallScreen ? '36px' : isMediumScreen ? '44px' : '52px')
+                          : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
+                        height: isMobileOrTablet 
+                          ? (isSmallScreen ? '36px' : isMediumScreen ? '44px' : '52px')
+                          : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
+                      }}
+                    >
                       <Image
                         src="/ui/icon_new.webp"
                         alt="Nouveau"
@@ -270,7 +372,14 @@ function HomeContent() {
                     </div>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center pt-[50%] pointer-events-none">
-                    <span className="text-xs sm:text-sm md:text-base lg:text-lg font-semibold text-gray-800 drop-shadow-sm">
+                    <span 
+                      className="font-semibold text-gray-800 drop-shadow-sm"
+                      style={{
+                        fontSize: isMobileOrTablet 
+                          ? (isSmallScreen ? '0.9375rem' : isMediumScreen ? '1.0625rem' : '1.25rem')
+                          : (isDesktopSmall ? '1.25rem' : isDesktopMedium ? '1.5rem' : '1.75rem'),
+                      }}
+                    >
                       Mission {missionNumber}
                     </span>
                   </div>
@@ -281,11 +390,25 @@ function HomeContent() {
         </div>
       </div>
       {/* Menu et radeau */}
-      <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 md:bottom-4 md:left-4 z-10 flex items-center gap-2">
+      <div 
+        className="absolute z-10 flex items-center"
+        style={{
+          bottom: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          left: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          gap: isMobileOrTablet 
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            : (isDesktopSmall ? '20px' : isDesktopMedium ? '24px' : '32px'),
+        }}
+      >
         <div className="relative">
           <IconButton
             icon="/ui/icon_menu.webp"
             alt="Journal de bord"
+            sizeVariant="map"
             onClick={() => {
               const latestCompletedMission = completedMissions.length > 0 
                 ? completedMissions[completedMissions.length - 1] 
@@ -298,7 +421,13 @@ function HomeContent() {
             label="Menu"
           />
           {showJournalNew && (
-            <div className="absolute top-0 right-0 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+            <div 
+              className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
+              style={{
+                width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+                height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+              }}
+            >
               <Image
                 src="/ui/icon_new.webp"
                 alt="Nouveau"
@@ -312,6 +441,7 @@ function HomeContent() {
           <IconButton
             icon="/ui/icon_radeau.webp"
             alt="Radeau"
+            sizeVariant="map"
             onClick={() => {
               markRaftAsViewed();
               router.push("/radeau");
@@ -319,7 +449,13 @@ function HomeContent() {
             label="Radeau"
           />
           {showRaftNew && (
-            <div className="absolute top-0 right-0 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 pointer-events-none translate-x-1/4 -translate-y-1/4">
+            <div 
+              className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
+              style={{
+                width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+                height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+              }}
+            >
               <Image
                 src="/ui/icon_new.webp"
                 alt="Nouveau"
@@ -344,7 +480,14 @@ function HomeContent() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
-              <h2 className="m-0 text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 text-center drop-shadow-sm">
+              <h2 
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4"
+                style={{
+                  fontSize: isMobileOrTablet
+                    ? (isSmallScreen ? '1.5rem' : isMediumScreen ? '1.75rem' : '2rem')
+                    : (isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem'),
+                }}
+              >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
                   getMissionById(selectedMissionId)?.title}
               </h2>
@@ -352,7 +495,18 @@ function HomeContent() {
                 type="button"
                 onClick={handleExploreMission}
                 disabled={selectedMissionId === "mission-2"}
-                className="px-8 py-4 sm:px-12 sm:py-6 md:px-14 md:py-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors text-xl sm:text-2xl md:text-3xl lg:text-4xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500 touch-manipulation"
+                style={{
+                  padding: isMobileOrTablet
+                    ? (isSmallScreen ? '20px 40px' : isMediumScreen ? '24px 48px' : '28px 56px')
+                    : (isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px'),
+                  fontSize: isMobileOrTablet
+                    ? (isSmallScreen ? '1.375rem' : isMediumScreen ? '1.5rem' : '1.75rem')
+                    : (isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem'),
+                  minHeight: isMobileOrTablet ? (isSmallScreen ? 56 : isMediumScreen ? 60 : 64) : undefined,
+                  minWidth: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 180 : 200) : undefined,
+                }}
+                aria-label="Jouer à la mission"
               >
                 Jouer !
               </button>

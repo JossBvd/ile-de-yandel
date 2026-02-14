@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface VictoryModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export function VictoryModal({
   raftPieceName = "Pièce du radeau",
   raftPieceImage = "/ui/icon_right.webp",
 }: VictoryModalProps) {
+  const { isSmallScreen, isMediumScreen, isDesktopSmall } = useResponsive();
+  
   if (!isOpen) return null;
 
   return (
@@ -31,26 +34,43 @@ export function VictoryModal({
       onClick={onContinue}
     >
       <div
-        className="relative rounded-3xl p-6 sm:p-8 pb-24 pr-24 max-w-md w-[90%] shadow-2xl"
+        className="relative rounded-3xl shadow-2xl"
         style={{
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           border: "3px solid #8B4513",
+          padding: isSmallScreen ? '24px' : isMediumScreen ? '32px' : '32px',
+          paddingBottom: isSmallScreen ? '96px' : isMediumScreen ? '96px' : '96px',
+          paddingRight: isSmallScreen ? '96px' : isMediumScreen ? '96px' : '96px',
+          maxWidth: isSmallScreen ? '90%' : isMediumScreen ? '448px' : '448px',
+          width: isSmallScreen ? '90%' : 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-center gap-2 mb-6">
+        <div 
+          className="flex items-center justify-center mb-6"
+          style={{
+            gap: isSmallScreen ? '8px' : isMediumScreen ? '8px' : '8px',
+          }}
+        >
           <h2
-            className="text-xl sm:text-2xl md:text-3xl font-bold text-center"
+            className="font-bold text-center"
             style={{
               color: "#2C3E50",
               textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
+              fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : isDesktopSmall ? '1.875rem' : '1.875rem',
             }}
           >
             MISSION ACCOMPLIE !
           </h2>
-          <div className="w-7 h-7 sm:w-8 sm:h-8 relative shrink-0">
+          <div 
+            className="relative shrink-0"
+            style={{
+              width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '32px',
+              height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '32px',
+            }}
+          >
             <Image
               src="/ui/icon_right.webp"
               alt="Succès"
@@ -60,12 +80,19 @@ export function VictoryModal({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 sm:gap-6 mb-8">
+        <div 
+          className="flex items-center mb-8"
+          style={{
+            gap: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '24px',
+          }}
+        >
           <div
-            className="w-24 h-24 sm:w-28 sm:h-28 relative shrink-0 rounded-lg overflow-hidden"
+            className="relative shrink-0 rounded-lg overflow-hidden"
             style={{
               backgroundColor: "#87CEEB",
               border: "3px solid #5DADE2",
+              width: isSmallScreen ? '96px' : isMediumScreen ? '112px' : '112px',
+              height: isSmallScreen ? '96px' : isMediumScreen ? '112px' : '112px',
             }}
           >
             <Image
@@ -78,17 +105,19 @@ export function VictoryModal({
 
           <div className="flex-1 min-w-0">
             <p
-              className="text-sm sm:text-base mb-1"
+              className="mb-1"
               style={{
                 color: "#34495E",
+                fontSize: isSmallScreen ? '0.875rem' : '1rem',
               }}
             >
               Tu as collecté
             </p>
             <h3
-              className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight break-all"
+              className="font-bold leading-tight break-all"
               style={{
                 color: "#2C3E50",
+                fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : isDesktopSmall ? '1.875rem' : '1.875rem',
               }}
             >
               {raftPieceName}
@@ -99,7 +128,11 @@ export function VictoryModal({
         <button
           type="button"
           onClick={onContinue}
-          className="absolute bottom-4 right-4 p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
+          className="absolute p-0 border-0 bg-transparent cursor-pointer hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-700/50"
+          style={{
+            bottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+            right: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
+          }}
           aria-label="Continuer"
         >
           <Image

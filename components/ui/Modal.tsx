@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  const { isSmallScreen, isMediumScreen, isDesktopSmall } = useResponsive();
+  
   if (!isOpen) return null;
 
   return (
@@ -18,7 +21,11 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
+        className="bg-white rounded-lg shadow-xl w-full mx-4"
+        style={{
+          maxWidth: isSmallScreen ? '90%' : isMediumScreen ? '85%' : isDesktopSmall ? '600px' : '768px',
+          padding: isSmallScreen ? '16px' : isMediumScreen ? '20px' : '24px',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (

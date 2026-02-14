@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Step, EnigmaGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface EnigmaGameProps {
   step: Step;
@@ -13,12 +14,19 @@ interface EnigmaGameProps {
   skipVictoryModal?: boolean;
 }
 
-export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGameProps) {
+export function EnigmaGame({
+  step,
+  onComplete,
+  skipVictoryModal,
+}: EnigmaGameProps) {
   const game = step.game as EnigmaGameData;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
   const [answer, setAnswer] = useState("");
   const [showVictory, setShowVictory] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
+  
+  const isStep1 = step.id.endsWith('-step-1');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,39 +78,56 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
           boxShadow: "inset 0 0 80px 20px rgba(200, 0, 0, 0.2)",
         }}
       />
-      <div 
-        className="absolute top-2 sm:top-3 md:top-4 lg:top-6 left-0 right-0 pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-2 sm:pr-3 md:pr-4 lg:pr-6 z-10 pointer-events-none"
+      <div
+        className="absolute left-0 right-0 z-10 pointer-events-none"
         style={{
-          maxHeight: "33vh",
+          top: isStep1 ? '0' : (isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px'),
+          paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px',
+          paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '24px',
+          maxHeight: isStep1 && isMobileOrTablet ? '24%' : isStep1 ? '33.333%' : '33vh',
         }}
       >
         <div
-          className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl border-2 border-amber-800/30 flex flex-col gap-1.5 sm:gap-2 md:gap-3 pointer-events-auto bg-cover bg-center bg-no-repeat w-full max-h-full overflow-y-auto"
+          className="rounded-xl shadow-xl border-2 border-amber-800/30 flex flex-col pointer-events-auto bg-cover bg-center bg-no-repeat w-full max-h-full overflow-y-auto"
           style={{
             backgroundImage: "url(/backgrounds/paper_texture.webp)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            padding: isMobileOrTablet ? (isSmallScreen ? '8px 10px' : '10px 12px') : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+            gap: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '12px' : '16px'),
           }}
         >
-          <div className="flex flex-row items-start gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
-            <div className="flex-1 min-w-0 flex flex-col">
+          <div
+            className="flex flex-row items-center gap-2"
+            style={{
+              gap: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
+            }}
+          >
+            <div
+              className="flex-1 min-w-0 flex flex-col"
+              style={{ gap: isMobileOrTablet ? '2px' : '4px' }}
+              role="region"
+              aria-label="Énoncé de l’énigme"
+            >
               {(() => {
                 const [instruction, sentence] = game.text.split(/\n\n/, 2);
                 const hasTwoParts = sentence !== undefined;
+                const textSize = isMobileOrTablet ? (isSmallScreen ? '0.875rem' : '0.9375rem') : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem');
+                const titleSize = isMobileOrTablet ? (isSmallScreen ? '0.875rem' : '1rem') : (isDesktopSmall ? '1.125rem' : '1.25rem');
                 return hasTwoParts ? (
                   <>
-                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight mb-0.5 sm:mb-1 md:mb-2 font-bold">
+                    <p className="text-gray-800 leading-tight font-bold" style={{ fontSize: textSize, lineHeight: 1.4 }}>
                       {instruction}
                     </p>
-                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
+                    <p className="text-gray-800 leading-tight italic" style={{ fontSize: textSize, lineHeight: 1.4 }}>
                       {sentence}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h2 className="text-center text-sm sm:text-base md:text-lg font-bold text-gray-900 uppercase tracking-wide mb-0.5 sm:mb-1 md:mb-2">
+                    <h2 className="text-gray-900 uppercase tracking-wide font-bold leading-tight" style={{ fontSize: titleSize, lineHeight: 1.3 }}>
                       Énigme
                     </h2>
-                    <p className="text-gray-800 text-xs sm:text-sm md:text-base leading-tight italic">
+                    <p className="text-gray-800 leading-tight italic" style={{ fontSize: textSize, lineHeight: 1.4 }}>
                       « {game.text} »
                     </p>
                   </>
@@ -112,11 +137,20 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
 
             <form
               onSubmit={handleSubmit}
-              className="flex flex-row items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0"
+              className="flex flex-row items-center shrink-0"
+              style={{
+                gap: isSmallScreen ? '8px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px',
+              }}
+              aria-label="Formulaire de réponse à l’énigme"
             >
               <label htmlFor="enigma-answer" className="sr-only">
-                Champ réponse
+                Votre réponse à l’énigme
               </label>
+              {hasError && (
+                <span id="enigma-error" role="alert" className="sr-only">
+                  Réponse incorrecte. Saisissez une autre réponse.
+                </span>
+              )}
               <input
                 id="enigma-answer"
                 type="text"
@@ -125,17 +159,34 @@ export function EnigmaGame({ step, onComplete, skipVictoryModal }: EnigmaGamePro
                 placeholder="Réponse"
                 autoComplete="off"
                 name={`enigma-answer-${step.id}`}
-                className={`w-24 sm:w-28 md:w-36 lg:w-40 px-1.5 sm:px-2 md:px-3 py-1 sm:py-1.5 md:py-2 text-xs sm:text-sm md:text-base rounded border-2 text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
+                aria-invalid={hasError}
+                aria-describedby={hasError ? 'enigma-error' : undefined}
+                className={`rounded border-2 text-gray-900 placeholder-gray-500 focus:outline-none touch-manipulation transition-colors ${
                   hasError
                     ? "bg-red-100 border-red-500 focus:border-red-600"
                     : "bg-white border-gray-800 focus:border-amber-600"
                 }`}
+                style={{
+                  width: isSmallScreen ? '100px' : isMediumScreen ? '120px' : isDesktopSmall ? '160px' : isDesktopMedium ? '180px' : '200px',
+                  paddingLeft: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '16px' : '18px',
+                  paddingRight: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '16px' : '18px',
+                  paddingTop: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '18px',
+                  paddingBottom: isSmallScreen ? '10px' : isMediumScreen ? '12px' : isDesktopSmall ? '16px' : '18px',
+                  fontSize: isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.875rem' : isDesktopSmall ? '1.125rem' : '1.25rem',
+                  minHeight: isMobileOrTablet ? '40px' : '44px',
+                }}
               />
               <button
                 type="submit"
                 disabled={!answer.trim()}
-                className="shrink-0 min-w-[32px] min-h-[32px] w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
+                className="shrink-0 rounded-full bg-transparent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
                 aria-label="Envoyer"
+                style={{
+                  width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : isDesktopSmall ? '80px' : isDesktopMedium ? '88px' : '96px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : isDesktopSmall ? '80px' : isDesktopMedium ? '88px' : '96px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                }}
               >
                 <Image
                   src="/ui/icon_bottle_send.webp"

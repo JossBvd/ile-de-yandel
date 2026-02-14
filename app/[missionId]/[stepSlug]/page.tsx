@@ -7,6 +7,7 @@ import {
   OrientationGuard,
   useOrientationContext,
 } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
 import { getStepById, getMissionById } from "@/data/missions";
 import { getNextStep } from "@/lib/engine/missionEngine";
 import { getStepPath, getStepIdFromSlug } from "@/lib/navigation";
@@ -31,6 +32,7 @@ function StepPageContent() {
     useGameProgress();
   const { addPiece } = useInventory();
   const { isRotated, width, height } = useOrientationContext();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
@@ -42,7 +44,8 @@ function StepPageContent() {
   const [raftObjectModalImage, setRaftObjectModalImage] = useState<
     string | null
   >(null);
-  const [showMissionCompleteModal, setShowMissionCompleteModal] = useState(false);
+  const [showMissionCompleteModal, setShowMissionCompleteModal] =
+    useState(false);
 
   const step = getStepById(stepId);
   const mission = getMissionById(missionId);
@@ -53,7 +56,6 @@ function StepPageContent() {
     if (!step) return;
     setCurrentStepId(step.id);
   }, [step, setCurrentStepId]);
-
 
   React.useEffect(() => {
     setShowNarrative(isFirstStepOfMission);
@@ -197,7 +199,7 @@ function StepPageContent() {
         className="fixed inset-0 overflow-hidden"
         style={{
           width: isRotated ? `${width}px` : "100vw",
-          height: isRotated ? `${height}px` : "100vh",
+          height: isRotated ? `${height}px` : "100dvh",
           backgroundImage: "url(/ui/background_story_screen.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -205,33 +207,75 @@ function StepPageContent() {
         }}
       >
         {/* Conteneur narrative */}
-        <div className="absolute left-[8%] max-w-[58%] w-full top-[10%] overflow-y-auto sm:left-[10%] sm:max-w-2xl sm:w-[85%] sm:top-1/3 sm:max-h-none sm:overflow-visible sm:transform sm:-translate-y-1/2">
+        <div
+          role="region"
+          aria-labelledby="narrative-title"
+          aria-describedby="narrative-text"
+          className="absolute w-full overflow-y-auto"
+          style={{
+            left: isSmallScreen ? '24px' : isMediumScreen ? '32px' : isDesktopSmall ? '48px' : isDesktopMedium ? '64px' : '80px',
+            maxWidth: '50%',
+            top: isSmallScreen ? '10%' : '33.333%',
+            maxHeight: isSmallScreen ? 'none' : 'none',
+            overflow: isSmallScreen ? 'visible' : 'visible',
+            transform: isSmallScreen ? 'none' : 'translateY(-50%)',
+          }}
+        >
           <div
-            className="relative rounded-3xl p-6 sm:p-8 md:p-10 shadow-xl bg-cover bg-center bg-no-repeat"
+            className="relative rounded-3xl shadow-xl bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
+              padding: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
             }}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 sm:mb-6">
+            <h2
+              id="narrative-title"
+              className="font-bold text-gray-800"
+              style={{
+                fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : isDesktopSmall ? '2rem' : '2.25rem',
+                marginBottom: isSmallScreen ? '16px' : '24px',
+                lineHeight: 1.3,
+              }}
+            >
               {step.title}
             </h2>
-            <div className="mb-6 sm:mb-8 pr-14 sm:pr-16 md:pr-20">
-              <p className="text-gray-800 text-base sm:text-lg md:text-xl italic leading-relaxed whitespace-pre-line">
+            <div
+              id="narrative-text"
+              style={{
+                marginBottom: isSmallScreen ? '24px' : '32px',
+                paddingRight: isSmallScreen ? '56px' : isMediumScreen ? '64px' : '80px',
+              }}
+            >
+              <p
+                className="text-gray-800 italic leading-relaxed whitespace-pre-line"
+                style={{
+                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                  lineHeight: 1.5,
+                }}
+              >
                 {step.narrative}
               </p>
             </div>
             <button
               type="button"
               onClick={handleContinueFromNarrative}
-              className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 p-2 rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              aria-label="Continuer"
+              className="absolute rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              style={{
+                bottom: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                right: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                padding: '8px',
+              }}
+              aria-label="Continuer vers l’énigme"
             >
               <Image
                 src="/ui/icon_next.webp"
                 alt=""
                 width={64}
                 height={64}
-                className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                style={{
+                  width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                  height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                }}
               />
             </button>
           </div>
@@ -239,7 +283,6 @@ function StepPageContent() {
       </div>
     );
   }
-
 
   const missionNumber = missionId?.replace("mission-", "") ?? "1";
   const stepIndex = mission?.steps.indexOf(stepId) ?? 0;
@@ -257,37 +300,54 @@ function StepPageContent() {
       <div
         className="relative shrink-0 flex flex-col z-20"
         style={{
-          width: "clamp(200px, 20vw, 250px)",
+          width: isMobileOrTablet 
+            ? (isSmallScreen ? '160px' : isMediumScreen ? '180px' : '200px')
+            : "clamp(200px, 20vw, 250px)",
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           borderRight: "3px solid #8B4513",
           boxShadow: "4px 0 12px rgba(0,0,0,0.15)",
-          height: isRotated ? `${height}px` : "100vh",
+          height: isRotated ? `${height}px` : "100dvh",
           overflowY: "auto",
         }}
       >
         <div className="flex flex-col min-h-0 flex-1">
-          {/* Titre mission / étape */}
-          <div className="pt-2 px-3 pb-1 sm:pt-3 sm:px-4 sm:pb-1 md:pt-6 md:pb-2 shrink-0">
-            <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 drop-shadow-sm">
-              Mission {missionNumber}
-            </p>
-            <p className="text-sm sm:text-base md:text-lg font-semibold text-gray-700 opacity-90">
-              Etape {stepNumber}
-            </p>
-          </div>
-
-          {/* Icône bouteille */}
           <div
-            className="flex items-center justify-center py-2 sm:py-3 md:py-4 shrink-0"
+            className="shrink-0 flex items-start justify-between gap-2"
             style={{
-              minHeight: "clamp(50px, 10vh, 100px)",
-              maxHeight: "clamp(80px, 25vh, 150px)",
-              flex: "0 1 auto",
+              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
+              paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+              paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '8px',
             }}
           >
-            <div className="relative w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
+            <div className="min-w-0">
+              <p 
+                className="font-bold text-gray-800 drop-shadow-sm whitespace-nowrap"
+                style={{
+                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : isDesktopSmall ? '1.5rem' : '1.5rem',
+                }}
+              >
+                Mission {missionNumber}
+              </p>
+              <p 
+                className="font-semibold text-gray-700 opacity-90"
+                style={{
+                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                }}
+              >
+                Etape {stepNumber}
+              </p>
+            </div>
+            <div
+              className="relative shrink-0"
+              style={{
+                width: isMobileOrTablet ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px') : (isDesktopSmall ? '72px' : isDesktopMedium ? '80px' : '88px'),
+                height: isMobileOrTablet ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px') : (isDesktopSmall ? '72px' : isDesktopMedium ? '80px' : '88px'),
+                opacity: 0.72,
+              }}
+            >
               <Image
                 src="/ui/icon_bottle.webp"
                 alt="Bouteille à la mer"
@@ -298,8 +358,16 @@ function StepPageContent() {
             </div>
           </div>
 
-          {/* Boutons d'action */}
-          <div className="flex flex-col gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pl-4 pr-3 pb-3 pt-1 sm:pl-6 sm:pr-4 sm:pb-4 sm:pt-2 md:pl-8 md:pt-4 shrink-0 mt-auto">
+          <div 
+            className="flex flex-col shrink-0 mt-auto"
+            style={{
+              gap: isMobileOrTablet ? (isSmallScreen ? '10px' : isMediumScreen ? '12px' : '14px') : (isDesktopSmall ? '12px' : '16px'),
+              paddingLeft: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '12px' : '16px'),
+              paddingRight: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '12px' : '16px'),
+              paddingBottom: isMobileOrTablet ? (isSmallScreen ? '12px' : '14px') : '16px',
+              paddingTop: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : '16px',
+            }}
+          >
             <IconButton
               icon="/ui/icon_clue.webp"
               alt="Indice"
@@ -315,6 +383,7 @@ function StepPageContent() {
               label="Indice"
               showLabel
               disabled={!step.hint}
+              sizeVariant="sidebar"
               className="self-start"
             />
             <IconButton
@@ -323,6 +392,7 @@ function StepPageContent() {
               onClick={() => router.push("/radeau")}
               label="Radeau"
               showLabel
+              sizeVariant="sidebar"
               className="self-start"
             />
             <IconButton
@@ -331,6 +401,7 @@ function StepPageContent() {
               onClick={() => router.push("/carte-de-l-ile")}
               label="Retour"
               showLabel
+              sizeVariant="sidebar"
               className="self-start"
             />
           </div>
@@ -382,7 +453,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",
@@ -394,7 +465,7 @@ function StepPageContent() {
         >
           <div
             className="relative w-full max-w-lg"
-            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
           >
             <Image
               src={raftObjectModalImage}
@@ -402,14 +473,21 @@ function StepPageContent() {
               width={800}
               height={600}
               className="w-full h-auto object-contain pointer-events-none"
-              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
-            <div className="absolute bottom-3 right-8 sm:bottom-4 sm:right-12">
+            <div 
+              className="absolute"
+              style={{
+                bottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
+                right: isSmallScreen ? '32px' : isMediumScreen ? '48px' : '48px',
+              }}
+            >
               <button
                 type="button"
                 onClick={handleRaftObjectModalClose}
-                className="p-1.5 rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                style={{ padding: '6px' }}
                 aria-label="Continuer au step suivant"
               >
                 <Image
@@ -417,7 +495,10 @@ function StepPageContent() {
                   alt=""
                   width={64}
                   height={64}
-                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"
+                  style={{
+                    width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                    height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                  }}
                 />
               </button>
             </div>
@@ -431,7 +512,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",
@@ -445,7 +526,7 @@ function StepPageContent() {
           {hintModal.image && !hintModal.hint ? (
             <div
               className="relative w-full max-w-4xl"
-              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
             >
               <Image
                 src={hintModal.image}
@@ -453,7 +534,7 @@ function StepPageContent() {
                 width={1200}
                 height={800}
                 className="w-full h-auto object-contain pointer-events-none"
-                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90vh" }}
+                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
                 sizes="(max-width: 640px) 100vw, 80vw"
               />
             </div>
@@ -470,7 +551,13 @@ function StepPageContent() {
             >
               <div className="flex flex-1 min-h-0 flex-col justify-center">
                 <div className="flex gap-4 items-center">
-                  <div className="shrink-0 w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center">
+                  <div 
+                    className="shrink-0 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center"
+                    style={{
+                      width: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
+                      height: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
+                    }}
+                  >
                     {hintModal.image ? (
                       <Image
                         src={hintModal.image}
@@ -523,7 +610,7 @@ function StepPageContent() {
           style={{
             backgroundColor: "rgba(0, 0, 0, 0.6)",
             width: isRotated ? `${width}px` : "100vw",
-            height: isRotated ? `${height}px` : "100vh",
+            height: isRotated ? `${height}px` : "100dvh",
             left: isRotated ? "50%" : "0",
             top: isRotated ? "50%" : "0",
             marginLeft: isRotated ? `-${width / 2}px` : "0",
