@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useLayoutEffect, useEffect, useState } from 'react';
 import { LandscapeEnforcer } from './LandscapeEnforcer';
 
 interface OrientationContextType {
@@ -32,25 +32,25 @@ export function OrientationGuard({ children, allowPortrait = false }: Orientatio
   const [mounted, setMounted] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
 
-  useEffect(() => {
-    setMounted(true);
+  useLayoutEffect(() => {
     const updateDimensions = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      setDimensions({ width, height });
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
     updateDimensions();
     const timeoutId = setTimeout(updateDimensions, 100);
     window.addEventListener('resize', updateDimensions);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(updateDimensions, 100);
-    });
-    
+    const handleOrientationChange = () => setTimeout(updateDimensions, 100);
+    window.addEventListener('orientationchange', handleOrientationChange);
+
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', updateDimensions);
-      window.removeEventListener('orientationchange', updateDimensions);
+      window.removeEventListener('orientationchange', handleOrientationChange);
     };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   return (
