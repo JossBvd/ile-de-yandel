@@ -53,7 +53,7 @@ body {
     height: -webkit-fill-available;
     touch-action: pan-x pan-y;
   }
-  
+
   body {
     overflow: hidden;
     height: 100%;
@@ -178,12 +178,12 @@ body {
   .journal-picto-ile {
     width: clamp(150px, 88cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(145px, 90cqi, 100%);
     height: clamp(45px, 9cqh, 72px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.75rem, 5cqi, 1.4rem);
   }
@@ -194,12 +194,12 @@ body {
   .journal-picto-ile {
     width: clamp(180px, 75cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(160px, 80cqi, 100%);
     height: clamp(50px, 8cqh, 75px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.875rem, 5cqi, 1.5rem);
   }
@@ -209,12 +209,12 @@ body {
   .journal-picto-ile {
     width: clamp(200px, 70cqi, 100%);
   }
-  
+
   .journal-encart-mission {
     width: clamp(175px, 75cqi, 100%);
     height: clamp(55px, 8.5cqh, 80px);
   }
-  
+
   .journal-encart-text {
     font-size: clamp(0.9rem, 5cqi, 1.6rem);
   }

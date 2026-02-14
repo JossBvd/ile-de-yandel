@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Step, QCMGameData } from "@/types/step";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface QCMGameProps {
   step: Step;
@@ -20,6 +21,7 @@ export function QCMGame({
   onGoBackToMap,
 }: QCMGameProps) {
   const game = step.game as QCMGameData;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
   const isMultiple = game.correctAnswers.length > 1;
   const isStep2 = step.id === "mission-1-step-2";
   const [currentQuestion, setCurrentQuestion] = useState(1);
@@ -78,19 +80,87 @@ export function QCMGame({
     }
   };
 
+  const paddingEdge = isMobileOrTablet
+    ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
+    : (isDesktopSmall ? "20px" : isDesktopMedium ? "24px" : "32px");
+  const gapMain = isMobileOrTablet
+    ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
+    : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
+  const cardPadding = isMobileOrTablet
+    ? (isSmallScreen ? "12px" : isMediumScreen ? "16px" : "20px")
+    : (isDesktopSmall ? "24px" : isDesktopMedium ? "28px" : "36px");
+  const cardRadius = isMobileOrTablet
+    ? (isSmallScreen ? "12px" : "14px")
+    : (isDesktopSmall ? "16px" : isDesktopMedium ? "20px" : "24px");
+  const titleSize = isMobileOrTablet
+    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.125rem" : "1.25rem")
+    : (isDesktopSmall ? "1.5rem" : isDesktopMedium ? "1.875rem" : "2.25rem");
+  const questionSize = isMobileOrTablet
+    ? (isSmallScreen ? "0.8125rem" : isMediumScreen ? "0.9375rem" : "1.0625rem")
+    : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.875rem");
+  const gridGap = isMobileOrTablet
+    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+    : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
+  const optionLetterSize = isMobileOrTablet
+    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.25rem" : "1.5rem")
+    : (isDesktopSmall ? "1.75rem" : isDesktopMedium ? "2.25rem" : "2.5rem");
+  const optionTextSize = isMobileOrTablet
+    ? (isSmallScreen ? "0.75rem" : isMediumScreen ? "0.875rem" : "1rem")
+    : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.375rem" : "1.5rem");
+  const optionPaddingY = isMobileOrTablet
+    ? (isSmallScreen ? "10px" : isMediumScreen ? "12px" : "14px")
+    : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
+  const optionPaddingX = isMobileOrTablet
+    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+    : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
+  const optionRadius = isMobileOrTablet
+    ? (isSmallScreen ? "14px" : "16px")
+    : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "26px");
+  const optionGap = isMobileOrTablet
+    ? (isSmallScreen ? "6px" : "8px")
+    : (isDesktopSmall ? "12px" : "16px");
+  const btnMinHeight = isMobileOrTablet ? "44px" : "48px";
+  const btnPadding = isMobileOrTablet
+    ? (isSmallScreen ? "10px 16px" : "12px 20px")
+    : (isDesktopSmall ? "14px 24px" : isDesktopMedium ? "16px 28px" : "18px 32px");
+  const btnFontSize = isMobileOrTablet
+    ? (isSmallScreen ? "0.8125rem" : isMediumScreen ? "0.9375rem" : "1rem")
+    : (isDesktopSmall ? "1.125rem" : "1.25rem");
+
   return (
     <>
-      <div className="absolute top-4 sm:top-6 md:top-8 lg:top-10 bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 left-0 right-0 pl-2 sm:pl-3 md:pl-4 lg:pl-6 pr-2 sm:pr-3 md:pr-4 lg:pr-6 z-10 pointer-events-none flex flex-col">
-        <div className="w-full flex-1 overflow-visible flex flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto justify-center">
+      <div
+        className="absolute left-0 right-0 z-10 pointer-events-none flex flex-col overflow-hidden"
+        style={{
+          top: paddingEdge,
+          bottom: paddingEdge,
+          paddingLeft: paddingEdge,
+          paddingRight: paddingEdge,
+        }}
+      >
+        <div
+          className="w-full flex-1 flex flex-col pointer-events-auto justify-center min-h-0 overflow-y-auto"
+          style={{ gap: gapMain }}
+        >
           <div
-            className="w-full rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl pointer-events-auto"
+            className="w-full shadow-xl pointer-events-auto shrink-0"
             style={{
               backgroundColor: "#E8DCC8",
               border: "3px solid #D4B896",
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+              padding: cardPadding,
+              borderRadius: cardRadius,
             }}
           >
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 text-center">
+            <h2
+              className="font-bold text-gray-900 text-center"
+              style={{
+                fontSize: titleSize,
+                marginBottom: isMobileOrTablet
+                  ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+                  : (isDesktopSmall ? "14px" : "16px"),
+              }}
+            >
               {showCorrection
                 ? `Correction question ${currentQuestion}`
                 : totalQuestions === 1
@@ -98,12 +168,26 @@ export function QCMGame({
                   : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
             </h2>
 
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-800 italic text-center leading-relaxed">
+            <p
+              className="text-gray-800 italic text-center leading-relaxed"
+              style={{ fontSize: questionSize }}
+            >
               {game.question}
             </p>
           </div>
 
-          <div className="w-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-5 pointer-events-auto p-1 sm:p-2">
+          <div
+            className="w-full pointer-events-auto shrink-0"
+            style={{
+              paddingLeft: isMobileOrTablet ? "12px" : "20px",
+              paddingRight: isMobileOrTablet ? "12px" : "20px",
+              paddingBottom: "8px",
+            }}
+          >
+            <div
+              className="w-full grid grid-cols-2"
+              style={{ gap: gridGap }}
+            >
             {game.options.map((option, index) => {
               const isCorrectOption = game.correctAnswers.includes(index);
 
@@ -124,32 +208,44 @@ export function QCMGame({
                   onClick={() => handleOptionClick(index)}
                   disabled={showCorrection}
                   className={`
-                  py-3 sm:py-4 md:py-5 lg:py-6 px-3 sm:px-5 md:px-7 lg:px-9 rounded-xl sm:rounded-2xl md:rounded-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold
-                  transition-all duration-300 transform
+                  transition-all duration-300 transform font-bold
                   ${buttonColor}
-                  text-white
-                  shadow-lg hover:shadow-xl
+                  text-white shadow-lg hover:shadow-xl
                   ${showCorrection ? "cursor-default" : ""}
-                  focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-orange-300
-                  flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5
+                  focus:outline-none focus:ring-2 focus:ring-orange-300
+                  flex items-center touch-manipulation
                 `}
                   style={{
                     textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    paddingTop: optionPaddingY,
+                    paddingBottom: optionPaddingY,
+                    paddingLeft: optionPaddingX,
+                    paddingRight: optionPaddingX,
+                    gap: optionGap,
+                    minHeight: btnMinHeight,
+                    borderRadius: optionRadius,
                   }}
                 >
-                  <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold shrink-0">
+                  <span className="font-bold shrink-0" style={{ fontSize: optionLetterSize }}>
                     {option.id}
                   </span>
-                  <span className="flex-1 text-left text-sm sm:text-base md:text-lg lg:text-xl">
+                  <span className="flex-1 text-left min-w-0" style={{ fontSize: optionTextSize }}>
                     {option.text}
                   </span>
                 </button>
               );
             })}
+            </div>
           </div>
 
           <div
-            className={`w-full flex ${isStep2 ? "justify-center" : "justify-between"} items-center pt-1 sm:pt-2 md:pt-3 lg:pt-4 min-h-[2.5rem] sm:min-h-[3rem] md:min-h-[3.5rem] gap-2 sm:gap-3 md:gap-4 pointer-events-auto px-1 sm:px-2`}
+            className="w-full flex shrink-0 items-center pointer-events-auto"
+            style={{
+              justifyContent: isStep2 ? "center" : "space-between",
+              paddingTop: isSmallScreen ? "8px" : "12px",
+              gap: "12px",
+              minHeight: "44px",
+            }}
           >
             {!isStep2 && (
               <div className="min-w-0 flex-1 flex justify-start">
@@ -157,13 +253,14 @@ export function QCMGame({
                   <button
                     type="button"
                     onClick={handlePrevious}
-                    className="px-2 sm:px-4 md:px-6 lg:px-8 py-1.5 sm:py-2 md:py-3 lg:py-4 text-xs sm:text-sm md:text-base lg:text-lg font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                    className="px-3 py-2 font-bold bg-gray-500 hover:bg-gray-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                    style={{ fontSize: btnFontSize, minHeight: btnMinHeight }}
                   >
                     ← Question précédente
                   </button>
                 ) : (
                   <span
-                    className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
+                    className="inline-block w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
                     aria-hidden="true"
                   >
                     ←
@@ -171,20 +268,20 @@ export function QCMGame({
                 )}
               </div>
             )}
-            <div
-              className={`min-w-0 ${isStep2 ? "w-full flex justify-center" : "flex-1 flex justify-end"}`}
-            >
+            <div className={`min-w-0 ${isStep2 ? "w-full flex justify-center" : "flex-1 flex justify-end"}`}>
               {showCorrection ? (
                 currentQuestion === totalQuestions &&
                 results[currentQuestion] === false ? (
                   <button
                     type="button"
                     onClick={handleRetryQuiz}
-                    className={`px-4 sm:px-6 md:px-8 lg:px-9 xl:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 xl:py-4.5 text-sm sm:text-base md:text-lg lg:text-xl xl:text-xl font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
-                      isStep2
-                        ? "w-auto min-w-[140px] sm:min-w-[160px] md:min-w-[180px] lg:min-w-[200px]"
-                        : ""
-                    }`}
+                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                    style={{
+                      padding: btnPadding,
+                      fontSize: btnFontSize,
+                      minHeight: btnMinHeight,
+                      minWidth: isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : "160px",
+                    }}
                   >
                     Rejouer
                   </button>
@@ -192,11 +289,15 @@ export function QCMGame({
                   <button
                     type="button"
                     onClick={handleContinue}
-                    className={`px-4 sm:px-6 md:px-8 lg:px-9 xl:px-10 py-2.5 sm:py-3 md:py-3.5 lg:py-4 xl:py-4.5 text-sm sm:text-base md:text-lg lg:text-xl xl:text-xl font-bold text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
-                      isStep2
-                        ? "bg-orange-500 hover:bg-orange-600 w-auto min-w-[140px] sm:min-w-[160px] md:min-w-[180px] lg:min-w-[200px]"
-                        : "bg-green-600 hover:bg-green-700"
+                    className={`text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
+                      isStep2 ? "bg-orange-500 hover:bg-orange-600" : "bg-green-600 hover:bg-green-700"
                     }`}
+                    style={{
+                      padding: btnPadding,
+                      fontSize: btnFontSize,
+                      minHeight: btnMinHeight,
+                      minWidth: isStep2 && isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : isStep2 ? "160px" : undefined,
+                    }}
                   >
                     {currentQuestion < totalQuestions
                       ? "Question suivante →"
@@ -205,7 +306,7 @@ export function QCMGame({
                 )
               ) : (
                 <span
-                  className="inline-block py-1.5 sm:py-2 md:py-3 lg:py-4 w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
+                  className="inline-block w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
                   aria-hidden="true"
                 >
                   →

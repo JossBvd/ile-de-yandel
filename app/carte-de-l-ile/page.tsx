@@ -254,15 +254,18 @@ function HomeContent() {
               window.location.reload();
             }
           }}
-          className="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition-colors"
+          className="bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-colors touch-manipulation"
           style={{
             padding: isMobileOrTablet 
-              ? (isSmallScreen ? '6px 12px' : isMediumScreen ? '8px 16px' : '10px 20px')
+              ? (isSmallScreen ? '12px 16px' : isMediumScreen ? '14px 20px' : '16px 24px')
               : (isDesktopSmall ? '10px 20px' : isDesktopMedium ? '12px 24px' : '14px 28px'),
             fontSize: isMobileOrTablet 
-              ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+              ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem')
               : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'),
+            minHeight: isMobileOrTablet ? '44px' : 'auto',
+            minWidth: isMobileOrTablet ? '80px' : 'auto',
           }}
+          aria-label="Réinitialiser la progression"
           title="Réinitialiser la progression"
         >
           🔄 Reset
@@ -288,15 +291,29 @@ function HomeContent() {
 
             const missionNumber = missionConfig.id.split("-")[1];
 
+            const missionTitle = mission.title ?? `Mission ${missionNumber}`;
+            const ariaLabel = missionConfig.available
+              ? `Accéder à ${missionTitle}`
+              : `${missionTitle}, verrouillée`;
+
             return (
               <div
                 key={missionConfig.id}
+                role="button"
+                tabIndex={0}
+                aria-label={ariaLabel}
                 onClick={() =>
                   handleMissionClick(missionConfig.id, missionConfig.available)
                 }
-                className={`absolute flex flex-col items-center justify-center transition-all ${
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleMissionClick(missionConfig.id, missionConfig.available);
+                  }
+                }}
+                className={`absolute flex flex-col items-center justify-center transition-all touch-manipulation ${
                   missionConfig.available
-                    ? "cursor-pointer hover:scale-105"
+                    ? "cursor-pointer hover:scale-105 active:scale-95"
                     : "cursor-not-allowed opacity-50"
                 }`}
                 style={
@@ -309,11 +326,13 @@ function HomeContent() {
                   className="relative"
                   style={{
                     width: isMobileOrTablet 
-                      ? (isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px')
+                      ? (isSmallScreen ? '140px' : isMediumScreen ? '180px' : '220px')
                       : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
                     height: isMobileOrTablet 
-                      ? (isSmallScreen ? '100px' : isMediumScreen ? '140px' : '180px')
+                      ? (isSmallScreen ? '140px' : isMediumScreen ? '180px' : '220px')
                       : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px'),
+                    minWidth: isMobileOrTablet ? 48 : undefined,
+                    minHeight: isMobileOrTablet ? 48 : undefined,
                   }}
                 >
                   <Image
@@ -331,16 +350,16 @@ function HomeContent() {
                       className="absolute z-10 pointer-events-none"
                       style={{
                         top: isMobileOrTablet 
-                          ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+                          ? (isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px')
                           : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
                         right: isMobileOrTablet 
-                          ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+                          ? (isSmallScreen ? '12px' : isMediumScreen ? '16px' : '20px')
                           : (isDesktopSmall ? '16px' : isDesktopMedium ? '20px' : '24px'),
                         width: isMobileOrTablet 
-                          ? (isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px')
+                          ? (isSmallScreen ? '36px' : isMediumScreen ? '44px' : '52px')
                           : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
                         height: isMobileOrTablet 
-                          ? (isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px')
+                          ? (isSmallScreen ? '36px' : isMediumScreen ? '44px' : '52px')
                           : (isDesktopSmall ? '48px' : isDesktopMedium ? '56px' : '64px'),
                       }}
                     >
@@ -357,7 +376,7 @@ function HomeContent() {
                       className="font-semibold text-gray-800 drop-shadow-sm"
                       style={{
                         fontSize: isMobileOrTablet 
-                          ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+                          ? (isSmallScreen ? '0.9375rem' : isMediumScreen ? '1.0625rem' : '1.25rem')
                           : (isDesktopSmall ? '1.25rem' : isDesktopMedium ? '1.5rem' : '1.75rem'),
                       }}
                     >
@@ -389,6 +408,7 @@ function HomeContent() {
           <IconButton
             icon="/ui/icon_menu.webp"
             alt="Journal de bord"
+            sizeVariant="map"
             onClick={() => {
               const latestCompletedMission = completedMissions.length > 0 
                 ? completedMissions[completedMissions.length - 1] 
@@ -404,8 +424,8 @@ function HomeContent() {
             <div 
               className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
               style={{
-                width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
-                height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+                height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
               }}
             >
               <Image
@@ -421,6 +441,7 @@ function HomeContent() {
           <IconButton
             icon="/ui/icon_radeau.webp"
             alt="Radeau"
+            sizeVariant="map"
             onClick={() => {
               markRaftAsViewed();
               router.push("/radeau");
@@ -431,8 +452,8 @@ function HomeContent() {
             <div 
               className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
               style={{
-                width: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
-                height: isSmallScreen ? '28px' : isMediumScreen ? '32px' : '40px',
+                width: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
+                height: isSmallScreen ? '32px' : isMediumScreen ? '36px' : '44px',
               }}
             >
               <Image
@@ -472,12 +493,14 @@ function HomeContent() {
                 type="button"
                 onClick={handleExploreMission}
                 disabled={selectedMissionId === "mission-2"}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500"
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500 touch-manipulation"
                 style={{
                   padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px',
                   fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem',
+                  minHeight: isMobileOrTablet ? 48 : undefined,
+                  minWidth: isMobileOrTablet ? 120 : undefined,
                 }}
-              
+                aria-label="Jouer à la mission"
               >
                 Jouer !
               </button>

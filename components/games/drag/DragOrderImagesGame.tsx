@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Step, DragOrderImagesGameData, ImageOption } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
+import { useResponsive } from "@/hooks/useResponsive";
 import {
   DndContext,
   DragEndEvent,
@@ -19,9 +20,10 @@ interface DraggableImageProps {
   image: ImageOption;
   isInSlot: boolean;
   onInfoClick: (url: string) => void;
+  sizePx: number;
 }
 
-function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
+function DraggableImage({ image, isInSlot, onInfoClick, sizePx }: DraggableImageProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: image.id,
     disabled: isInSlot,
@@ -29,7 +31,10 @@ function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
 
   if (isInSlot) {
     return (
-      <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg border-2 border-dashed border-white/40 bg-black/20" />
+      <div
+        className="rounded-lg border-2 border-dashed border-white/40 bg-black/20 shrink-0"
+        style={{ width: sizePx, height: sizePx }}
+      />
     );
   }
 
@@ -38,9 +43,10 @@ function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group touch-none ${
+      className={`relative rounded-lg overflow-hidden border-2 border-white/60 hover:border-white transition-all shadow-lg group touch-none shrink-0 ${
         isDragging ? "opacity-50" : ""
       }`}
+      style={{ width: sizePx, height: sizePx }}
     >
       <Image
         src={image.src}
@@ -55,10 +61,10 @@ function DraggableImage({ image, isInSlot, onInfoClick }: DraggableImageProps) {
             e.stopPropagation();
             onInfoClick(image.infoImage!);
           }}
-          className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
+          className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
           aria-label="Voir l'indice"
         >
-          <span className="text-white text-[10px] sm:text-xs font-bold">i</span>
+          <span className="text-white text-xs font-bold">i</span>
         </button>
       )}
     </div>
@@ -71,6 +77,7 @@ interface DroppableSlotProps {
   image: ImageOption | null | undefined;
   isLocked: boolean;
   onInfoClick: (url: string) => void;
+  sizePx: number;
 }
 
 function DroppableSlot({
@@ -79,6 +86,7 @@ function DroppableSlot({
   image,
   isLocked,
   onInfoClick,
+  sizePx,
 }: DroppableSlotProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `slot-${index}`,
@@ -88,15 +96,16 @@ function DroppableSlot({
   return (
     <div
       ref={setNodeRef}
-      className={`relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-md sm:rounded-lg transition-all touch-none ${
+      className={`relative rounded-lg transition-all touch-none shrink-0 border-2 ${
         isLocked
-          ? "border-2 sm:border-4 border-green-500 bg-green-100/50 shadow-xl shadow-green-500/30"
+          ? "border-green-500 bg-green-100/50 shadow-xl shadow-green-500/30"
           : imageId
-            ? "border-2 sm:border-4 border-blue-500 bg-blue-100/50 shadow-lg"
+            ? "border-blue-500 bg-blue-100/50 shadow-lg"
             : isOver
-              ? "border-2 sm:border-4 border-yellow-400 bg-yellow-100/50 shadow-lg"
-              : "border-2 sm:border-4 border-dashed border-white/60 bg-black/30 shadow-inner"
+              ? "border-yellow-400 bg-yellow-100/50 shadow-lg"
+              : "border-dashed border-white/60 bg-black/30 shadow-inner"
       }`}
+      style={{ width: sizePx, height: sizePx }}
     >
       {image && (
         <>
@@ -113,20 +122,19 @@ function DroppableSlot({
                 e.stopPropagation();
                 onInfoClick(image.infoImage!);
               }}
-              className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
+              className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
               aria-label="Voir l'indice"
             >
-              <span className="text-white text-[10px] sm:text-xs font-bold">
-                i
-              </span>
+              <span className="text-white text-xs font-bold">i</span>
             </button>
           )}
         </>
       )}
       {isLocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-md sm:rounded-lg pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 rounded-lg pointer-events-none">
           <svg
-            className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white drop-shadow-md"
+            className="w-6 h-6 text-white drop-shadow-md"
+            style={{ width: sizePx * 0.4, height: sizePx * 0.4 }}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -154,6 +162,7 @@ export function DragOrderImagesGame({
   onDefeat,
 }: DragOrderImagesGameProps) {
   const game = step.game as DragOrderImagesGameData;
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
   const [slots, setSlots] = useState<(string | null)[]>(
     Array(game.slotsCount).fill(null),
   );
@@ -165,8 +174,35 @@ export function DragOrderImagesGame({
   );
   const [showVictory, setShowVictory] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const paddingEdge = isMobileOrTablet
+    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+    : (isDesktopSmall ? "16px" : isDesktopMedium ? "20px" : "24px");
+  const imageSize = isMobileOrTablet
+    ? (isSmallScreen ? 100 : isMediumScreen ? 108 : 120)
+    : (isDesktopSmall ? 128 : isDesktopMedium ? 144 : 160);
+  const slotSize = isMobileOrTablet
+    ? (isSmallScreen ? 108 : isMediumScreen ? 116 : 128)
+    : (isDesktopSmall ? 136 : isDesktopMedium ? 152 : 168);
+  const sendButtonSize = isMobileOrTablet
+    ? (isSmallScreen ? 76 : isMediumScreen ? 84 : 92)
+    : (isDesktopSmall ? 104 : isDesktopMedium ? 112 : 120);
+  const questionTitleSize = isMobileOrTablet
+    ? (isSmallScreen ? "1rem" : "1.125rem")
+    : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.75rem");
+  const questionTextSize = isMobileOrTablet
+    ? (isSmallScreen ? "1rem" : "1.0625rem")
+    : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.25rem" : "1.375rem");
+  const gapImages = isMobileOrTablet ? (isSmallScreen ? 6 : 8) : (isDesktopSmall ? 8 : 12);
+  const gapSlotsInner = isMobileOrTablet ? (isSmallScreen ? 6 : 8) : (isDesktopSmall ? 8 : 12);
+  const gapSlotsOuter = isMobileOrTablet ? (isSmallScreen ? 10 : 12) : (isDesktopSmall ? 14 : 18);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -244,65 +280,95 @@ export function DragOrderImagesGame({
     ? game.sourceImages.find((img) => img.id === activeId)
     : null;
 
-  return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={collisionDetection}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+  const gameContent = (
+    <div
+      className="absolute inset-0 z-10 flex flex-col overflow-hidden pointer-events-none"
+      style={{ padding: paddingEdge }}
     >
-      <div className="absolute top-5 left-2 right-2 sm:top-7 sm:left-4 sm:right-4 md:top-9 md:left-6 md:right-6 z-10 pointer-events-none">
+      <div className="pointer-events-auto flex flex-col flex-1 min-h-0" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
         <div
-          className="rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-5 lg:p-6 shadow-xl border-2 border-amber-800/30 pointer-events-auto"
+          className="rounded-xl shadow-xl border-2 border-amber-800/30 shrink-0 pointer-events-auto"
           style={{
             backgroundColor: "#E6D5B8",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+            padding: isMobileOrTablet
+              ? (isSmallScreen ? "8px 10px" : "10px 12px")
+              : (isDesktopSmall ? "20px 16px" : "26px 20px"),
           }}
         >
-          <h2 className="text-center text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-900 uppercase tracking-wide mb-0.5 sm:mb-1 md:mb-2">
+          <h2
+            className="text-center font-bold text-gray-900 uppercase tracking-wide"
+            style={{
+              fontSize: questionTitleSize,
+              marginBottom: isSmallScreen ? "4px" : "6px",
+              lineHeight: 1.25,
+            }}
+          >
             {step.title}
           </h2>
-          <p className="text-gray-800 text-[10px] sm:text-xs md:text-sm lg:text-base leading-tight sm:leading-relaxed italic text-center line-clamp-2 sm:line-clamp-none">
-            « {game.text || step.instruction} »
-          </p>
-        </div>
-      </div>
-      <div className="absolute top-[32%] sm:top-[30%] md:top-[32%] lg:top-[34%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-        <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 pointer-events-auto">
-          {game.sourceImages.map((image) => (
-            <DraggableImage
-              key={image.id}
-              image={image}
-              isInSlot={isImageInSlot(image.id)}
-              onInfoClick={setInfoModalImageUrl}
-            />
-          ))}
-        </div>
-      </div>
-      <div className="absolute bottom-[8%] sm:bottom-[10%] md:bottom-[12%] lg:bottom-[14%] left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-        <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 pointer-events-auto">
-          {slots.map((imageId, index) => {
-            const isLocked = lockedSlots[index];
-            const image = imageId
-              ? game.sourceImages.find((img) => img.id === imageId)
-              : null;
+            <p
+              className="text-gray-800 italic text-center line-clamp-2"
+              style={{ fontSize: questionTextSize, lineHeight: 1.4 }}
+            >
+              « {game.text || step.instruction} »
+            </p>
+          </div>
 
-            return (
-              <DroppableSlot
-                key={`slot-${index}`}
-                index={index}
-                imageId={imageId}
+        <div
+          className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
+          style={{ gap: isMobileOrTablet ? 8 : 12 }}
+        >
+          <div
+            className="w-full flex flex-wrap justify-center items-center shrink-0"
+            style={{ gap: gapImages }}
+          >
+            {game.sourceImages.map((image) => (
+              <DraggableImage
+                key={image.id}
                 image={image}
-                isLocked={isLocked}
+                isInSlot={isImageInSlot(image.id)}
                 onInfoClick={setInfoModalImageUrl}
+                sizePx={imageSize}
               />
-            );
-          })}
-          <div className="relative flex flex-col items-center">
+            ))}
+          </div>
+          <div
+            className="w-full flex flex-wrap items-center justify-center shrink-0"
+            style={{ gap: gapSlotsOuter }}
+          >
+            <div
+              className="flex flex-wrap items-center justify-center"
+              style={{ gap: gapSlotsInner }}
+            >
+              {slots.map((imageId, index) => {
+                const isLocked = lockedSlots[index];
+                const image = imageId
+                  ? game.sourceImages.find((img) => img.id === imageId)
+                  : null;
+
+                return (
+                  <DroppableSlot
+                    key={`slot-${index}`}
+                    index={index}
+                    imageId={imageId}
+                    image={image}
+                    isLocked={isLocked}
+                    onInfoClick={setInfoModalImageUrl}
+                    sizePx={slotSize}
+                  />
+                );
+              })}
+            </div>
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="min-w-[48px] min-h-[48px] w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full bg-transparent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:scale-105 active:scale-95 flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+              className="rounded-full bg-transparent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:scale-105 active:scale-95 flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 shrink-0"
+              style={{
+                width: sendButtonSize,
+                height: sendButtonSize,
+                minWidth: 48,
+                minHeight: 48,
+              }}
               aria-label="Envoyer"
             >
               <Image
@@ -316,6 +382,122 @@ export function DragOrderImagesGame({
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  if (!mounted) {
+    return (
+      <>
+        <div
+          className="absolute inset-0 z-10 flex flex-col overflow-hidden pointer-events-none"
+          style={{ padding: paddingEdge }}
+        >
+          <div className="pointer-events-auto flex flex-col flex-1 min-h-0" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
+            <div
+              className="rounded-xl shadow-xl border-2 border-amber-800/30 shrink-0 pointer-events-auto"
+              style={{
+                backgroundColor: "#E6D5B8",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                padding: isMobileOrTablet
+                  ? (isSmallScreen ? "8px 10px" : "10px 12px")
+                  : (isDesktopSmall ? "20px 16px" : "26px 20px"),
+              }}
+            >
+              <h2
+                className="text-center font-bold text-gray-900 uppercase tracking-wide"
+                style={{
+                  fontSize: questionTitleSize,
+                  marginBottom: isSmallScreen ? "4px" : "6px",
+                  lineHeight: 1.25,
+                }}
+              >
+                {step.title}
+              </h2>
+              <p
+                className="text-gray-800 italic text-center line-clamp-2"
+                style={{ fontSize: questionTextSize, lineHeight: 1.4 }}
+              >
+                « {game.text || step.instruction} »
+              </p>
+            </div>
+            <div
+              className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
+              style={{ gap: isMobileOrTablet ? 8 : 12 }}
+            >
+              <div
+                className="w-full flex flex-wrap justify-center items-center shrink-0"
+                style={{ gap: gapImages }}
+              >
+                {game.sourceImages.map((img) => (
+                  <div
+                    key={img.id}
+                    className="rounded-lg border-2 border-white/40 bg-black/20 shrink-0"
+                    style={{ width: imageSize, height: imageSize }}
+                  />
+                ))}
+              </div>
+              <div
+                className="w-full flex flex-wrap items-center justify-center shrink-0"
+                style={{ gap: gapSlotsOuter }}
+              >
+                <div
+                  className="flex flex-wrap items-center justify-center"
+                  style={{ gap: gapSlotsInner }}
+                >
+                  {slots.map((_, index) => (
+                    <div
+                      key={`slot-${index}`}
+                      className="rounded-lg border-2 border-dashed border-white/40 bg-black/30 shrink-0"
+                      style={{ width: slotSize, height: slotSize }}
+                    />
+                  ))}
+                </div>
+                <div
+                  className="rounded-full bg-black/10 shrink-0"
+                  style={{ width: sendButtonSize, height: sendButtonSize, minWidth: 48, minHeight: 48 }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        {infoModalImageUrl && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 pointer-events-auto"
+            onClick={() => setInfoModalImageUrl(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Indice"
+          >
+            <div className="relative w-full max-w-2xl max-h-[90dvh] flex items-center justify-center cursor-pointer">
+              <Image
+                src={infoModalImageUrl}
+                alt="Indice"
+                width={800}
+                height={600}
+                className="w-full h-auto max-h-[90dvh] object-contain pointer-events-none"
+                sizes="(max-width: 640px) 100vw, 42rem"
+              />
+            </div>
+          </div>
+        )}
+        <VictoryModal
+          isOpen={showVictory}
+          onContinue={handleContinue}
+          raftPieceName={getRaftPieceByStepId(step.id)?.name}
+          raftPieceImage={getRaftPieceByStepId(step.id)?.image}
+        />
+      </>
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={collisionDetection}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      {gameContent}
       {infoModalImageUrl && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 pointer-events-auto"
@@ -344,7 +526,10 @@ export function DragOrderImagesGame({
       />
       <DragOverlay>
         {activeImage ? (
-          <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-md sm:rounded-lg overflow-hidden border-2 border-white/60 shadow-lg opacity-90">
+          <div
+            className="relative rounded-lg overflow-hidden border-2 border-white/60 shadow-lg opacity-90"
+            style={{ width: imageSize, height: imageSize }}
+          >
             <Image
               src={activeImage.src}
               alt={activeImage.alt}
