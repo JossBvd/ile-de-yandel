@@ -33,7 +33,7 @@ function JournalContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
   const { setLastViewedCompletedMission } = useUIStore();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } = useResponsive();
 
   useEffect(() => {
     const latestCompletedMission = completedMissions.length > 0 
@@ -118,27 +118,29 @@ function JournalContent() {
           style={{ 
             containerType: "size", 
             containerName: "journal-missions-column",
-            paddingTop: "clamp(60px, 10vh, 120px)",
+            paddingTop: isMobileOrTablet ? "clamp(72px, 10vh, 92px)" : "clamp(60px, 10vh, 120px)",
             paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '48px' : '64px',
           }}
         >
-          <div
-            className="journal-picto-ile relative shrink-0 rounded-lg overflow-hidden"
-            style={{ 
-              aspectRatio: "280/170"
-            }}
-          >
-            <Image
-              src="/ui/picto_ile.webp"
-              alt=""
-              fill
-              className="object-contain object-center"
-            />
-          </div>
+          {!isMobileOrTablet && (
+            <div
+              className="journal-picto-ile relative shrink-0 rounded-lg overflow-hidden"
+              style={{ 
+                aspectRatio: "280/170"
+              }}
+            >
+              <Image
+                src="/ui/picto_ile.webp"
+                alt=""
+                fill
+                className="object-contain object-center"
+              />
+            </div>
+          )}
           <div 
             className="flex flex-col w-full shrink-0 items-center"
             style={{
-              marginTop: isSmallScreen ? '-8px' : isMediumScreen ? '-16px' : '-24px',
+              marginTop: isMobileOrTablet ? 0 : (isSmallScreen ? '-8px' : isMediumScreen ? '-16px' : '-24px'),
               gap: isSmallScreen ? '2px' : isMediumScreen ? '6px' : '10px',
             }}
           >
@@ -257,6 +259,7 @@ function JournalContent() {
         <IconButton
           icon="/ui/icon_back.webp"
           alt="Retour"
+          sizeVariant="map"
           onClick={() => router.push("/carte-de-l-ile")}
           label="Retour"
         />

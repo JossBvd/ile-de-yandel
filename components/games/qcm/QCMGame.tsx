@@ -93,19 +93,19 @@ export function QCMGame({
     ? (isSmallScreen ? "12px" : "14px")
     : (isDesktopSmall ? "16px" : isDesktopMedium ? "20px" : "24px");
   const titleSize = isMobileOrTablet
-    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.125rem" : "1.25rem")
+    ? (isSmallScreen ? "1.125rem" : isMediumScreen ? "1.25rem" : "1.375rem")
     : (isDesktopSmall ? "1.5rem" : isDesktopMedium ? "1.875rem" : "2.25rem");
   const questionSize = isMobileOrTablet
-    ? (isSmallScreen ? "0.8125rem" : isMediumScreen ? "0.9375rem" : "1.0625rem")
+    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem")
     : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.875rem");
   const gridGap = isMobileOrTablet
     ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
     : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
   const optionLetterSize = isMobileOrTablet
-    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.25rem" : "1.5rem")
+    ? (isSmallScreen ? "1.125rem" : isMediumScreen ? "1.375rem" : "1.625rem")
     : (isDesktopSmall ? "1.75rem" : isDesktopMedium ? "2.25rem" : "2.5rem");
   const optionTextSize = isMobileOrTablet
-    ? (isSmallScreen ? "0.75rem" : isMediumScreen ? "0.875rem" : "1rem")
+    ? (isSmallScreen ? "0.9375rem" : isMediumScreen ? "1rem" : "1.0625rem")
     : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.375rem" : "1.5rem");
   const optionPaddingY = isMobileOrTablet
     ? (isSmallScreen ? "10px" : isMediumScreen ? "12px" : "14px")
@@ -124,7 +124,7 @@ export function QCMGame({
     ? (isSmallScreen ? "10px 16px" : "12px 20px")
     : (isDesktopSmall ? "14px 24px" : isDesktopMedium ? "16px 28px" : "18px 32px");
   const btnFontSize = isMobileOrTablet
-    ? (isSmallScreen ? "0.8125rem" : isMediumScreen ? "0.9375rem" : "1rem")
+    ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem")
     : (isDesktopSmall ? "1.125rem" : "1.25rem");
 
   return (

@@ -211,6 +211,9 @@ export function DragOrderImagesGame({
     if (!over || isLocked(over.id as string)) return;
 
     const slotId = over.id as string;
+    
+    if (!slotId.startsWith("slot-")) return;
+    
     const slotIndex = parseInt(slotId.replace("slot-", ""), 10);
 
     if (!isNaN(slotIndex) && slotIndex >= 0 && slotIndex < slots.length) {

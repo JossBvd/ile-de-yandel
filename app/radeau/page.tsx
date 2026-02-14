@@ -4,10 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
-  OrientationProvider,
-  RotatedContainer,
+  OrientationGuard,
   useOrientationContext,
-} from "@/components/game/OrientationProvider";
+} from "@/components/game/OrientationGuard";
 import { useResponsive } from "@/hooks/useResponsive";
 import { IconButton } from "@/components/ui/IconButton";
 import { useInventoryStore } from "@/store/inventoryStore";
@@ -178,7 +177,7 @@ function RadeauContent({
     consumePiecesForFusion,
   } = useInventoryStore();
   const { markRaftAsViewed } = useUIStore();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall } = useResponsive();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
   useEffect(() => {
     markRaftAsViewed();
@@ -258,15 +257,15 @@ function RadeauContent({
         <div 
           className="absolute z-10"
           style={{
-            top: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '24px',
-            left: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
+            top: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 8 : 12) : 24,
+            left: 0,
           }}
         >
           <div 
             className="relative"
             style={{
-              width: isSmallScreen ? '192px' : isMediumScreen ? '288px' : '320px',
-              height: isSmallScreen ? '64px' : isMediumScreen ? '96px' : '112px',
+              width: isMobileOrTablet ? (isSmallScreen ? 192 : isMediumScreen ? 240 : 280) : (isDesktopSmall ? 320 : isDesktopMedium ? 360 : 400),
+              height: isMobileOrTablet ? (isSmallScreen ? 64 : isMediumScreen ? 80 : 96) : (isDesktopSmall ? 112 : isDesktopMedium ? 120 : 128),
             }}
           >
             <Image
@@ -279,7 +278,7 @@ function RadeauContent({
               <h1 
                 className="font-bold text-gray-800 drop-shadow-sm"
                 style={{
-                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                  fontSize: isMobileOrTablet ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem') : (isDesktopSmall ? '1.25rem' : isDesktopMedium ? '1.375rem' : '1.5rem'),
                 }}
               >
                 Radeau
@@ -292,18 +291,18 @@ function RadeauContent({
         <div
           className="absolute z-10 flex flex-col items-center"
           style={{
-            left: "calc(50% + clamp(3rem, 8vw, 6rem))",
-            transform:
-              "translateX(-50%) translateY(clamp(0.375rem, 1.5vh, 1.5rem))",
-            bottom: "clamp(3rem, 10vh, 5rem)",
-            gap: "clamp(0.25rem, 1vh, 0.5rem)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bottom: isMobileOrTablet ? (isSmallScreen ? 48 : isMediumScreen ? 56 : 64) : (isDesktopSmall ? 72 : isDesktopMedium ? 80 : 88),
+            gap: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 6 : 8) : (isDesktopSmall ? 8 : 10),
+            marginLeft: isMobileOrTablet ? (isSmallScreen ? 40 : isMediumScreen ? 56 : 72) : (isDesktopSmall ? 80 : isDesktopMedium ? 96 : 112),
           }}
         >
           <div
             className="relative shrink-0"
             style={{
-              width: "clamp(13.5rem, 42vw, 21rem)",
-              height: "clamp(13.5rem, 42vw, 21rem)",
+              width: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 200 : 240) : (isDesktopSmall ? 280 : isDesktopMedium ? 320 : 360),
+              height: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 200 : 240) : (isDesktopSmall ? 280 : isDesktopMedium ? 320 : 360),
               opacity: 0.25,
             }}
           >
@@ -314,14 +313,19 @@ function RadeauContent({
               className="object-contain"
             />
           </div>
-          <div className="flex" style={{ gap: "clamp(0.25rem, 1vw, 0.5rem)" }}>
+          <div
+            className="flex"
+            style={{
+              gap: isMobileOrTablet ? (isSmallScreen ? 4 : 6) : (isDesktopSmall ? 8 : 10),
+            }}
+          >
             {Array.from({ length: MAX_FUSED_RAFT_PIECES }).map((_, i) => (
               <div
                 key={i}
                 className="relative shrink-0"
                 style={{
-                  width: "clamp(2rem, 5vw, 3rem)",
-                  height: "clamp(2rem, 5vw, 3rem)",
+                  width: isMobileOrTablet ? (isSmallScreen ? 32 : isMediumScreen ? 40 : 48) : (isDesktopSmall ? 52 : isDesktopMedium ? 58 : 64),
+                  height: isMobileOrTablet ? (isSmallScreen ? 32 : isMediumScreen ? 40 : 48) : (isDesktopSmall ? 52 : isDesktopMedium ? 58 : 64),
                 }}
               >
                 <Image
@@ -343,7 +347,9 @@ function RadeauContent({
           </div>
           <p
             className="font-semibold text-gray-800 drop-shadow-sm"
-            style={{ fontSize: "clamp(0.75rem, 2vw, 1.125rem)" }}
+            style={{
+              fontSize: isMobileOrTablet ? (isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.9375rem' : '1rem') : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.0625rem' : '1.125rem'),
+            }}
           >
             Pièces de radeau collectées {fusedRaftPiecesCount}/
             {MAX_FUSED_RAFT_PIECES}
@@ -354,13 +360,14 @@ function RadeauContent({
         <div
           className="absolute z-10"
           style={{
-            bottom: "clamp(0.25rem, 1.5vw, 1rem)",
-            left: "clamp(0.25rem, 1.5vw, 1rem)",
+            bottom: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
+            left: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
           }}
         >
           <IconButton
             icon="/ui/icon_back.webp"
             alt="Retour"
+            sizeVariant="map"
             onClick={() => router.push("/carte-de-l-ile")}
             label="Retour"
           />
@@ -373,11 +380,11 @@ function RadeauContent({
           height: "auto",
           width: "auto",
           maxHeight: "96dvh",
-          maxWidth: "320px",
+          maxWidth: isMobileOrTablet ? (isSmallScreen ? 240 : isMediumScreen ? 280 : 320) : (isDesktopSmall ? 320 : isDesktopMedium ? 360 : 400),
           aspectRatio: "9/19",
-          margin: "clamp(0.5rem, 2vw, 1.5rem)",
-          padding: "clamp(0.75rem, 3vw, 1.5rem)",
-          paddingBottom: "clamp(1rem, 4vw, 2rem)",
+          margin: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 20 : isDesktopMedium ? 24 : 28),
+          padding: isMobileOrTablet ? (isSmallScreen ? 10 : isMediumScreen ? 12 : 14) : (isDesktopSmall ? 16 : isDesktopMedium ? 18 : 20),
+          paddingBottom: isMobileOrTablet ? (isSmallScreen ? 12 : isMediumScreen ? 16 : 20) : (isDesktopSmall ? 24 : isDesktopMedium ? 28 : 32),
           boxSizing: "border-box",
           backgroundImage: "url(/raft/background_radeau_merge_slots.webp)",
           backgroundSize: "100% 100%",
@@ -394,7 +401,7 @@ function RadeauContent({
               aspectRatio: "3/5",
               maxHeight: "100%",
               maxWidth: "100%",
-              gap: "clamp(0.2rem, 0.8cqh, 0.5rem)",
+              gap: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 6 : 8) : (isDesktopSmall ? 8 : 10),
             }}
           >
             {Array.from({ length: INVENTORY_SLOTS_COUNT }).map((_, i) => {
@@ -447,9 +454,9 @@ function RadeauContent({
         <div
           className="shrink-0 w-full min-w-0 flex flex-col self-center"
           style={{
-            gap: "clamp(0.2rem, 0.6vh, 0.4rem)",
+            gap: isMobileOrTablet ? (isSmallScreen ? 4 : 6) : 8,
             maxWidth: "90%",
-            paddingBottom: "0.15rem",
+            paddingBottom: 2,
           }}
         >
           <div className="grid grid-cols-3 w-full min-w-0 shrink-0 gap-0 aspect-3/1 max-w-full">
@@ -469,9 +476,12 @@ function RadeauContent({
             disabled={!canFuse}
             className="w-full rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
             style={{
-              padding: "clamp(0.375rem, 1.2vh, 0.625rem)",
-              fontSize: "clamp(0.75rem, 2vw, 1rem)",
+              padding: isMobileOrTablet ? (isSmallScreen ? "12px 16px" : isMediumScreen ? "14px 18px" : "16px 20px") : (isDesktopSmall ? "14px 20px" : "18px 24px"),
+              fontSize: isMobileOrTablet ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem") : (isDesktopSmall ? "1rem" : isDesktopMedium ? "1.0625rem" : "1.125rem"),
+              minHeight: isMobileOrTablet ? 48 : 44,
+              minWidth: 120,
             }}
+            aria-label="Fusionner les pièces"
           >
             Fusionner !
           </button>
@@ -484,12 +494,17 @@ function RadeauContent({
 function RadeauWrapper() {
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } = useResponsive();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([
     null,
     null,
     null,
   ]);
+
+  const dragOverlaySize = isMobileOrTablet
+    ? (isSmallScreen ? 56 : isMediumScreen ? 64 : 72)
+    : (isDesktopSmall ? 80 : isDesktopMedium ? 88 : 96);
 
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);
@@ -511,22 +526,11 @@ function RadeauWrapper() {
 
     if (getRaftPieceById(pieceId as RaftPieceId) == null) return;
 
-    if (mergeSlots[slotIndex] === null) {
-      setMergeSlots((prev) => {
-        const next = [...prev];
-        next[slotIndex] = pieceId as RaftPieceId;
-        return next;
-      });
-    } else {
-      const emptySlotIndex = mergeSlots.findIndex((s) => s === null);
-      if (emptySlotIndex !== -1) {
-        setMergeSlots((prev) => {
-          const next = [...prev];
-          next[emptySlotIndex] = pieceId as RaftPieceId;
-          return next;
-        });
-      }
-    }
+    setMergeSlots((prev) => {
+      const next = [...prev];
+      next[slotIndex] = pieceId as RaftPieceId;
+      return next;
+    });
   };
 
   const activePiece = activeId
@@ -540,18 +544,18 @@ function RadeauWrapper() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <RotatedContainer>
-        <RadeauContent
-          mergeSlots={mergeSlots}
-          setMergeSlots={setMergeSlots}
-          activeId={activeId}
-        />
-      </RotatedContainer>
+      <RadeauContent
+        mergeSlots={mergeSlots}
+        setMergeSlots={setMergeSlots}
+        activeId={activeId}
+      />
       <DragOverlay>
         {activePiece ? (
           <div
-            className="w-16 h-16 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90"
+            className="rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90 shrink-0"
             style={{
+              width: dragOverlaySize,
+              height: dragOverlaySize,
               boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
             }}
           >
@@ -580,8 +584,8 @@ function RadeauWrapper() {
 
 export default function RadeauPage() {
   return (
-    <OrientationProvider>
+    <OrientationGuard>
       <RadeauWrapper />
-    </OrientationProvider>
+    </OrientationGuard>
   );
 }

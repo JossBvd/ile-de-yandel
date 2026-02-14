@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Image from "next/image";
 import { useOrientationContext } from "@/components/game/OrientationGuard";
 import { useResponsive } from "@/hooks/useResponsive";
+
+const FOCUSABLE_SELECTOR =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 interface MissionCompleteModalProps {
   isOpen: boolean;
@@ -24,6 +27,40 @@ export function MissionCompleteModal({
 }: MissionCompleteModalProps) {
   const { isRotated, width, height } = useOrientationContext();
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+    const container = modalRef.current;
+    const focusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (first) first.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onMapClick();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const active = document.activeElement as HTMLElement | null;
+      if (!active || !focusable.includes(active)) return;
+      if (e.shiftKey) {
+        if (active === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (active === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    container.addEventListener("keydown", onKeyDown);
+    return () => container.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onMapClick]);
 
   if (!isOpen) return null;
 
@@ -31,7 +68,8 @@ export function MissionCompleteModal({
 
   return (
     <div
-      className="fixed z-50 flex items-center justify-center"
+      ref={modalRef}
+      className="fixed z-50 flex items-center justify-center safe-area-inset"
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         width: isRotated ? `${width}px` : "100vw",
@@ -43,7 +81,8 @@ export function MissionCompleteModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Mission accomplie"
+      aria-labelledby="mission-complete-title"
+      aria-describedby="mission-complete-desc"
     >
       <div
         className="relative flex items-center justify-center"
@@ -81,11 +120,11 @@ export function MissionCompleteModal({
               paddingBottom: isSmallScreen ? "3%" : "5%",
             }}
           >
-            <div 
+            <div
               className="w-full flex items-center justify-center"
               style={{
                 maxWidth: isSmallScreen ? "98%" : "95%",
-                gap: isSmallScreen ? "0.75rem" : undefined,
+                gap: isSmallScreen ? "1rem" : isMediumScreen ? "1.25rem" : isDesktopSmall ? "1.5rem" : "2rem",
               }}
             >
               <div 
@@ -109,21 +148,23 @@ export function MissionCompleteModal({
                   />
                 </div>
                 
-                <h2 
+                <h2
+                  id="mission-complete-title"
                   className="font-bold uppercase tracking-wide wrap-break-word text-center"
-                  style={{ 
+                  style={{
                     color: "#1a1a1a",
-                    fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : isDesktopSmall ? '1.875rem' : '2.25rem',
+                    fontSize: isSmallScreen ? "1.25rem" : isMediumScreen ? "1.5rem" : isDesktopSmall ? "1.875rem" : "2.25rem",
                   }}
                 >
                   MISSION {missionNumber} ACCOMPLIE !
                 </h2>
-                
-                <p 
+
+                <p
+                  id="mission-complete-desc"
                   className="italic leading-relaxed wrap-break-word text-center"
-                  style={{ 
+                  style={{
                     color: "#1a1a1a",
-                    fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : isDesktopSmall ? '1.125rem' : '1.25rem',
+                    fontSize: isSmallScreen ? "0.875rem" : isMediumScreen ? "1rem" : isDesktopSmall ? "1.125rem" : "1.25rem",
                   }}
                 >
                   « {completionText} »
@@ -143,8 +184,9 @@ export function MissionCompleteModal({
                   }}
                 >
                 <button
+                  type="button"
                   onClick={onJournalClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 group"
+                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
                   aria-label="Journal de bord - complète tes souvenirs"
                 >
                   <div 
@@ -202,8 +244,9 @@ export function MissionCompleteModal({
                   }}
                 >
                 <button
+                  type="button"
                   onClick={onRaftClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 group"
+                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
                   aria-label="Radeau - fabrique ton embarcation"
                 >
                   <div 
@@ -261,8 +304,9 @@ export function MissionCompleteModal({
                   }}
                 >
                 <button
+                  type="button"
                   onClick={onMapClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 group"
+                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
                   aria-label="Carte de l'île - continuer l'aventure"
                 >
                   <div 

@@ -481,9 +481,11 @@ function HomeContent() {
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
               <h2 
-                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm"
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4"
                 style={{
-                  fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem',
+                  fontSize: isMobileOrTablet
+                    ? (isSmallScreen ? '1.5rem' : isMediumScreen ? '1.75rem' : '2rem')
+                    : (isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem'),
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
@@ -495,10 +497,14 @@ function HomeContent() {
                 disabled={selectedMissionId === "mission-2"}
                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500 touch-manipulation"
                 style={{
-                  padding: isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px',
-                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem',
-                  minHeight: isMobileOrTablet ? 48 : undefined,
-                  minWidth: isMobileOrTablet ? 120 : undefined,
+                  padding: isMobileOrTablet
+                    ? (isSmallScreen ? '20px 40px' : isMediumScreen ? '24px 48px' : '28px 56px')
+                    : (isSmallScreen ? '12px 24px' : isMediumScreen ? '16px 36px' : '20px 48px'),
+                  fontSize: isMobileOrTablet
+                    ? (isSmallScreen ? '1.375rem' : isMediumScreen ? '1.5rem' : '1.75rem')
+                    : (isSmallScreen ? '1rem' : isMediumScreen ? '1.5rem' : '2rem'),
+                  minHeight: isMobileOrTablet ? (isSmallScreen ? 56 : isMediumScreen ? 60 : 64) : undefined,
+                  minWidth: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 180 : 200) : undefined,
                 }}
                 aria-label="Jouer à la mission"
               >

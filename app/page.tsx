@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useResponsive } from "@/hooks/useResponsive";
+import { OrientationGuard } from "@/components/game/OrientationGuard";
 
-export default function WelcomePage() {
+function WelcomeContent() {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
 
   useEffect(() => {
     const savedPseudo = localStorage.getItem("playerPseudo");
@@ -16,22 +15,21 @@ export default function WelcomePage() {
     }
   }, []);
 
-  const handleStart = () => {
-    if (pseudo.trim()) {
-      localStorage.setItem("playerPseudo", pseudo.trim());
-      router.push("/carte-de-l-ile");
-    }
+  const handlePlayClick = () => {
+    if (!pseudo.trim()) return;
+    localStorage.setItem("playerPseudo", pseudo.trim());
+    router.push("/carte-de-l-ile");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && pseudo.trim()) {
-      handleStart();
+      handlePlayClick();
     }
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col relative"
+      className="flex flex-col relative overflow-hidden min-h-dvh safe-area-inset"
       style={{
         backgroundImage: "url(/backgrounds/Background_title_screen.webp)",
         backgroundSize: "cover",
@@ -39,54 +37,48 @@ export default function WelcomePage() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        <h1 
-          className="font-bold text-gray-800 text-center mb-4"
-          style={{
-            fontSize: isSmallScreen ? '2rem' : isMediumScreen ? '2.5rem' : isDesktopSmall ? '3rem' : '3.75rem',
-          }}
+      <div className="flex-1 flex flex-col items-center justify-center px-[clamp(0.75rem,4vw,2rem)] pt-[clamp(1rem,5vh,2rem)] pb-2">
+        <h1
+          className="font-bold text-gray-800 text-center mb-4 md:mb-6"
+          style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
         >
           Île de Yandel
         </h1>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center px-4 w-full max-w-2xl"
-        style={{
-          gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-        }}
+      <div
+        className="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-3 sm:gap-4 px-[clamp(0.75rem,4vw,2rem)] pb-[max(env(safe-area-inset-bottom),clamp(1rem,5vh,2rem))] max-w-[672px] mx-auto shrink-0"
       >
         <input
           type="text"
           value={pseudo}
           onChange={(e) => setPseudo(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="PSEUDO"
-          className="flex-1 rounded-none border-2 border-gray-400 focus:border-orange-500 focus:outline-none text-center bg-white shadow-lg text-black"
-          style={{
-            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '24px',
-            paddingRight: isSmallScreen ? '24px' : isMediumScreen ? '24px' : '24px',
-            paddingTop: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
-            paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
-            fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
-          }}
+          className="flex-1 rounded-none border-2 border-gray-400 focus:border-orange-500 focus:outline-none text-center bg-white shadow-lg text-gray-900 min-w-0 min-h-[48px] px-4 py-3 touch-manipulation"
+          style={{ fontSize: "clamp(1rem, 2vw + 0.5rem, 1.25rem)" }}
           maxLength={20}
+          aria-label="Votre pseudo"
         />
-
         <button
-          onClick={handleStart}
+          type="button"
+          onClick={handlePlayClick}
           disabled={!pseudo.trim()}
-          className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-full transition-colors uppercase shadow-lg"
-          style={{
-            paddingLeft: isSmallScreen ? '32px' : isMediumScreen ? '32px' : '32px',
-            paddingRight: isSmallScreen ? '32px' : isMediumScreen ? '32px' : '32px',
-            paddingTop: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
-            paddingBottom: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
-            fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.5rem' : '1.5rem',
-          }}
+          className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold rounded-full transition-colors uppercase shadow-lg touch-manipulation shrink-0 min-h-[48px] min-w-[120px] px-6 py-3"
+          style={{ fontSize: "clamp(1.125rem, 2vw + 0.5rem, 1.5rem)" }}
+          aria-label="Jouer"
         >
           JOUER !
         </button>
       </div>
     </div>
+  );
+}
+
+export default function WelcomePage() {
+  return (
+    <OrientationGuard allowPortrait>
+      <WelcomeContent />
+    </OrientationGuard>
   );
 }
