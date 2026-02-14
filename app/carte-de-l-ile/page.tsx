@@ -251,7 +251,7 @@ function HomeContent() {
               resetProgress();
               resetInventory();
               resetUI();
-              window.location.reload();
+              router.push("/");
             }
           }}
           className="bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-colors touch-manipulation"
