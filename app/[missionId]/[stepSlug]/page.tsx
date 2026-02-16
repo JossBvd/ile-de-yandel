@@ -10,7 +10,8 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import { getStepById, getMissionById } from "@/data/missions";
 import { getNextStep } from "@/lib/engine/missionEngine";
-import { getStepPath, getStepIdFromSlug } from "@/lib/navigation";
+import { getStepPath, getStepIdFromSlug, validateStepIdFromSlug } from "@/lib/navigation";
+import { logDebug } from "@/lib/utils/logger";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
 import { GameRenderer } from "@/components/game/GameRenderer";
@@ -26,7 +27,18 @@ function StepPageContent() {
   const router = useRouter();
   const missionId = params.missionId as string;
   const stepSlug = params.stepSlug as string;
-  const stepId = getStepIdFromSlug(missionId, stepSlug);
+  
+  const stepId = validateStepIdFromSlug(missionId, stepSlug);
+  
+  React.useEffect(() => {
+    if (!stepId) {
+      router.push("/carte-de-l-ile");
+    }
+  }, [stepId, router]);
+  
+  if (!stepId) {
+    return null;
+  }
 
   const { completedSteps, setCurrentStepId, completeStep, completeMission } =
     useGameProgress();
@@ -66,7 +78,7 @@ function StepPageContent() {
     completeStep(step.id);
     if (step.raftPiece) {
       addPiece(step.raftPiece);
-      console.log("🎁 Pièce du radeau collectée:", step.raftPiece);
+      logDebug("🎁 Pièce du radeau collectée:", step.raftPiece);
     }
   }
 
@@ -78,8 +90,8 @@ function StepPageContent() {
     applyStepCompletionOnly();
     const updatedCompletedSteps = [...completedSteps, step.id];
     const nextStepId = getNextStep(mission, updatedCompletedSteps);
-    console.log("🎮 Complétion du step:", step.id);
-    console.log("➡️ Prochain step:", nextStepId);
+    logDebug("🎮 Complétion du step:", step.id);
+    logDebug("➡️ Prochain step:", nextStepId);
     if (nextStepId) {
       router.push(getStepPath(missionId, nextStepId));
     } else {
@@ -125,18 +137,18 @@ function StepPageContent() {
   };
 
   const handleGameDefeat = () => {
-    console.log("❌ Échec du step - Affichage de la modal de défaite");
+    logDebug("❌ Échec du step - Affichage de la modal de défaite");
     setShowDefeatModal(true);
   };
 
   const handleDefeatRetry = () => {
-    console.log("🔄 L'utilisateur réessaie");
+    logDebug("🔄 L'utilisateur réessaie");
     setShowDefeatModal(false);
     window.location.reload();
   };
 
   const handleDefeatGoBack = () => {
-    console.log("🏠 L'utilisateur retourne au menu");
+    logDebug("🏠 L'utilisateur retourne au menu");
     setShowDefeatModal(false);
     router.push("/carte-de-l-ile");
   };

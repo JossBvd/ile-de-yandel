@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Step, ImageClickGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
+import { logDebug } from "@/lib/utils/logger";
 
 interface ImageClickGameProps {
   step: Step;
@@ -87,7 +88,7 @@ export function ImageClickGame({
         }
       }
     }
-    console.log(
+    logDebug(
       "❌ Clic en dehors d'une zone - Affichage de la modal de défaite",
     );
     if (onDefeat) {

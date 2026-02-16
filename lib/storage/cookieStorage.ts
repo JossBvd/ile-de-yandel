@@ -16,11 +16,20 @@ export function setCookie(name: string, value: string, days: number = 7): void {
   
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+  
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secureFlag = isProduction ? ';secure' : '';
+  const sameSiteFlag = ';samesite=strict';
+  
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/${secureFlag}${sameSiteFlag}`;
 }
 
 export function removeCookie(name: string): void {
   if (typeof document === 'undefined') return;
   
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const secureFlag = isProduction ? ';secure' : '';
+  const sameSiteFlag = ';samesite=strict';
+  
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/${secureFlag}${sameSiteFlag}`;
 }
