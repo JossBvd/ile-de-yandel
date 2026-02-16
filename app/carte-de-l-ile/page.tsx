@@ -39,7 +39,7 @@ function HomeContent() {
     resetMissionSteps,
   } = useGameProgress();
   const { collectedPieces, reset: resetInventory } = useInventory();
-  const { viewedMissions, raftViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
+  const { viewedMissions, raftViewed, journalViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, markJournalAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
@@ -145,7 +145,7 @@ function HomeContent() {
   const latestCompletedMission = completedMissions.length > 0 
     ? completedMissions[completedMissions.length - 1] 
     : null;
-  const showJournalNew = latestCompletedMission !== lastViewedCompletedMission && 
+  const showJournalNew = !journalViewed && latestCompletedMission !== null && 
     missions.some((m) => m.available);
 
   const handleMissionClick = (missionId: string, available: boolean) => {
@@ -410,12 +410,7 @@ function HomeContent() {
             alt="Journal de bord"
             sizeVariant="map"
             onClick={() => {
-              const latestCompletedMission = completedMissions.length > 0 
-                ? completedMissions[completedMissions.length - 1] 
-                : null;
-              if (latestCompletedMission) {
-                setLastViewedCompletedMission(latestCompletedMission as MissionId);
-              }
+              markJournalAsViewed();
               router.push("/journal-de-bord");
             }}
             label="Menu"
