@@ -28,6 +28,7 @@ function DraggableImage({ image, isInSlot, onInfoClick, sizePx }: DraggableImage
     id: image.id,
     disabled: isInSlot,
   });
+  const { isMobileOrTablet } = useResponsive();
 
   if (isInSlot) {
     return (
@@ -61,7 +62,20 @@ function DraggableImage({ image, isInSlot, onInfoClick, sizePx }: DraggableImage
             e.stopPropagation();
             onInfoClick(image.infoImage!);
           }}
-          className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all opacity-0 group-hover:opacity-100 touch-manipulation"
+          className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
+          style={{
+            opacity: isMobileOrTablet ? 1 : 0,
+          }}
+          onMouseEnter={(e) => {
+            if (!isMobileOrTablet) {
+              e.currentTarget.style.opacity = "1";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isMobileOrTablet) {
+              e.currentTarget.style.opacity = "0";
+            }
+          }}
           aria-label="Voir l'indice"
         >
           <span className="text-white text-xs font-bold">i</span>

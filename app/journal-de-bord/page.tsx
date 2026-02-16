@@ -11,9 +11,6 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
-import { useUIStore } from "@/store/uiStore";
-import { useEffect } from "react";
-import type { MissionId } from "@/types/mission";
 
 
 function isMissionUnlocked(
@@ -32,17 +29,7 @@ function JournalContent() {
   const router = useRouter();
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
-  const { setLastViewedCompletedMission } = useUIStore();
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } = useResponsive();
-
-  useEffect(() => {
-    const latestCompletedMission = completedMissions.length > 0 
-      ? completedMissions[completedMissions.length - 1] 
-      : null;
-    if (latestCompletedMission) {
-      setLastViewedCompletedMission(latestCompletedMission as MissionId);
-    }
-  }, [completedMissions, setLastViewedCompletedMission]);
 
   const [selectedMissionId, setSelectedMissionId] =
     useState<string>("mission-1");
