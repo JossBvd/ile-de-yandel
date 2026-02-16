@@ -143,16 +143,26 @@ function StepPageContent() {
 
   const handleMissionCompleteJournal = () => {
     setShowMissionCompleteModal(false);
-    if (step) {
+    if (step && mission) {
       applyStepCompletionOnly();
+      const updatedCompletedSteps = [...completedSteps, step.id];
+      const nextStepId = getNextStep(mission, updatedCompletedSteps);
+      if (!nextStepId) {
+        completeMission(missionId);
+      }
     }
     router.push("/journal-de-bord");
   };
 
   const handleMissionCompleteRaft = () => {
     setShowMissionCompleteModal(false);
-    if (step) {
+    if (step && mission) {
       applyStepCompletionOnly();
+      const updatedCompletedSteps = [...completedSteps, step.id];
+      const nextStepId = getNextStep(mission, updatedCompletedSteps);
+      if (!nextStepId) {
+        completeMission(missionId);
+      }
     }
     router.push("/radeau");
   };

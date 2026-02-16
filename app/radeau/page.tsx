@@ -118,18 +118,18 @@ function DroppableSlot({
   });
 
   return (
-    <div
-      className="min-w-0 min-h-0 flex"
-      style={{ padding: "clamp(0.15rem, 0.5vw, 0.375rem)" }}
-    >
+    <div className="w-full flex items-center justify-center" style={{ aspectRatio: "1/1" }}>
       <button
         type="button"
         ref={setNodeRef}
         onClick={onRemove}
-        className={`w-full h-full aspect-square min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
+        className={`w-full h-full rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
           isOver ? "bg-gray-700/80" : ""
         }`}
-        style={{ borderColor: "#d97706" }}
+        style={{ 
+          borderColor: "#d97706",
+          aspectRatio: "1/1",
+        }}
       >
         {hasPiece ? (
           piece?.image ? (
@@ -453,7 +453,13 @@ function RadeauContent({
             paddingBottom: 2,
           }}
         >
-          <div className="grid grid-cols-3 w-full min-w-0 shrink-0 gap-0 aspect-3/1 max-w-full">
+          <div 
+            className="grid grid-cols-3 w-full min-w-0 shrink-0 max-w-full"
+            style={{
+              gap: isMobileOrTablet ? (isSmallScreen ? "4px" : isMediumScreen ? "6px" : "8px") : "10px",
+              gridTemplateRows: "1fr",
+            }}
+          >
             {mergeSlots.map((pieceId, i) => (
               <DroppableSlot
                 key={i}

@@ -101,18 +101,27 @@ function JournalContent() {
       >
         {/* Colonne missions */}
         <div
-          className="journal-missions-column flex flex-col w-1/3 min-w-0 min-h-0 overflow-hidden shrink-0 items-center justify-center gap-0"
+          className="flex flex-col min-w-0 min-h-0 overflow-y-auto shrink-0 items-center justify-center gap-0"
           style={{ 
-            containerType: "size", 
-            containerName: "journal-missions-column",
-            paddingTop: isMobileOrTablet ? "clamp(72px, 10vh, 92px)" : "clamp(60px, 10vh, 120px)",
-            paddingLeft: isSmallScreen ? '24px' : isMediumScreen ? '48px' : '64px',
+            width: isMobileOrTablet 
+              ? (isSmallScreen ? '120px' : isMediumScreen ? '140px' : '160px')
+              : '33.333%',
+            paddingTop: isMobileOrTablet 
+              ? (isSmallScreen ? '72px' : isMediumScreen ? '80px' : '88px')
+              : 'clamp(60px, 10vh, 120px)',
+            paddingLeft: isMobileOrTablet 
+              ? (isSmallScreen ? '4px' : isMediumScreen ? '8px' : '12px')
+              : (isDesktopSmall ? '48px' : '64px'),
+            paddingRight: isMobileOrTablet 
+              ? (isSmallScreen ? '4px' : isMediumScreen ? '8px' : '12px')
+              : '0',
           }}
         >
           {!isMobileOrTablet && (
             <div
-              className="journal-picto-ile relative shrink-0 rounded-lg overflow-hidden"
+              className="relative shrink-0 rounded-lg overflow-hidden"
               style={{ 
+                width: isDesktopSmall ? '190px' : isDesktopMedium ? '210px' : '230px',
                 aspectRatio: "280/170"
               }}
             >
@@ -127,13 +136,25 @@ function JournalContent() {
           <div 
             className="flex flex-col w-full shrink-0 items-center"
             style={{
-              marginTop: isMobileOrTablet ? 0 : (isSmallScreen ? '-8px' : isMediumScreen ? '-16px' : '-24px'),
-              gap: isSmallScreen ? '2px' : isMediumScreen ? '6px' : '10px',
+              marginTop: isMobileOrTablet ? 0 : (isDesktopSmall ? '-8px' : isDesktopMedium ? '-16px' : '-24px'),
+              gap: isMobileOrTablet 
+                ? (isSmallScreen ? '2px' : isMediumScreen ? '4px' : '6px')
+                : '10px',
             }}
           >
           {MISSIONS.map((mission) => {
             const missionNumber = mission.id.split("-")[1];
             const isUnlocked = unlockedMissionIds.has(mission.id);
+            const missionButtonWidth = isMobileOrTablet
+              ? (isSmallScreen ? '112px' : isMediumScreen ? '124px' : '136px')
+              : (isDesktopSmall ? '200px' : isDesktopMedium ? '220px' : '240px');
+            const missionButtonHeight = isMobileOrTablet
+              ? (isSmallScreen ? '38px' : isMediumScreen ? '42px' : '46px')
+              : (isDesktopSmall ? '62px' : isDesktopMedium ? '72px' : '82px');
+            const missionTextSize = isMobileOrTablet
+              ? (isSmallScreen ? '0.65rem' : isMediumScreen ? '0.7rem' : '0.75rem')
+              : (isDesktopSmall ? '1.2rem' : isDesktopMedium ? '1.325rem' : '1.45rem');
+            
             return (
               <button
                 key={mission.id}
@@ -141,12 +162,14 @@ function JournalContent() {
                   isUnlocked && setSelectedMissionId(mission.id)
                 }
                 disabled={!isUnlocked}
-                className={`journal-encart-mission relative shrink-0 rounded-none overflow-hidden transition-all touch-manipulation outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-700/50 focus-visible:ring-inset ${
+                className={`relative shrink-0 rounded-none overflow-hidden transition-all touch-manipulation outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-700/50 focus-visible:ring-inset ${
                   isUnlocked
                     ? "cursor-pointer hover:opacity-95"
                     : "cursor-not-allowed opacity-50"
                 }`}
                 style={{ 
+                  width: missionButtonWidth,
+                  height: missionButtonHeight,
                   flexShrink: 0
                 }}
                 type="button"
@@ -159,7 +182,12 @@ function JournalContent() {
                   fill
                   className="object-contain object-center"
                 />
-                <span className="journal-encart-text absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm pointer-events-none">
+                <span 
+                  className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm pointer-events-none"
+                  style={{
+                    fontSize: missionTextSize,
+                  }}
+                >
                   Mission {missionNumber}
                 </span>
               </button>
