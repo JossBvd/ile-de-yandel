@@ -4,6 +4,26 @@ import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { BackgroundHintZone } from "@/types/step";
 import { useOrientationContext } from "./OrientationGuard";
+import { logDebug, logError } from "@/lib/utils/logger";
+
+function sanitizeImagePath(path: string): string | null {
+  if (!path.startsWith('/')) {
+    return null;
+  }
+  
+  const allowedPaths = ['/backgrounds/', '/missions/', '/raft/', '/ui/'];
+  const isAllowed = allowedPaths.some(allowed => path.startsWith(allowed));
+  
+  if (!isAllowed) {
+    return null;
+  }
+  
+  if (path.includes('..')) {
+    return null;
+  }
+  
+  return path;
+}
 
 interface ClickableBackgroundProps {
   imageSrc: string;
@@ -34,17 +54,25 @@ export function ClickableBackground({
   } | null>(null);
 
   useEffect(() => {
+    const rawPath = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+    const sanitizedPath = sanitizeImagePath(rawPath);
+    
+    if (!sanitizedPath) {
+      logError(`❌ Chemin d'image invalide: ${imageSrc}`);
+      return;
+    }
+    
     const img = new window.Image();
     img.onload = () => {
       setImageDimensions({ width: img.width, height: img.height });
       if (debugMode) {
-        console.log(`📐 Image chargée: ${imageSrc} - Dimensions: ${img.width}x${img.height}`);
+        logDebug(`📐 Image chargée: ${sanitizedPath} - Dimensions: ${img.width}x${img.height}`);
       }
     };
     img.onerror = () => {
-      console.error(`❌ Erreur de chargement de l'image: ${imageSrc}`);
+      logError(`❌ Erreur de chargement de l'image: ${sanitizedPath}`);
     };
-    img.src = imageSrc.startsWith('/') ? imageSrc : `/${imageSrc}`;
+    img.src = sanitizedPath;
   }, [imageSrc, debugMode]);
 
   const getImageCoordinates = (
@@ -101,10 +129,10 @@ export function ClickableBackground({
     if (!coords) return;
     if (debugMode) {
       const containerRect = containerRef.current?.getBoundingClientRect();
-      console.log(
+      logDebug(
         `🎯 Coordonnées du clic: x: ${coords.x.toFixed(2)}, y: ${coords.y.toFixed(2)}`,
       );
-      console.log(
+      logDebug(
         `📋 Config pour backgroundHintZones:\n{ x: ${Math.round(coords.x)}, y: ${Math.round(coords.y)}, radius: 8, hint: "Votre indice ici" }`,
       );
       if (containerRect && imageDimensions) {
@@ -112,7 +140,7 @@ export function ClickableBackground({
         const visualHeight = isRotated ? containerRect.width : containerRect.height;
         const containerRatio = visualWidth / visualHeight;
         const imageRatio = imageDimensions.width / imageDimensions.height;
-        console.log(
+        logDebug(
           `📐 Debug: ${isRotated ? '[ROTATED] ' : ''}Container DOM ${containerRect.width.toFixed(0)}x${containerRect.height.toFixed(0)}, Visual ${visualWidth.toFixed(0)}x${visualHeight.toFixed(0)} (ratio: ${containerRatio.toFixed(2)}), Image ${imageDimensions.width}x${imageDimensions.height} (ratio: ${imageRatio.toFixed(2)}), Clic relatif: (${(e.clientX - containerRect.left).toFixed(0)}, ${(e.clientY - containerRect.top).toFixed(0)})`,
         );
       }

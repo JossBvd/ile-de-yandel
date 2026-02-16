@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logError } from '@/lib/utils/logger';
 
 export function useFullscreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -59,7 +60,7 @@ export function useFullscreen() {
       }
       return true;
     } catch (error) {
-      console.error('Erreur lors de l\'entrée en plein écran:', error);
+      logError('Erreur lors de l\'entrée en plein écran:', error);
       return false;
     }
   };
@@ -76,7 +77,7 @@ export function useFullscreen() {
         (document as any).msExitFullscreen();
       }
     } catch (error) {
-      console.error('Erreur lors de la sortie du plein écran:', error);
+      logError('Erreur lors de la sortie du plein écran:', error);
     }
   };
 

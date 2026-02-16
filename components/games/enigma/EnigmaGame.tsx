@@ -6,6 +6,7 @@ import { Step, EnigmaGameData } from "@/types/step";
 import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
 import { useResponsive } from "@/hooks/useResponsive";
+import { logDebug } from "@/lib/utils/logger";
 
 interface EnigmaGameProps {
   step: Step;
@@ -37,14 +38,14 @@ export function EnigmaGame({
     if (normalizedAnswer === normalizedCorrect) {
       setHasError(false);
       setShowRedFlash(false);
-      console.log("✅ Réponse correcte !");
+      logDebug("✅ Réponse correcte !");
       if (skipVictoryModal) {
         onComplete();
         return;
       }
       setShowVictory(true);
     } else {
-      console.log("❌ Mauvaise réponse");
+      logDebug("❌ Mauvaise réponse");
       setHasError(true);
       setShowRedFlash(true);
     }

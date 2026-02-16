@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { OrientationGuard } from "@/components/game/OrientationGuard";
 
+function sanitizePseudo(input: string): string {
+  return input
+    .trim()
+    .replace(/[<>"']/g, '')
+    .substring(0, 20);
+}
+
 function WelcomeContent() {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
@@ -16,14 +23,18 @@ function WelcomeContent() {
   }, []);
 
   const handlePlayClick = () => {
-    if (!pseudo.trim()) return;
-    localStorage.setItem("playerPseudo", pseudo.trim());
+    const sanitized = sanitizePseudo(pseudo);
+    if (!sanitized || sanitized.length < 1) return;
+    localStorage.setItem("playerPseudo", sanitized);
     router.push("/carte-de-l-ile");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && pseudo.trim()) {
-      handlePlayClick();
+    if (e.key === "Enter") {
+      const sanitized = sanitizePseudo(pseudo);
+      if (sanitized && sanitized.length >= 1) {
+        handlePlayClick();
+      }
     }
   };
 
