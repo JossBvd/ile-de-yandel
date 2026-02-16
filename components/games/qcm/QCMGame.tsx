@@ -191,15 +191,16 @@ export function QCMGame({
             {game.options.map((option, index) => {
               const isCorrectOption = game.correctAnswers.includes(index);
 
-              let buttonColor =
-                "bg-gradient-to-b from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 hover:scale-105 active:scale-95";
-
+              let backgroundColor = "";
+              let backgroundImage = "";
               if (showCorrection) {
                 if (isCorrectOption) {
-                  buttonColor = "bg-correct-answer";
+                  backgroundColor = "#39b54a";
                 } else {
-                  buttonColor = "bg-incorrect-answer";
+                  backgroundColor = "#ed1c24";
                 }
+              } else {
+                backgroundImage = "linear-gradient(to bottom, #f9a855, #f7941d)";
               }
 
               return (
@@ -209,13 +210,14 @@ export function QCMGame({
                   disabled={showCorrection}
                   className={`
                   transition-all duration-300 transform font-bold
-                  ${buttonColor}
                   text-white shadow-lg hover:shadow-xl
-                  ${showCorrection ? "cursor-default" : ""}
+                  ${showCorrection ? "cursor-default" : "hover:scale-105 active:scale-95"}
                   focus:outline-none focus:ring-2 focus:ring-orange-300
                   flex items-center touch-manipulation
                 `}
                   style={{
+                    backgroundColor: showCorrection ? backgroundColor : undefined,
+                    backgroundImage: showCorrection ? undefined : backgroundImage,
                     textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                     paddingTop: optionPaddingY,
                     paddingBottom: optionPaddingY,
@@ -224,6 +226,16 @@ export function QCMGame({
                     gap: optionGap,
                     minHeight: btnMinHeight,
                     borderRadius: optionRadius,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!showCorrection) {
+                      e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f7941d, #d67e0f)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!showCorrection) {
+                      e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f9a855, #f7941d)";
+                    }
                   }}
                 >
                   <span className="font-bold shrink-0" style={{ fontSize: optionLetterSize }}>

@@ -10,7 +10,6 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import { IconButton } from "@/components/ui/IconButton";
 import { useInventoryStore } from "@/store/inventoryStore";
-import { useUIStore } from "@/store/uiStore";
 import { getRaftPieceById, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 import type { RaftPieceId } from "@/types/step";
 import { useEffect } from "react";
@@ -176,12 +175,7 @@ function RadeauContent({
     fusedPieces,
     consumePiecesForFusion,
   } = useInventoryStore();
-  const { markRaftAsViewed } = useUIStore();
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
-
-  useEffect(() => {
-    markRaftAsViewed();
-  }, [markRaftAsViewed]);
 
   const inMergeSlots = new Set(
     mergeSlots.filter((id): id is RaftPieceId => id !== null),
