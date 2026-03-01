@@ -48,6 +48,11 @@ export function QCMGame({
   const handleOptionClick = (index: number) => {
     if (showCorrection) return;
 
+    if (isStep2) {
+      setSelectedIndex(index);
+      return;
+    }
+
     if (!isMultiple) {
       setSelectedIndex(index);
       setAnswersByQuestion((prev) => ({ ...prev, [currentQuestion]: index }));
@@ -56,6 +61,14 @@ export function QCMGame({
 
       setShowCorrection(true);
     }
+  };
+
+  const handleValidate = () => {
+    if (selectedIndex === null || showCorrection) return;
+    setAnswersByQuestion((prev) => ({ ...prev, [currentQuestion]: selectedIndex }));
+    const isCorrect = game.correctAnswers.includes(selectedIndex);
+    setResults((prev) => ({ ...prev, [currentQuestion]: isCorrect }));
+    setShowCorrection(true);
   };
 
   const handleContinue = () => {
@@ -197,6 +210,7 @@ export function QCMGame({
             >
             {game.options.map((option, index) => {
               const isCorrectOption = game.correctAnswers.includes(index);
+              const isSelected = selectedIndex === index;
 
               let backgroundColor = "";
               let backgroundImage = "";
@@ -208,6 +222,9 @@ export function QCMGame({
                 }
               } else {
                 backgroundImage = "linear-gradient(to bottom, #f9a855, #f7941d)";
+                if (isStep2 && isSelected) {
+                  backgroundImage = "linear-gradient(to bottom, #f7941d, #d67e0f)";
+                }
               }
 
               return (
@@ -223,6 +240,7 @@ export function QCMGame({
                   transition-all duration-300 transform font-bold
                   text-white shadow-lg hover:shadow-xl
                   ${showCorrection ? "cursor-default" : "hover:scale-105 active:scale-95"}
+                  ${isStep2 && isSelected && !showCorrection ? "ring-2 ring-white ring-offset-1" : ""}
                   focus:outline-none focus:ring-2 focus:ring-orange-300
                   flex items-center touch-manipulation flex-1 min-w-0
                 `}
@@ -301,9 +319,60 @@ export function QCMGame({
               {showCorrection ? (
                 currentQuestion === totalQuestions &&
                 results[currentQuestion] === false ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleRetryQuiz}
+                      aria-label="Rejouer"
+                      className="bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                      style={{
+                        padding: btnPadding,
+                        fontSize: btnFontSize,
+                        minHeight: btnMinHeight,
+                        minWidth: isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : "160px",
+                      }}
+                    >
+                      Rejouer
+                    </button>
+                    <ReadAloudButton
+                      text="Rejouer"
+                      ariaLabel="Lire : Rejouer"
+                      className="shrink-0"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleContinue}
+                      aria-label={currentQuestion < totalQuestions ? "Question suivante" : "Terminer"}
+                      className={`text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
+                        isStep2 ? "bg-orange-500 hover:bg-orange-600" : "bg-green-600 hover:bg-green-700"
+                      }`}
+                      style={{
+                        padding: btnPadding,
+                        fontSize: btnFontSize,
+                        minHeight: btnMinHeight,
+                        minWidth: isStep2 && isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : isStep2 ? "160px" : undefined,
+                      }}
+                    >
+                      {currentQuestion < totalQuestions
+                        ? "Question suivante →"
+                        : "Terminer"}
+                    </button>
+                    <ReadAloudButton
+                      text={currentQuestion < totalQuestions ? "Question suivante" : "Terminer"}
+                      ariaLabel={currentQuestion < totalQuestions ? "Lire : Question suivante" : "Lire : Terminer"}
+                      className="shrink-0"
+                    />
+                  </div>
+                )
+              ) : isStep2 && selectedIndex !== null ? (
+                <div className="flex items-center justify-center gap-2 w-full">
                   <button
                     type="button"
-                    onClick={handleRetryQuiz}
+                    onClick={handleValidate}
+                    aria-label="Valider la réponse"
                     className="bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
                     style={{
                       padding: btnPadding,
@@ -312,27 +381,14 @@ export function QCMGame({
                       minWidth: isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : "160px",
                     }}
                   >
-                    Rejouer
+                    Valider
                   </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleContinue}
-                    className={`text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
-                      isStep2 ? "bg-orange-500 hover:bg-orange-600" : "bg-green-600 hover:bg-green-700"
-                    }`}
-                    style={{
-                      padding: btnPadding,
-                      fontSize: btnFontSize,
-                      minHeight: btnMinHeight,
-                      minWidth: isStep2 && isMobileOrTablet ? (isSmallScreen ? "100px" : "120px") : isStep2 ? "160px" : undefined,
-                    }}
-                  >
-                    {currentQuestion < totalQuestions
-                      ? "Question suivante →"
-                      : "Terminer"}
-                  </button>
-                )
+                  <ReadAloudButton
+                    text="Valider la réponse"
+                    ariaLabel="Lire : Valider la réponse"
+                    className="shrink-0"
+                  />
+                </div>
               ) : (
                 <span
                   className="inline-block w-0 min-w-0 overflow-hidden opacity-0 pointer-events-none select-none"
