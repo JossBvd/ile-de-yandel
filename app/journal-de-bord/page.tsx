@@ -11,6 +11,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 
 function isMissionUnlocked(
@@ -47,6 +48,8 @@ function JournalContent() {
 
   return (
     <div
+      id="main-content"
+      role="main"
       className="relative overflow-hidden flex flex-col min-h-0"
       style={{
         width: isRotated ? `${width}px` : "100vw",
@@ -60,7 +63,7 @@ function JournalContent() {
     >
       {/* Titre */}
       <div 
-        className="absolute z-10"
+        className="absolute z-10 flex items-start gap-2"
         style={{
           top: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '24px',
           left: isSmallScreen ? '4px' : isMediumScreen ? '8px' : '8px',
@@ -90,6 +93,10 @@ function JournalContent() {
             </h1>
           </div>
         </div>
+        <ReadAloudButton
+          text="Mon journal de bord"
+          ariaLabel="Lire le titre"
+        />
       </div>
 
       <div 
@@ -209,25 +216,36 @@ function JournalContent() {
               }}
             >
               <div 
-                className="relative w-full max-w-[200px] self-center shrink-0"
+                className="relative w-full max-w-[200px] self-center shrink-0 flex items-center justify-center gap-2"
                 style={{
                   height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
                 }}
               >
-                <Image
-                  src="/ui/encart_journal.webp"
-                  alt=""
-                  fill
-                  className="object-contain object-center"
-                />
-                <span 
-                  className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm"
+                <div
+                  className="relative w-full max-w-[200px]"
                   style={{
-                    fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                    height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
                   }}
                 >
-                  Mission {selectedMissionId.split("-")[1]}
-                </span>
+                  <Image
+                    src="/ui/encart_journal.webp"
+                    alt=""
+                    fill
+                    className="object-contain object-center"
+                  />
+                  <span 
+                    className="absolute inset-0 flex items-center justify-center font-semibold text-gray-800 drop-shadow-sm"
+                    style={{
+                      fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                    }}
+                  >
+                    Mission {selectedMissionId.split("-")[1]}
+                  </span>
+                </div>
+                <ReadAloudButton
+                  text={`Mission ${selectedMissionId.split("-")[1]}`}
+                  ariaLabel="Lire le titre de la mission"
+                />
               </div>
 
               <div 
@@ -239,7 +257,7 @@ function JournalContent() {
                 {[1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className="rounded-full shadow-md bg-orange-500"
+                    className="rounded-full shadow-md bg-orange-500 flex items-center justify-center gap-2"
                     style={{
                       paddingLeft: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
                       paddingRight: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
@@ -255,6 +273,11 @@ function JournalContent() {
                     >
                       Ressource enseignant
                     </p>
+                    <ReadAloudButton
+                      text="Ressource enseignant"
+                      ariaLabel={`Lire la ressource ${index}`}
+                      className="bg-white/20! hover:bg-white/30!"
+                    />
                   </div>
                 ))}
               </div>
@@ -265,7 +288,7 @@ function JournalContent() {
 
       {/* Bouton retour */}
       <div 
-        className="absolute z-10"
+        className="absolute z-10 flex items-center gap-2"
         style={{
           bottom: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
           left: isSmallScreen ? '8px' : isMediumScreen ? '16px' : '32px',
@@ -277,6 +300,10 @@ function JournalContent() {
           sizeVariant="map"
           onClick={() => router.push("/carte-de-l-ile")}
           label="Retour"
+        />
+        <ReadAloudButton
+          text="Retour à la carte de l'île"
+          ariaLabel="Lire : Retour"
         />
       </div>
     </div>

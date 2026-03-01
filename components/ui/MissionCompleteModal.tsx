@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from "react";
 import Image from "next/image";
 import { useOrientationContext } from "@/components/game/OrientationGuard";
 import { useResponsive } from "@/hooks/useResponsive";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const FOCUSABLE_SELECTOR =
   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -128,11 +129,17 @@ export function MissionCompleteModal({
               }}
             >
               <div 
-                className="flex flex-col items-center flex-1 max-w-[40%] min-w-0"
+                className="flex flex-col items-center flex-1 max-w-[40%] min-w-0 relative"
                 style={{
                   gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isDesktopSmall ? '20px' : '24px',
                 }}
               >
+                <div className="absolute top-0 right-0 z-20" onClick={(e) => e.stopPropagation()}>
+                  <ReadAloudButton
+                    text={`Mission ${missionNumber} accomplie ! ${completionText}`}
+                    ariaLabel="Lire le message de fin de mission"
+                  />
+                </div>
                 <div 
                   className="relative shrink-0"
                   style={{
@@ -183,6 +190,7 @@ export function MissionCompleteModal({
                     gap: isSmallScreen ? '4px' : '6px',
                   }}
                 >
+                <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onJournalClick}
@@ -226,6 +234,11 @@ export function MissionCompleteModal({
                     </span>
                   </div>
                 </button>
+                <ReadAloudButton
+                  text="Journal de bord, complète tes souvenirs"
+                  ariaLabel="Lire : Journal de bord"
+                />
+                </div>
                 <span 
                   className="italic text-center whitespace-nowrap"
                   style={{ 
@@ -243,6 +256,7 @@ export function MissionCompleteModal({
                     gap: isSmallScreen ? '4px' : '6px',
                   }}
                 >
+                <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onRaftClick}
@@ -286,6 +300,11 @@ export function MissionCompleteModal({
                     </span>
                   </div>
                 </button>
+                <ReadAloudButton
+                  text="Radeau, fabrique ton embarcation"
+                  ariaLabel="Lire : Radeau"
+                />
+                </div>
                 <span 
                   className="italic text-center whitespace-nowrap"
                   style={{ 
@@ -303,6 +322,7 @@ export function MissionCompleteModal({
                     gap: isSmallScreen ? '4px' : '6px',
                   }}
                 >
+                <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={onMapClick}
@@ -346,6 +366,11 @@ export function MissionCompleteModal({
                     </span>
                   </div>
                 </button>
+                <ReadAloudButton
+                  text="Carte de l'île, continuer l'aventure"
+                  ariaLabel="Lire : Carte de l'île"
+                />
+                </div>
                 <span 
                   className="italic text-center whitespace-nowrap"
                   style={{ 

@@ -3,7 +3,7 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "parchemin";
   size?: "sm" | "md" | "lg";
   children: React.ReactNode;
 }
@@ -23,6 +23,8 @@ export function Button({
     secondary: "bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500",
     outline:
       "border-2 border-blue-600 text-blue-600 hover:bg-blue-50 focus:ring-blue-500",
+    parchemin:
+      "bg-[#e8dcc4] text-gray-800 hover:bg-[#ddd0b0] focus:ring-amber-700 border border-amber-800/20",
   };
 
   const sizeStyles = {

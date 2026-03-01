@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useResponsive } from "@/hooks/useResponsive";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface DefeatModalProps {
   isOpen: boolean;
@@ -10,13 +11,22 @@ interface DefeatModalProps {
   onGoBack: () => void;
 }
 
-/**
- * Modal affichée lors d'un échec à un step
- * Design : fond parchemin avec message d'encouragement et deux boutons
- */
 export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
   const { isSmallScreen, isMediumScreen } = useResponsive();
-  
+  const setContainerRef = useFocusTrap(isOpen);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onGoBack();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onGoBack]);
+
   if (!isOpen) return null;
 
   return (
@@ -26,8 +36,13 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
         backgroundColor: "rgba(0, 0, 0, 0.6)",
         padding: isSmallScreen ? '16px' : isMediumScreen ? '16px' : '16px',
       }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="defeat-modal-title"
+      aria-describedby="defeat-modal-desc"
     >
       <div
+        ref={setContainerRef}
         className="relative w-full rounded-3xl shadow-2xl flex flex-col items-center"
         style={{
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
@@ -55,6 +70,7 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
 
         {/* Titre */}
         <h2
+          id="defeat-modal-title"
           className="font-bold mb-4 text-center"
           style={{
             color: "#2C3E50",
@@ -66,6 +82,7 @@ export function DefeatModal({ isOpen, onRetry, onGoBack }: DefeatModalProps) {
         </h2>
 
         <p
+          id="defeat-modal-desc"
           className="text-center mb-8"
           style={{
             color: "#34495E",

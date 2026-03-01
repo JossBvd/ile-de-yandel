@@ -40,6 +40,8 @@ function WelcomeContent() {
 
   return (
     <div
+      id="main-content"
+      role="main"
       className="flex flex-col relative overflow-hidden min-h-dvh safe-area-inset"
       style={{
         backgroundImage: "url(/backgrounds/Background_title_screen.webp)",

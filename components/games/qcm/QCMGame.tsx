@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Step, QCMGameData } from "@/types/step";
 import { useResponsive } from "@/hooks/useResponsive";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 interface QCMGameProps {
   step: Step;
@@ -174,6 +175,12 @@ export function QCMGame({
             >
               {game.question}
             </p>
+            <div className="flex justify-center mt-2">
+              <ReadAloudButton
+                text={`${step.title}. ${game.question}`}
+                ariaLabel="Lire la question"
+              />
+            </div>
           </div>
 
           <div
@@ -204,47 +211,57 @@ export function QCMGame({
               }
 
               return (
-                <button
+                <div
                   key={option.id}
-                  onClick={() => handleOptionClick(index)}
-                  disabled={showCorrection}
-                  className={`
+                  className="flex items-center gap-1"
+                  style={{ minHeight: 0 }}
+                >
+                  <button
+                    onClick={() => handleOptionClick(index)}
+                    disabled={showCorrection}
+                    className={`
                   transition-all duration-300 transform font-bold
                   text-white shadow-lg hover:shadow-xl
                   ${showCorrection ? "cursor-default" : "hover:scale-105 active:scale-95"}
                   focus:outline-none focus:ring-2 focus:ring-orange-300
-                  flex items-center touch-manipulation
+                  flex items-center touch-manipulation flex-1 min-w-0
                 `}
-                  style={{
-                    backgroundColor: showCorrection ? backgroundColor : undefined,
-                    backgroundImage: showCorrection ? undefined : backgroundImage,
-                    textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                    paddingTop: optionPaddingY,
-                    paddingBottom: optionPaddingY,
-                    paddingLeft: optionPaddingX,
-                    paddingRight: optionPaddingX,
-                    gap: optionGap,
-                    minHeight: btnMinHeight,
-                    borderRadius: optionRadius,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!showCorrection) {
-                      e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f7941d, #d67e0f)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!showCorrection) {
-                      e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f9a855, #f7941d)";
-                    }
-                  }}
-                >
-                  <span className="font-bold shrink-0" style={{ fontSize: optionLetterSize }}>
-                    {option.id}
-                  </span>
-                  <span className="flex-1 text-left min-w-0" style={{ fontSize: optionTextSize }}>
-                    {option.text}
-                  </span>
-                </button>
+                    style={{
+                      backgroundColor: showCorrection ? backgroundColor : undefined,
+                      backgroundImage: showCorrection ? undefined : backgroundImage,
+                      textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                      paddingTop: optionPaddingY,
+                      paddingBottom: optionPaddingY,
+                      paddingLeft: optionPaddingX,
+                      paddingRight: optionPaddingX,
+                      gap: optionGap,
+                      minHeight: btnMinHeight,
+                      borderRadius: optionRadius,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!showCorrection) {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f7941d, #d67e0f)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!showCorrection) {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to bottom, #f9a855, #f7941d)";
+                      }
+                    }}
+                  >
+                    <span className="font-bold shrink-0" style={{ fontSize: optionLetterSize }}>
+                      {option.id}
+                    </span>
+                    <span className="flex-1 text-left min-w-0" style={{ fontSize: optionTextSize }}>
+                      {option.text}
+                    </span>
+                  </button>
+                  <ReadAloudButton
+                    text={`Réponse ${option.id} : ${option.text}`}
+                    ariaLabel={`Lire la réponse ${option.id}`}
+                    className="shrink-0"
+                  />
+                </div>
               );
             })}
             </div>

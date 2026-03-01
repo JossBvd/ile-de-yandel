@@ -18,9 +18,34 @@ import { GameRenderer } from "@/components/game/GameRenderer";
 import { ClickableBackground } from "@/components/game/ClickableBackground";
 import { StepBackground } from "@/components/game/StepBackground";
 import { IconButton } from "@/components/ui/IconButton";
+import { AudioDescriptionButton } from "@/components/ui/AudioDescriptionButton";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
+import { useAudioDescription } from "@/hooks/useAudioDescription";
 import { DefeatModal } from "@/components/ui/DefeatModal";
 import { MissionCompleteModal } from "@/components/ui/MissionCompleteModal";
 import { BackgroundHintZone } from "@/types/step";
+import { announce } from "@/lib/accessibility/ariaAnnouncer";
+
+const HINT_IMAGE_READ_ALOUD: Record<string, string> = {
+  "/missions/mission-1/step-1/M1_S1_popup-indice-01.webp":
+    "Indice: ce pantalon est déchiré (é)",
+  "/missions/mission-1/step-1/M1_S1_popup-indice-02.webp":
+    "Indice: ces t-shirts sont déchirés (é - s)",
+  "/missions/mission-1/step-1/M1_S1_popup-indice-03.webp":
+    "Indice: cette casquette est déchirée (é - e)",
+  "/missions/mission-1/step-1/M1_S1_popup-indice-04.webp":
+    "Indice : ces robes sont déchirées (é-e-s)",
+};
+
+const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
+  "/missions/mission-1/step-1/M1_S1_popup-ficelle.webp":
+    "Étape 1 accomplie. Tu as collecté : ficelle",
+  "/missions/mission-1/step-2/M1_S2_popup-aiguille.webp":
+    "Étape 2 accomplie. Tu as collecté : aiguille",
+  "/missions/mission-1/step-3/M1_S3_popup-tissu.webp":
+    "Étape 3 accomplie. Tu as collecté : chutes de tissu",
+};
 
 function StepPageContent() {
   const params = useParams();
@@ -62,6 +87,30 @@ function StepPageContent() {
   const step = getStepById(stepId);
   const mission = getMissionById(missionId);
 
+  const missionNumber = missionId?.replace("mission-", "") ?? "1";
+  const stepIndex = mission?.steps.indexOf(stepId) ?? 0;
+  const stepNumber = stepIndex + 1;
+  const stepTextToRead = step
+    ? [
+        `Mission ${missionNumber}, Étape ${stepIndex + 1}.`,
+        step.title,
+        step.instruction,
+        step.game && "question" in step.game ? (step.game as { question?: string }).question : null,
+        step.game && "text" in step.game ? (step.game as { text?: string }).text : null,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
+  const { audioDescriptionAutoPlay } = useAudioDescriptionStore();
+  const { read: readAudio, enabled: audioEnabled } = useAudioDescription();
+
+  React.useEffect(() => {
+    if (!audioEnabled || !audioDescriptionAutoPlay || !stepTextToRead.trim()) return;
+    const t = setTimeout(() => readAudio(stepTextToRead), 500);
+    return () => clearTimeout(t);
+  }, [audioEnabled, audioDescriptionAutoPlay, stepId, readAudio, stepTextToRead]);
+
   const isFirstStepOfMission = Boolean(mission && mission.steps[0] === stepId);
 
   React.useEffect(() => {
@@ -102,6 +151,7 @@ function StepPageContent() {
 
   const handleGameComplete = () => {
     if (!step) return;
+    announce("Mission réussie ! Vous avez obtenu une pièce du radeau.", { priority: "polite" });
     if (step.id === "mission-1-step-1") {
       setRaftObjectModalImage(
         "/missions/mission-1/step-1/M1_S1_popup-ficelle.webp",
@@ -137,6 +187,7 @@ function StepPageContent() {
   };
 
   const handleGameDefeat = () => {
+    announce("Ce n'est pas la bonne réponse. Vous pouvez réessayer.", { priority: "polite" });
     logDebug("❌ Échec du step - Affichage de la modal de défaite");
     setShowDefeatModal(true);
   };
@@ -278,6 +329,18 @@ function StepPageContent() {
                 {step.narrative}
               </p>
             </div>
+            <div
+              className="absolute"
+              style={{
+                top: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                right: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+              }}
+            >
+              <ReadAloudButton
+                text={`${step.title}. ${step.narrative ?? ""}`.trim()}
+                ariaLabel="Lire le texte"
+              />
+            </div>
             <button
               type="button"
               onClick={handleContinueFromNarrative}
@@ -306,12 +369,10 @@ function StepPageContent() {
     );
   }
 
-  const missionNumber = missionId?.replace("mission-", "") ?? "1";
-  const stepIndex = mission?.steps.indexOf(stepId) ?? 0;
-  const stepNumber = stepIndex + 1;
-
   return (
     <div
+      id="main-content"
+      role="main"
       className="fixed inset-0 overflow-hidden bg-black flex"
       style={{
         width: isRotated ? `${width}px` : "100vw",
@@ -390,42 +451,65 @@ function StepPageContent() {
               paddingTop: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : '16px',
             }}
           >
-            <IconButton
-              icon="/ui/icon_clue.webp"
-              alt="Indice"
-              onClick={() => {
-                if (step.hint) {
-                  setGeneralHintModal({
-                    title: "Indice",
-                    hint:
-                      step.hint.text || step.hint.simplifiedInstruction || "",
-                  });
-                }
-              }}
-              label="Indice"
-              showLabel
-              disabled={!step.hint}
-              sizeVariant="sidebar"
+            <AudioDescriptionButton
+              textToRead={stepTextToRead}
+              sizeVariant="compact"
               className="self-start"
             />
-            <IconButton
-              icon="/ui/icon_radeau.webp"
-              alt="Radeau"
-              onClick={() => router.push("/radeau")}
-              label="Radeau"
-              showLabel
-              sizeVariant="sidebar"
-              className="self-start"
-            />
-            <IconButton
-              icon="/ui/icon_back.webp"
-              alt="Retour"
-              onClick={() => router.push("/carte-de-l-ile")}
-              label="Retour"
-              showLabel
-              sizeVariant="sidebar"
-              className="self-start"
-            />
+            <div className="flex items-center gap-1 self-start">
+              <IconButton
+                icon="/ui/icon_clue.webp"
+                alt="Indice"
+                onClick={() => {
+                  if (step.hint) {
+                    setGeneralHintModal({
+                      title: "Indice",
+                      hint:
+                        step.hint.text || step.hint.simplifiedInstruction || "",
+                    });
+                  }
+                }}
+                label="Indice"
+                showLabel
+                disabled={!step.hint}
+                sizeVariant="sidebar"
+                className="shrink-0"
+              />
+              <ReadAloudButton
+                text={step.hint ? "Indice. Voir un indice pour cette étape." : "Indice. Indice non disponible pour cette étape."}
+                ariaLabel="Lire : Indice"
+              />
+            </div>
+            <div className="flex items-center gap-1 self-start">
+              <IconButton
+                icon="/ui/icon_radeau.webp"
+                alt="Radeau"
+                onClick={() => router.push("/radeau")}
+                label="Radeau"
+                showLabel
+                sizeVariant="sidebar"
+                className="shrink-0"
+              />
+              <ReadAloudButton
+                text="Radeau. Voir les pièces collectées et assembler le radeau."
+                ariaLabel="Lire : Radeau"
+              />
+            </div>
+            <div className="flex items-center gap-1 self-start">
+              <IconButton
+                icon="/ui/icon_back.webp"
+                alt="Retour"
+                onClick={() => router.push("/carte-de-l-ile")}
+                label="Retour"
+                showLabel
+                sizeVariant="sidebar"
+                className="shrink-0"
+              />
+              <ReadAloudButton
+                text="Retour. Revenir à la carte de l'île."
+                ariaLabel="Lire : Retour"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -498,6 +582,15 @@ function StepPageContent() {
               style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
               sizes="(max-width: 640px) 100vw, 32rem"
             />
+            <div className="absolute top-4 right-4 z-10">
+              <ReadAloudButton
+                text={
+                  RAFT_OBJECT_MODAL_READ_ALOUD[raftObjectModalImage] ??
+                  "Objet récupéré pour le radeau."
+                }
+                ariaLabel="Lire le message"
+              />
+            </div>
             <div 
               className="absolute"
               style={{
@@ -552,13 +645,26 @@ function StepPageContent() {
             >
               <Image
                 src={hintModal.image}
-                alt={hintModal.title ?? "Indice"}
+                alt={hintModal.title ?? "Indice visuel"}
                 width={1200}
                 height={800}
                 className="w-full h-auto object-contain pointer-events-none"
                 style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
                 sizes="(max-width: 640px) 100vw, 80vw"
               />
+              <div
+                className="absolute top-4 right-4 z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ReadAloudButton
+                  text={
+                    HINT_IMAGE_READ_ALOUD[hintModal.image] ??
+                    hintModal.title ??
+                    "Indice visuel"
+                  }
+                  ariaLabel="Lire l'indice"
+                />
+              </div>
             </div>
           ) : (
             <div
@@ -583,7 +689,7 @@ function StepPageContent() {
                     {hintModal.image ? (
                       <Image
                         src={hintModal.image}
-                        alt={hintModal.title ?? "Objet"}
+                        alt={hintModal.title ?? "Objet de l'indice"}
                         width={208}
                         height={208}
                         className="w-full h-full object-cover"
@@ -604,6 +710,20 @@ function StepPageContent() {
                     <p className="text-gray-900 text-sm leading-relaxed flex-1 text-justify overflow-y-auto">
                       {hintModal.hint}
                     </p>
+                    {audioEnabled && (hintModal.title || hintModal.hint) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          readAudio(
+                            [hintModal.title, hintModal.hint].filter(Boolean).join(". "),
+                          )
+                        }
+                        className="mt-2 text-sm text-orange-600 hover:text-orange-700 underline"
+                        aria-label="Décrire l'image à voix haute"
+                      >
+                        Décrire l'image
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

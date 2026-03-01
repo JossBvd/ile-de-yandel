@@ -7,6 +7,7 @@ import { VictoryModal } from "@/components/ui/VictoryModal";
 import { getRaftPieceByStepId } from "@/data/raft";
 import { useResponsive } from "@/hooks/useResponsive";
 import { logDebug } from "@/lib/utils/logger";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 interface EnigmaGameProps {
   step: Step;
@@ -135,6 +136,12 @@ export function EnigmaGame({
                 );
               })()}
             </div>
+
+            <ReadAloudButton
+              text={game.text}
+              ariaLabel="Lire l'énigme"
+              className="shrink-0"
+            />
 
             <form
               onSubmit={handleSubmit}
