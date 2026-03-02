@@ -15,6 +15,20 @@ import {
 } from "@dnd-kit/core";
 import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+
+const STEP3_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
+  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-01.webp":
+    "Info: ce climat est chaud toute l'année",
+  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-02.webp":
+    "Info: ce climat est froid toute l'année",
+  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-03.webp":
+    "Info: ce climat est sec toute l'année",
+  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-04.webp":
+    "Info: ce climat est humide toute l'année",
+  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-05.webp":
+    "Info: ce climat est tempéré toute l'année",
+};
 
 interface DraggableImageProps {
   image: ImageOption;
@@ -315,7 +329,13 @@ export function DragOrderImagesGame({
             >
               « {game.text || step.instruction} »
             </p>
-          </div>
+            <div className="flex justify-center mt-2">
+              <ReadAloudButton
+                text={`${step.title}. ${game.text || step.instruction}`}
+                ariaLabel="Lire la consigne"
+              />
+            </div>
+        </div>
 
         <div
           className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
@@ -480,6 +500,17 @@ export function DragOrderImagesGame({
                 className="w-full h-auto max-h-[90dvh] object-contain pointer-events-none"
                 sizes="(max-width: 640px) 100vw, 42rem"
               />
+              <div
+                className="absolute top-4 right-4 z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ReadAloudButton
+                  text={
+                    STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
+                  }
+                  ariaLabel="Lire l'indice"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -518,6 +549,17 @@ export function DragOrderImagesGame({
               className="w-full h-auto max-h-[90dvh] object-contain pointer-events-none"
               sizes="(max-width: 640px) 100vw, 42rem"
             />
+            <div
+              className="absolute top-4 right-4 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReadAloudButton
+                text={
+                  STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
+                }
+                ariaLabel="Lire l'indice"
+              />
+            </div>
           </div>
         </div>
       )}

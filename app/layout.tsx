@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
+import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,8 +62,11 @@ export default function RootLayout({
           left: 0,
         }}
       >
-        {children}
-        <PWAInstallPrompt />
+        <AudioDescriptionProvider>
+          <SkipLink />
+          {children}
+          <PWAInstallPrompt />
+        </AudioDescriptionProvider>
       </body>
     </html>
   );

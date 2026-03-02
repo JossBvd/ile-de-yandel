@@ -22,6 +22,7 @@ import {
 } from "@dnd-kit/core";
 import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const INVENTORY_SLOTS_COUNT = 15;
 
@@ -229,6 +230,8 @@ function RadeauContent({
 
   return (
     <div
+      id="main-content"
+      role="main"
       className="relative flex w-full h-full overflow-hidden flex-nowrap"
       style={{
         width: isRotated ? `${width}px` : "100vw",
@@ -249,7 +252,7 @@ function RadeauContent({
       <div className="relative flex-1 min-w-0 flex flex-col z-10">
         {/* Titre */}
         <div 
-          className="absolute z-10"
+          className="absolute z-10 flex items-start gap-2"
           style={{
             top: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 8 : 12) : 24,
             left: 0,
@@ -279,6 +282,10 @@ function RadeauContent({
               </h1>
             </div>
           </div>
+          <ReadAloudButton
+            text="Radeau"
+            ariaLabel="Lire le titre"
+          />
         </div>
 
         {/* Progression */}
@@ -348,11 +355,15 @@ function RadeauContent({
             Pièces de radeau collectées {fusedRaftPiecesCount}/
             {MAX_FUSED_RAFT_PIECES}
           </p>
+          <ReadAloudButton
+            text={`Pièces de radeau collectées ${fusedRaftPiecesCount} sur ${MAX_FUSED_RAFT_PIECES}`}
+            ariaLabel="Lire la progression"
+          />
         </div>
 
         {/* Bouton retour */}
         <div
-          className="absolute z-10"
+          className="absolute z-10 flex items-center gap-2"
           style={{
             bottom: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
             left: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
@@ -364,6 +375,10 @@ function RadeauContent({
             sizeVariant="map"
             onClick={() => router.push("/carte-de-l-ile")}
             label="Retour"
+          />
+          <ReadAloudButton
+            text="Retour à la carte de l'île"
+            ariaLabel="Lire : Retour"
           />
         </div>
       </div>
@@ -470,21 +485,27 @@ function RadeauContent({
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={handleFusionner}
-            disabled={!canFuse}
-            className="w-full rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
-            style={{
-              padding: isMobileOrTablet ? (isSmallScreen ? "12px 16px" : isMediumScreen ? "14px 18px" : "16px 20px") : (isDesktopSmall ? "14px 20px" : "18px 24px"),
-              fontSize: isMobileOrTablet ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem") : (isDesktopSmall ? "1rem" : isDesktopMedium ? "1.0625rem" : "1.125rem"),
-              minHeight: isMobileOrTablet ? 48 : 44,
-              minWidth: 120,
-            }}
-            aria-label="Fusionner les pièces"
-          >
-            Fusionner !
-          </button>
+          <div className="flex items-center gap-2 w-full">
+            <button
+              type="button"
+              onClick={handleFusionner}
+              disabled={!canFuse}
+              className="flex-1 min-w-0 rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
+              style={{
+                padding: isMobileOrTablet ? (isSmallScreen ? "12px 16px" : isMediumScreen ? "14px 18px" : "16px 20px") : (isDesktopSmall ? "14px 20px" : "18px 24px"),
+                fontSize: isMobileOrTablet ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem") : (isDesktopSmall ? "1rem" : isDesktopMedium ? "1.0625rem" : "1.125rem"),
+                minHeight: isMobileOrTablet ? 48 : 44,
+                minWidth: 120,
+              }}
+              aria-label="Fusionner les pièces"
+            >
+              Fusionner !
+            </button>
+            <ReadAloudButton
+              text="Fusionner les pièces pour obtenir une pièce de radeau"
+              ariaLabel="Lire : Fusionner"
+            />
+          </div>
         </div>
       </div>
     </div>
