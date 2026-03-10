@@ -3,8 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Step, ImageClickGameData } from "@/types/step";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 import { logDebug } from "@/lib/utils/logger";
 
 interface ImageClickGameProps {
@@ -20,7 +18,6 @@ export function ImageClickGame({
 }: ImageClickGameProps) {
   const game = step.game as ImageClickGameData;
   const [clicks, setClicks] = useState<{ x: number; y: number }[]>([]);
-  const [showVictory, setShowVictory] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{
     width: number;
     height: number;
@@ -82,7 +79,7 @@ export function ImageClickGame({
           setClicks(newClicks);
 
           if (newClicks.length === totalObjects) {
-            setTimeout(() => setShowVictory(true), 500);
+            setTimeout(() => onComplete(), 500);
           }
           return;
         }
@@ -94,11 +91,6 @@ export function ImageClickGame({
     if (onDefeat) {
       onDefeat();
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   return (
@@ -146,12 +138,6 @@ export function ImageClickGame({
           </div>
         </div>
       </div>
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
     </>
   );
 }

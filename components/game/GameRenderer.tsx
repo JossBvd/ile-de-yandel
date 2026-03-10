@@ -16,7 +16,7 @@ interface GameRendererProps {
   onComplete: () => void;
   onDefeat?: () => void;
   onGoBackToMap?: () => void;
-  skipVictoryModal?: boolean;
+  questionContainerVisible?: boolean;
 }
 
 export function GameRenderer({
@@ -24,7 +24,7 @@ export function GameRenderer({
   onComplete,
   onDefeat,
   onGoBackToMap,
-  skipVictoryModal,
+  questionContainerVisible = true,
 }: GameRendererProps) {
   switch (step.game.type) {
     case "qcm":
@@ -34,6 +34,7 @@ export function GameRenderer({
           onComplete={onComplete}
           onDefeat={onDefeat}
           onGoBackToMap={onGoBackToMap}
+          questionContainerVisible={questionContainerVisible}
         />
       );
     case "drag-sort":
@@ -54,6 +55,7 @@ export function GameRenderer({
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
         />
       );
     case "basket-fill":
@@ -86,7 +88,7 @@ export function GameRenderer({
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}
-          skipVictoryModal={skipVictoryModal}
+          questionContainerVisible={questionContainerVisible}
         />
       );
     default:

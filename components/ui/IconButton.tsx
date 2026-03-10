@@ -15,8 +15,8 @@ interface IconButtonProps {
   /** Désactivé : transparent, non cliquable (ex. indice non disponible) */
   disabled?: boolean;
   className?: string;
-  /** 'sidebar' = tailles optimisées pour la barre latérale des steps ; 'map' = icônes plus grandes sur mobile/PWA (carte de l'île) */
-  sizeVariant?: 'default' | 'sidebar' | 'map';
+  /** 'sidebar' = tailles optimisées pour la barre latérale des steps ; 'sidebarCompact' = idem mais plus compact (ex. mobile avec audio description) ; 'map' = icônes plus grandes sur mobile/PWA (carte de l'île) */
+  sizeVariant?: 'default' | 'sidebar' | 'sidebarCompact' | 'map';
 }
 
 /**
@@ -36,33 +36,46 @@ export function IconButton({
   const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
   const isSidebar = sizeVariant === 'sidebar';
+  const isSidebarCompact = sizeVariant === 'sidebarCompact';
   const isMap = sizeVariant === 'map';
 
-  const iconSize = isSidebar
+  const iconSize = isSidebarCompact
     ? (isMobileOrTablet
-        ? (isSmallScreen ? '64px' : isMediumScreen ? '72px' : '80px')
-        : (isDesktopSmall ? '96px' : isDesktopMedium ? '104px' : '112px'))
-    : isMap
+        ? (isSmallScreen ? '44px' : isMediumScreen ? '48px' : '52px')
+        : '48px')
+    : isSidebar
       ? (isMobileOrTablet
-          ? (isSmallScreen ? '56px' : isMediumScreen ? '64px' : '72px')
-          : (isDesktopSmall ? '80px' : isDesktopMedium ? '96px' : '112px'))
-      : (isMobileOrTablet
-          ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px')
-          : (isDesktopSmall ? '72px' : isDesktopMedium ? '88px' : '104px'));
+          ? (isSmallScreen ? '64px' : isMediumScreen ? '72px' : '80px')
+          : (isDesktopSmall ? '96px' : isDesktopMedium ? '104px' : '112px'))
+      : isMap
+        ? (isMobileOrTablet
+            ? (isSmallScreen ? '56px' : isMediumScreen ? '64px' : '72px')
+            : (isDesktopSmall ? '80px' : isDesktopMedium ? '96px' : '112px'))
+        : (isMobileOrTablet
+            ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px')
+            : (isDesktopSmall ? '72px' : isDesktopMedium ? '88px' : '104px'));
 
-  const labelSize = isSidebar
+  const labelSize = isSidebarCompact
     ? (isMobileOrTablet
-        ? (isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.875rem' : '1rem')
-        : (isDesktopSmall ? '1.0625rem' : isDesktopMedium ? '1.125rem' : '1.25rem'))
-    : isMap
+        ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.8125rem' : '0.875rem')
+        : '0.8125rem')
+    : isSidebar
       ? (isMobileOrTablet
           ? (isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.875rem' : '1rem')
-          : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'))
-      : (isMobileOrTablet
-          ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
-          : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'));
+          : (isDesktopSmall ? '1.0625rem' : isDesktopMedium ? '1.125rem' : '1.25rem'))
+      : isMap
+        ? (isMobileOrTablet
+            ? (isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.875rem' : '1rem')
+            : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'))
+        : (isMobileOrTablet
+            ? (isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : '1rem')
+            : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.125rem' : '1.25rem'));
 
-  const gap = isSidebar && isMobileOrTablet ? (isSmallScreen ? '6px' : '8px') : '8px';
+  const gap = isSidebarCompact
+    ? (isMobileOrTablet ? (isSmallScreen ? '4px' : '6px') : '6px')
+    : isSidebar && isMobileOrTablet
+      ? (isSmallScreen ? '6px' : '8px')
+      : '8px';
 
   return (
     <button

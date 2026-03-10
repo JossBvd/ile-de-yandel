@@ -17,8 +17,8 @@ Il doit résoudre un quiz pour obtenir la deuxième pièce de son radeau.`,
       { id: "A", text: "Il est plus lourd et plus facile à coudre" },
       { id: "B", text: "Il résiste à l'eau et sèche plus vite" },
       { id: "C", text: "Il a une couleur visible pour les secours" },
-      { id: "D", text: "Il est biodégradable océan" },
+      { id: "D", text: "Il est biodégradable dans l'océan" },
     ],
-    correctAnswers: [1], // B est correct
+    correctAnswers: [1], 
   },
 };

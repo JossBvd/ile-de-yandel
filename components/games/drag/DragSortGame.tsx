@@ -16,8 +16,6 @@ import {
 import { Step, DragSortGameData } from "@/types/step";
 import { SortableItem } from "./SortableItem";
 import { Button } from "@/components/ui/Button";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 
 interface DragSortGameProps {
   step: Step;
@@ -32,7 +30,6 @@ export function DragSortGame({
 }: DragSortGameProps) {
   const game = step.game as DragSortGameData;
   const [items, setItems] = useState(game.items);
-  const [showVictory, setShowVictory] = useState(false);
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
 
@@ -54,15 +51,10 @@ export function DragSortGame({
       (item, index) => item.id === game.correctOrder[index],
     );
     if (isCorrect) {
-      setShowVictory(true);
+      onComplete();
     } else if (onDefeat) {
       onDefeat();
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   return (
@@ -95,12 +87,6 @@ export function DragSortGame({
         </div>
       </div>
 
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
     </div>
   );
 }

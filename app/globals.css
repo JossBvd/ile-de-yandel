@@ -8,8 +8,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-baloo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-covered), cursive;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   --color-orange-300: #fbbf77;
   --color-orange-400: #f9a855;
   --color-orange-500: #f7941d;
@@ -39,10 +40,15 @@ body {
   padding: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-baloo), Arial, Helvetica, sans-serif;
   min-height: 100%;
   min-height: -webkit-fill-available;
   min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-covered), cursive;
 }
 
 /* Prévention du scroll sur mobile - uniquement sur les pages de jeu */
@@ -71,6 +77,15 @@ body {
 .scrollable {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Masquer les scrollbars tout en gardant le défilement (sidebar steps, etc.) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Support du safe-area pour les encoche */

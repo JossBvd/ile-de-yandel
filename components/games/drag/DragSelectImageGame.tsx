@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Step, DragSelectImageGameData } from "@/types/step";
 import { Button } from "@/components/ui/Button";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 
 interface DragSelectImageGameProps {
   step: Step;
@@ -20,7 +18,6 @@ export function DragSelectImageGame({
 }: DragSelectImageGameProps) {
   const game = step.game as DragSelectImageGameData;
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [showVictory, setShowVictory] = useState(false);
 
   const toggleImage = (imageId: string) => {
     setSelectedImages((prev) =>
@@ -36,15 +33,10 @@ export function DragSelectImageGame({
       selectedImages.every((id) => game.correctImages.includes(id));
 
     if (isCorrect) {
-      setShowVictory(true);
+      onComplete();
     } else if (onDefeat) {
       onDefeat();
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   return (
@@ -90,13 +82,6 @@ export function DragSelectImageGame({
           </div>
         </div>
       </div>
-
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
     </>
   );
 }

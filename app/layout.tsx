@@ -1,18 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Baloo_2, Covered_By_Your_Grace } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
 import { SkipLink } from "@/components/ui/SkipLink";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const baloo = Baloo_2({
+  variable: "--font-baloo",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const coveredByYourGrace = Covered_By_Your_Grace({
+  variable: "--font-covered",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -54,7 +56,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${baloo.variable} ${coveredByYourGrace.variable} antialiased`}
         style={{
           margin: 0,
           padding: 0,

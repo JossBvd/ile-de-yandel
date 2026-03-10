@@ -175,6 +175,8 @@ function RadeauContent({
     fusedRaftPiecesCount,
     fusedPieces,
     consumePiecesForFusion,
+    resetFusions,
+    fusionHistory,
   } = useInventoryStore();
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
@@ -182,34 +184,71 @@ function RadeauContent({
     mergeSlots.filter((id): id is RaftPieceId => id !== null),
   );
 
-  const mission1Order = ["piece-1-1", "piece-1-2", "piece-1-3"];
-  const sortedMissionPieces = [...collectedPieces].sort((a, b) => {
-    const aIndex = mission1Order.indexOf(a);
-    const bIndex = mission1Order.indexOf(b);
-    if (aIndex !== -1 && bIndex !== -1) {
-      return aIndex - bIndex;
+  const getMissionIndex = (id: RaftPieceId) => {
+    const parts = id.split("-");
+    const idx = Number.parseInt(parts[1], 10);
+    return Number.isNaN(idx) ? null : idx;
+  };
+
+  const fusedMissionByIndex = new Map<
+    number,
+    {
+      fusedId: string;
     }
-    if (aIndex !== -1) return -1;
-    if (bIndex !== -1) return 1;
-    return 0;
+  >();
+
+  fusionHistory.forEach((triple, index) => {
+    const missionIndex = getMissionIndex(triple[0]);
+    if (missionIndex != null) {
+      const fusedId = fusedPieces[index] ?? `fused-${index + 1}`;
+      fusedMissionByIndex.set(missionIndex, { fusedId });
+    }
   });
-  const inventoryItems: {
-    id: string;
-    type: "mission" | "fused";
-    isInMergeSlot?: boolean;
-  }[] = [
-    ...sortedMissionPieces.map((id) => ({
-      id,
-      type: "mission" as const,
-      isInMergeSlot: inMergeSlots.has(id),
-    })),
-    ...fusedPieces.map((id) => ({ id, type: "fused" as const })),
-  ].slice(0, INVENTORY_SLOTS_COUNT);
+
+  type InventoryItem =
+    | {
+        id: string;
+        type: "mission" | "fused";
+        isInMergeSlot?: boolean;
+      }
+    | null;
+
+  const inventoryItems: InventoryItem[] = [];
+
+  for (let missionIndex = 1; missionIndex <= 5; missionIndex += 1) {
+    const fusedInfo = fusedMissionByIndex.get(missionIndex);
+
+    if (fusedInfo) {
+      inventoryItems.push({
+        id: fusedInfo.fusedId,
+        type: "fused",
+      });
+      inventoryItems.push(null);
+      inventoryItems.push(null);
+      continue;
+    }
+
+    for (let slotIndex = 1; slotIndex <= 3; slotIndex += 1) {
+      const pieceId = `piece-${missionIndex}-${slotIndex}` as RaftPieceId;
+      if (collectedPieces.includes(pieceId)) {
+        inventoryItems.push({
+          id: pieceId,
+          type: "mission",
+          isInMergeSlot: inMergeSlots.has(pieceId),
+        });
+      } else {
+        inventoryItems.push(null);
+      }
+    }
+  }
+  const allMergeSlotsFilled =
+    mergeSlots[0] !== null && mergeSlots[1] !== null && mergeSlots[2] !== null;
+
   const canFuse =
-    mergeSlots[0] !== null &&
-    mergeSlots[1] !== null &&
-    mergeSlots[2] !== null &&
-    fusedRaftPiecesCount < MAX_FUSED_RAFT_PIECES;
+    allMergeSlotsFilled && fusedRaftPiecesCount < MAX_FUSED_RAFT_PIECES;
+
+  const canCancelFusion =
+    mergeSlots.some((slot) => slot !== null) || fusedRaftPiecesCount > 0;
 
   // handleDragStart et handleDragEnd sont maintenant dans RadeauWrapper
 
@@ -224,8 +263,37 @@ function RadeauContent({
   const handleFusionner = () => {
     if (!canFuse) return;
     const ids = mergeSlots as [RaftPieceId, RaftPieceId, RaftPieceId];
+
+    const [first, second, third] = ids;
+    const getMissionKey = (id: RaftPieceId) =>
+      id.split("-").slice(0, 2).join("-");
+    const missionKey = getMissionKey(first);
+
+    const sameMission =
+      getMissionKey(second) === missionKey &&
+      getMissionKey(third) === missionKey;
+
+    if (!sameMission) {
+      setMergeSlots([null, null, null]);
+      return;
+    }
+
     const ok = consumePiecesForFusion(ids);
-    if (ok) setMergeSlots([null, null, null]);
+    if (ok) {
+      setMergeSlots([null, null, null]);
+    }
+  };
+
+  const handleAnnuler = () => {
+    if (!canCancelFusion) return;
+
+    const confirmed = window.confirm(
+      "Es-tu sûr de vouloir annuler toutes les fusions de pièces ?",
+    );
+    if (!confirmed) return;
+
+    resetFusions();
+    setMergeSlots([null, null, null]);
   };
 
   return (
@@ -346,19 +414,66 @@ function RadeauContent({
               </div>
             ))}
           </div>
-          <p
-            className="font-semibold text-gray-800 drop-shadow-sm"
-            style={{
-              fontSize: isMobileOrTablet ? (isSmallScreen ? '0.8125rem' : isMediumScreen ? '0.9375rem' : '1rem') : (isDesktopSmall ? '1rem' : isDesktopMedium ? '1.0625rem' : '1.125rem'),
-            }}
-          >
-            Pièces de radeau collectées {fusedRaftPiecesCount}/
-            {MAX_FUSED_RAFT_PIECES}
-          </p>
-          <ReadAloudButton
-            text={`Pièces de radeau collectées ${fusedRaftPiecesCount} sur ${MAX_FUSED_RAFT_PIECES}`}
-            ariaLabel="Lire la progression"
-          />
+          <div className="flex flex-col items-center gap-2" style={{ width: "100%" }}>
+            <p
+              className="font-semibold text-gray-800 drop-shadow-sm text-center"
+              style={{
+                fontSize: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "0.8125rem"
+                    : isMediumScreen
+                      ? "0.9375rem"
+                      : "1rem"
+                  : isDesktopSmall
+                    ? "1rem"
+                    : isDesktopMedium
+                      ? "1.0625rem"
+                      : "1.125rem",
+              }}
+            >
+              Pièces de radeau collectées {fusedRaftPiecesCount}/
+              {MAX_FUSED_RAFT_PIECES}
+            </p>
+            <button
+              type="button"
+              onClick={handleAnnuler}
+              disabled={!canCancelFusion}
+              className="rounded-xl font-semibold text-gray-800 bg-gray-200 shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              style={{
+                padding: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "8px 16px"
+                    : isMediumScreen
+                      ? "10px 18px"
+                      : "10px 20px"
+                  : isDesktopSmall
+                    ? "10px 20px"
+                    : isDesktopMedium
+                      ? "12px 22px"
+                      : "12px 24px",
+                fontSize: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "0.9375rem"
+                    : isMediumScreen
+                      ? "1rem"
+                      : "1.0625rem"
+                  : isDesktopSmall
+                    ? "1rem"
+                    : isDesktopMedium
+                      ? "1.0625rem"
+                      : "1.125rem",
+                minHeight: 40,
+                minWidth: 140,
+              }}
+              aria-label="Annuler toutes les fusions et remettre les pièces de base"
+            >
+              Annuler
+            </button>
+            <ReadAloudButton
+              text={`Pièces de radeau collectées ${fusedRaftPiecesCount} sur ${MAX_FUSED_RAFT_PIECES}. Bouton annuler pour remettre les pièces de base et réinitialiser les fusions.`}
+              ariaLabel="Lire la progression et le bouton annuler"
+            />
+          </div>
         </div>
 
         {/* Bouton retour */}
@@ -448,12 +563,7 @@ function RadeauContent({
                   style={{
                     boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
                   }}
-                >
-                  <div
-                    className="w-1/3 h-1/3 bg-green-600/40 rounded-br"
-                    aria-hidden
-                  />
-                </div>
+                />
               );
             })}
           </div>

@@ -27,13 +27,16 @@ export function MissionCompleteModal({
   onMapClick,
 }: MissionCompleteModalProps) {
   const { isRotated, width, height } = useOrientationContext();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } = useResponsive();
+  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium } =
+    useResponsive();
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen || !modalRef.current) return;
     const container = modalRef.current;
-    const focusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+    const focusable = Array.from(
+      container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    );
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
     if (first) first.focus();
@@ -89,12 +92,16 @@ export function MissionCompleteModal({
         className="relative flex items-center justify-center"
         style={{
           aspectRatio: "16/9",
-          width: isRotated 
-            ? `${Math.min(width * 0.95, height * 0.95 * 16/9)}px` 
-            : isSmallScreen 
+          width: isRotated
+            ? `${Math.min(width * 0.95, (height * 0.95 * 16) / 9)}px`
+            : isSmallScreen
               ? `min(98vw, calc(98dvh * 16/9))`
               : `min(95vw, calc(95dvh * 16/9))`,
-          maxWidth: isRotated ? `${width * 0.95}px` : isSmallScreen ? "98vw" : "95vw",
+          maxWidth: isRotated
+            ? `${width * 0.95}px`
+            : isSmallScreen
+              ? "98vw"
+              : "95vw",
           maxHeight: isRotated ? `${height * 0.95}px` : "95dvh",
         }}
       >
@@ -106,13 +113,13 @@ export function MissionCompleteModal({
             className="object-cover"
             priority
             sizes="(max-width: 1920px) 95vw, 95vh"
-            style={{ 
+            style={{
               objectFit: "cover",
-              objectPosition: "center"
+              objectPosition: "center",
             }}
           />
 
-          <div 
+          <div
             className="absolute inset-0 flex items-center justify-center z-10"
             style={{
               paddingLeft: isSmallScreen ? "3%" : "5%",
@@ -125,26 +132,60 @@ export function MissionCompleteModal({
               className="w-full flex items-center justify-center"
               style={{
                 maxWidth: isSmallScreen ? "98%" : "95%",
-                gap: isSmallScreen ? "1rem" : isMediumScreen ? "1.25rem" : isDesktopSmall ? "1.5rem" : "2rem",
+                gap: isSmallScreen
+                  ? "2rem"
+                  : isMediumScreen
+                    ? "2.5rem"
+                    : isDesktopSmall
+                      ? "3rem"
+                      : "4rem",
               }}
             >
-              <div 
+              <div
                 className="flex flex-col items-center flex-1 max-w-[40%] min-w-0 relative"
                 style={{
-                  gap: isSmallScreen ? '12px' : isMediumScreen ? '16px' : isDesktopSmall ? '20px' : '24px',
+                  gap: isSmallScreen
+                    ? "12px"
+                    : isMediumScreen
+                      ? "16px"
+                      : isDesktopSmall
+                        ? "20px"
+                        : "24px",
+                  paddingRight: isSmallScreen
+                    ? "1rem"
+                    : isMediumScreen
+                      ? "1.25rem"
+                      : isDesktopSmall
+                        ? "1.5rem"
+                        : "2rem",
                 }}
               >
-                <div className="absolute top-0 right-0 z-20" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="absolute top-0 right-0 z-20"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <ReadAloudButton
                     text={`Mission ${missionNumber} accomplie ! ${completionText}`}
                     ariaLabel="Lire le message de fin de mission"
                   />
                 </div>
-                <div 
+                <div
                   className="relative shrink-0"
                   style={{
-                    width: isSmallScreen ? '64px' : isMediumScreen ? '80px' : isDesktopSmall ? '96px' : '112px',
-                    height: isSmallScreen ? '64px' : isMediumScreen ? '80px' : isDesktopSmall ? '96px' : '112px',
+                    width: isSmallScreen
+                      ? "64px"
+                      : isMediumScreen
+                        ? "80px"
+                        : isDesktopSmall
+                          ? "96px"
+                          : "112px",
+                    height: isSmallScreen
+                      ? "64px"
+                      : isMediumScreen
+                        ? "80px"
+                        : isDesktopSmall
+                          ? "96px"
+                          : "112px",
                   }}
                 >
                   <Image
@@ -154,13 +195,19 @@ export function MissionCompleteModal({
                     className="object-contain"
                   />
                 </div>
-                
+
                 <h2
                   id="mission-complete-title"
                   className="font-bold uppercase tracking-wide wrap-break-word text-center"
                   style={{
                     color: "#1a1a1a",
-                    fontSize: isSmallScreen ? "1.25rem" : isMediumScreen ? "1.5rem" : isDesktopSmall ? "1.875rem" : "2.25rem",
+                    fontSize: isSmallScreen
+                      ? "1.25rem"
+                      : isMediumScreen
+                        ? "1.5rem"
+                        : isDesktopSmall
+                          ? "1.875rem"
+                          : "2.25rem",
                   }}
                 >
                   MISSION {missionNumber} ACCOMPLIE !
@@ -168,218 +215,416 @@ export function MissionCompleteModal({
 
                 <p
                   id="mission-complete-desc"
-                  className="italic leading-relaxed wrap-break-word text-center"
+                  className="font-display leading-relaxed wrap-break-word text-center"
                   style={{
                     color: "#1a1a1a",
-                    fontSize: isSmallScreen ? "0.875rem" : isMediumScreen ? "1rem" : isDesktopSmall ? "1.125rem" : "1.25rem",
+                    fontSize: isSmallScreen
+                      ? "1.0625rem"
+                      : isMediumScreen
+                        ? "1.1875rem"
+                        : isDesktopSmall
+                          ? "1.3125rem"
+                          : "1.5rem",
                   }}
                 >
                   « {completionText} »
                 </p>
               </div>
 
-              <div 
+              <div
                 className="flex flex-col items-center shrink-0"
                 style={{
-                  gap: isSmallScreen ? '16px' : isMediumScreen ? '20px' : isDesktopSmall ? '24px' : '28px',
+                  gap: isSmallScreen
+                    ? "16px"
+                    : isMediumScreen
+                      ? "20px"
+                      : isDesktopSmall
+                        ? "24px"
+                        : "28px",
                 }}
               >
-                <div 
+                <div
                   className="flex flex-col items-center"
                   style={{
-                    gap: isSmallScreen ? '4px' : '6px',
+                    gap: isSmallScreen ? "0" : "2px",
                   }}
                 >
-                <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onJournalClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
-                  aria-label="Journal de bord - complète tes souvenirs"
-                >
-                  <div 
-                    className="relative shrink-0 z-10"
-                    style={{
-                      width: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                      height: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                    }}
-                  >
-                    <Image
-                      src="/ui/icon_menu.webp"
-                      alt=""
-                      fill
-                      className="object-contain"
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={onJournalClick}
+                      className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
+                      aria-label="Journal de bord - complète tes souvenirs"
+                    >
+                      <div
+                        className="relative shrink-0 z-10"
+                        style={{
+                          width: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                          height: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                        }}
+                      >
+                        <Image
+                          src="/ui/icon_menu.webp"
+                          alt=""
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div
+                        className="flex flex-col items-start rounded-full"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          paddingLeft: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingRight: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingTop: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          paddingBottom: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          marginLeft: isSmallScreen
+                            ? "-12px"
+                            : isMediumScreen
+                              ? "-16px"
+                              : isDesktopSmall
+                                ? "-20px"
+                                : "-24px",
+                          width: isSmallScreen
+                            ? "180px"
+                            : isMediumScreen
+                              ? "200px"
+                              : isDesktopSmall
+                                ? "220px"
+                                : "240px",
+                        }}
+                      >
+                        <span
+                          className="text-white font-bold uppercase whitespace-nowrap"
+                          style={{
+                            fontSize: isSmallScreen
+                              ? "0.75rem"
+                              : isMediumScreen
+                                ? "0.875rem"
+                                : isDesktopSmall
+                                  ? "1rem"
+                                  : "1.125rem",
+                          }}
+                        >
+                          journal de bord
+                        </span>
+                      </div>
+                    </button>
+                    <ReadAloudButton
+                      text="Journal de bord, complète tes souvenirs"
+                      ariaLabel="Lire : Journal de bord"
                     />
                   </div>
-                  <div 
-                    className="flex flex-col items-start rounded-full"
+                  <span
+                    className="font-display text-center whitespace-nowrap"
                     style={{
-                      background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-                      paddingLeft: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      marginLeft: isSmallScreen ? '-12px' : isMediumScreen ? '-16px' : isDesktopSmall ? '-20px' : '-24px',
-                      width: isSmallScreen ? '180px' : isMediumScreen ? '200px' : isDesktopSmall ? '220px' : '240px',
+                      color: "#1a1a1a",
+                      fontSize: isSmallScreen
+                        ? "0.875rem"
+                        : isMediumScreen
+                          ? "1rem"
+                          : isDesktopSmall
+                            ? "1.0625rem"
+                            : "1.0625rem",
+                      marginTop: "-4px",
                     }}
                   >
-                    <span 
-                      className="text-white font-bold uppercase whitespace-nowrap"
-                      style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isDesktopSmall ? '1rem' : '1.125rem',
-                      }}
-                    >
-                      journal de bord
-                    </span>
-                  </div>
-                </button>
-                <ReadAloudButton
-                  text="Journal de bord, complète tes souvenirs"
-                  ariaLabel="Lire : Journal de bord"
-                />
-                </div>
-                <span 
-                  className="italic text-center whitespace-nowrap"
-                  style={{ 
-                    color: "#1a1a1a",
-                    fontSize: isSmallScreen ? '10px' : isMediumScreen ? '0.75rem' : isDesktopSmall ? '0.875rem' : '0.875rem',
-                  }}
-                >
-                  complète tes souvenirs
-                </span>
+                    complète tes souvenirs
+                  </span>
                 </div>
 
-                <div 
+                <div
                   className="flex flex-col items-center"
                   style={{
-                    gap: isSmallScreen ? '4px' : '6px',
+                    gap: isSmallScreen ? "0" : "2px",
                   }}
                 >
-                <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onRaftClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
-                  aria-label="Radeau - fabrique ton embarcation"
-                >
-                  <div 
-                    className="relative shrink-0 z-10"
-                    style={{
-                      width: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                      height: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                    }}
-                  >
-                    <Image
-                      src="/ui/icon_radeau.webp"
-                      alt=""
-                      fill
-                      className="object-contain"
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={onRaftClick}
+                      className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
+                      aria-label="Radeau - fabrique ton embarcation"
+                    >
+                      <div
+                        className="relative shrink-0 z-10"
+                        style={{
+                          width: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                          height: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                        }}
+                      >
+                        <Image
+                          src="/ui/icon_radeau.webp"
+                          alt=""
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div
+                        className="flex flex-col items-start rounded-full"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          paddingLeft: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingRight: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingTop: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          paddingBottom: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          marginLeft: isSmallScreen
+                            ? "-12px"
+                            : isMediumScreen
+                              ? "-16px"
+                              : isDesktopSmall
+                                ? "-20px"
+                                : "-24px",
+                          width: isSmallScreen
+                            ? "180px"
+                            : isMediumScreen
+                              ? "200px"
+                              : isDesktopSmall
+                                ? "220px"
+                                : "240px",
+                        }}
+                      >
+                        <span
+                          className="text-white font-bold uppercase whitespace-nowrap"
+                          style={{
+                            fontSize: isSmallScreen
+                              ? "0.75rem"
+                              : isMediumScreen
+                                ? "0.875rem"
+                                : isDesktopSmall
+                                  ? "1rem"
+                                  : "1.125rem",
+                          }}
+                        >
+                          radeau
+                        </span>
+                      </div>
+                    </button>
+                    <ReadAloudButton
+                      text="Radeau, fabrique ton embarcation"
+                      ariaLabel="Lire : Radeau"
                     />
                   </div>
-                  <div 
-                    className="flex flex-col items-start rounded-full"
+                  <span
+                    className="font-display text-center whitespace-nowrap"
                     style={{
-                      background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-                      paddingLeft: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      marginLeft: isSmallScreen ? '-12px' : isMediumScreen ? '-16px' : isDesktopSmall ? '-20px' : '-24px',
-                      width: isSmallScreen ? '180px' : isMediumScreen ? '200px' : isDesktopSmall ? '220px' : '240px',
+                      color: "#1a1a1a",
+                      fontSize: isSmallScreen
+                        ? "0.875rem"
+                        : isMediumScreen
+                          ? "1rem"
+                          : isDesktopSmall
+                            ? "1.0625rem"
+                            : "1.0625rem",
+                      marginTop: "-4px",
                     }}
                   >
-                    <span 
-                      className="text-white font-bold uppercase whitespace-nowrap"
-                      style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isDesktopSmall ? '1rem' : '1.125rem',
-                      }}
-                    >
-                      radeau
-                    </span>
-                  </div>
-                </button>
-                <ReadAloudButton
-                  text="Radeau, fabrique ton embarcation"
-                  ariaLabel="Lire : Radeau"
-                />
-                </div>
-                <span 
-                  className="italic text-center whitespace-nowrap"
-                  style={{ 
-                    color: "#1a1a1a",
-                    fontSize: isSmallScreen ? '10px' : isMediumScreen ? '0.75rem' : isDesktopSmall ? '0.875rem' : '0.875rem',
-                  }}
-                >
-                  fabrique ton embarcation
-                </span>
+                    fabrique ton embarcation
+                  </span>
                 </div>
 
-                <div 
+                <div
                   className="flex flex-col items-center"
                   style={{
-                    gap: isSmallScreen ? '4px' : '6px',
+                    gap: isSmallScreen ? "0" : "2px",
                   }}
                 >
-                <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={onMapClick}
-                  className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
-                  aria-label="Carte de l'île - continuer l'aventure"
-                >
-                  <div 
-                    className="relative shrink-0 z-10"
-                    style={{
-                      width: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                      height: isSmallScreen ? '56px' : isMediumScreen ? '64px' : isDesktopSmall ? '72px' : '96px',
-                    }}
-                  >
-                    <Image
-                      src="/ui/icon_next.webp"
-                      alt=""
-                      fill
-                      className="object-contain"
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={onMapClick}
+                      className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
+                      aria-label="Carte de l'île - continuer l'aventure"
+                    >
+                      <div
+                        className="relative shrink-0 z-10"
+                        style={{
+                          width: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                          height: isSmallScreen
+                            ? "56px"
+                            : isMediumScreen
+                              ? "64px"
+                              : isDesktopSmall
+                                ? "72px"
+                                : "96px",
+                        }}
+                      >
+                        <Image
+                          src="/ui/icon_next.webp"
+                          alt=""
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div
+                        className="flex flex-col items-start rounded-full"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          paddingLeft: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingRight: isSmallScreen
+                            ? "20px"
+                            : isMediumScreen
+                              ? "24px"
+                              : isDesktopSmall
+                                ? "28px"
+                                : "32px",
+                          paddingTop: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          paddingBottom: isSmallScreen
+                            ? "8px"
+                            : isMediumScreen
+                              ? "10px"
+                              : isDesktopSmall
+                                ? "12px"
+                                : "12px",
+                          marginLeft: isSmallScreen
+                            ? "-12px"
+                            : isMediumScreen
+                              ? "-16px"
+                              : isDesktopSmall
+                                ? "-20px"
+                                : "-24px",
+                          width: isSmallScreen
+                            ? "180px"
+                            : isMediumScreen
+                              ? "200px"
+                              : isDesktopSmall
+                                ? "220px"
+                                : "240px",
+                        }}
+                      >
+                        <span
+                          className="text-white font-bold uppercase whitespace-nowrap"
+                          style={{
+                            fontSize: isSmallScreen
+                              ? "0.75rem"
+                              : isMediumScreen
+                                ? "0.875rem"
+                                : isDesktopSmall
+                                  ? "1rem"
+                                  : "1.125rem",
+                          }}
+                        >
+                          carte de l&apos;île
+                        </span>
+                      </div>
+                    </button>
+                    <ReadAloudButton
+                      text="Carte de l'île, continuer l'aventure"
+                      ariaLabel="Lire : Carte de l'île"
                     />
                   </div>
-                  <div 
-                    className="flex flex-col items-start rounded-full"
+                  <span
+                    className="font-display text-center whitespace-nowrap"
                     style={{
-                      background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-                      paddingLeft: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingRight: isSmallScreen ? '20px' : isMediumScreen ? '24px' : isDesktopSmall ? '28px' : '32px',
-                      paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      paddingBottom: isSmallScreen ? '8px' : isMediumScreen ? '10px' : isDesktopSmall ? '12px' : '12px',
-                      marginLeft: isSmallScreen ? '-12px' : isMediumScreen ? '-16px' : isDesktopSmall ? '-20px' : '-24px',
-                      width: isSmallScreen ? '180px' : isMediumScreen ? '200px' : isDesktopSmall ? '220px' : '240px',
+                      color: "#1a1a1a",
+                      fontSize: isSmallScreen
+                        ? "0.875rem"
+                        : isMediumScreen
+                          ? "1rem"
+                          : isDesktopSmall
+                            ? "1.0625rem"
+                            : "1.0625rem",
+                      marginTop: "-4px",
                     }}
                   >
-                    <span 
-                      className="text-white font-bold uppercase whitespace-nowrap"
-                      style={{
-                        fontSize: isSmallScreen ? '0.75rem' : isMediumScreen ? '0.875rem' : isDesktopSmall ? '1rem' : '1.125rem',
-                      }}
-                    >
-                      carte de l&apos;île
-                    </span>
-                  </div>
-                </button>
-                <ReadAloudButton
-                  text="Carte de l'île, continuer l'aventure"
-                  ariaLabel="Lire : Carte de l'île"
-                />
-                </div>
-                <span 
-                  className="italic text-center whitespace-nowrap"
-                  style={{ 
-                    color: "#1a1a1a",
-                    fontSize: isSmallScreen ? '10px' : isMediumScreen ? '0.75rem' : isDesktopSmall ? '0.875rem' : '0.875rem',
-                  }}
-                >
-                  continuer l&apos;aventure
-                </span>
+                    continuer l&apos;aventure
+                  </span>
                 </div>
               </div>
             </div>
