@@ -228,13 +228,6 @@ export function QCMGame({
               className={`text-gray-800 italic text-center leading-relaxed ${isStep2 ? "font-display" : ""}`}
               style={{
                 fontSize: isStep2 ? questionSizeDisplay : questionSize,
-                ...(isStep2 && isMobileOrTablet
-                  ? {
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }
-                  : null),
               }}
             >
               {game.question}
