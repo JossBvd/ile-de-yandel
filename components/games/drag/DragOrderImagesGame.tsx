@@ -187,6 +187,7 @@ export function DragOrderImagesGame({
 }: DragOrderImagesGameProps) {
   const game = step.game as DragOrderImagesGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  const isMission2Step2 = step.id === "mission-2-step-2";
   const [slots, setSlots] = useState<(string | null)[]>(
     Array(game.slotsCount).fill(null),
   );
@@ -206,26 +207,122 @@ export function DragOrderImagesGame({
   }, []);
 
   const paddingEdge = isMobileOrTablet
-    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
-    : (isDesktopSmall ? "16px" : isDesktopMedium ? "20px" : "24px");
+    ? isMission2Step2
+      ? isSmallScreen
+        ? "4px 6px"
+        : isMediumScreen
+          ? "6px 8px"
+          : "8px 10px"
+      : isSmallScreen
+        ? "8px"
+        : isMediumScreen
+          ? "10px"
+          : "12px"
+    : isDesktopSmall
+      ? "16px"
+      : isDesktopMedium
+        ? "20px"
+        : "24px";
   const imageSize = isMobileOrTablet
-    ? (isSmallScreen ? 100 : isMediumScreen ? 108 : 120)
-    : (isDesktopSmall ? 128 : isDesktopMedium ? 144 : 160);
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 92
+        : isMediumScreen
+          ? 100
+          : 112
+      : isSmallScreen
+        ? 100
+        : isMediumScreen
+          ? 108
+          : 120
+    : isDesktopSmall
+      ? 128
+      : isDesktopMedium
+        ? 144
+        : 160;
   const slotSize = isMobileOrTablet
-    ? (isSmallScreen ? 108 : isMediumScreen ? 116 : 128)
-    : (isDesktopSmall ? 136 : isDesktopMedium ? 152 : 168);
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 96
+        : isMediumScreen
+          ? 104
+          : 116
+      : isSmallScreen
+        ? 108
+        : isMediumScreen
+          ? 116
+          : 128
+    : isDesktopSmall
+      ? 136
+      : isDesktopMedium
+        ? 152
+        : 168;
   const sendButtonSize = isMobileOrTablet
-    ? (isSmallScreen ? 76 : isMediumScreen ? 84 : 92)
-    : (isDesktopSmall ? 104 : isDesktopMedium ? 112 : 120);
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 68
+        : isMediumScreen
+          ? 76
+          : 84
+      : isSmallScreen
+        ? 76
+        : isMediumScreen
+          ? 84
+          : 92
+    : isDesktopSmall
+      ? 104
+      : isDesktopMedium
+        ? 112
+        : 120;
   const questionTitleSize = isMobileOrTablet
     ? (isSmallScreen ? "1.0625rem" : "1.25rem")
     : (isDesktopSmall ? "1.375rem" : isDesktopMedium ? "1.625rem" : "1.875rem");
   const questionTextSize = isMobileOrTablet
-    ? (isSmallScreen ? "1rem" : "1.0625rem")
-    : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.25rem" : "1.375rem");
-  const gapImages = isMobileOrTablet ? (isSmallScreen ? 6 : 8) : (isDesktopSmall ? 8 : 12);
-  const gapSlotsInner = isMobileOrTablet ? (isSmallScreen ? 6 : 8) : (isDesktopSmall ? 8 : 12);
-  const gapSlotsOuter = isMobileOrTablet ? (isSmallScreen ? 10 : 12) : (isDesktopSmall ? 14 : 18);
+    ? isMission2Step2
+      ? isSmallScreen
+        ? "1rem"
+        : "1.03125rem"
+      : isSmallScreen
+        ? "1rem"
+        : "1.0625rem"
+    : isDesktopSmall
+      ? "1.125rem"
+      : isDesktopMedium
+        ? "1.25rem"
+        : "1.375rem";
+  const gapImages = isMobileOrTablet
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 4
+        : 6
+      : isSmallScreen
+        ? 6
+        : 8
+    : isDesktopSmall
+      ? 8
+      : 12;
+  const gapSlotsInner = isMobileOrTablet
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 4
+        : 6
+      : isSmallScreen
+        ? 6
+        : 8
+    : isDesktopSmall
+      ? 8
+      : 12;
+  const gapSlotsOuter = isMobileOrTablet
+    ? isMission2Step2
+      ? isSmallScreen
+        ? 8
+        : 10
+      : isSmallScreen
+        ? 10
+        : 12
+    : isDesktopSmall
+      ? 14
+      : 18;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
