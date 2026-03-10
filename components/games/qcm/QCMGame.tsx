@@ -144,7 +144,7 @@ export function QCMGame({
     : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.875rem");
   const questionSizeDisplay = isStep2
     ? (isMobileOrTablet
-        ? (isSmallScreen ? "1.375rem" : isMediumScreen ? "1.5rem" : "1.5rem")
+        ? (isSmallScreen ? "1.1rem" : isMediumScreen ? "1.2rem" : "1.25rem")
         : (isDesktopSmall ? "1.625rem" : isDesktopMedium ? "1.875rem" : "2.25rem"))
     : questionSize;
   const gridGap = isMobileOrTablet
@@ -226,7 +226,16 @@ export function QCMGame({
 
             <p
               className={`text-gray-800 italic text-center leading-relaxed ${isStep2 ? "font-display" : ""}`}
-              style={{ fontSize: isStep2 ? questionSizeDisplay : questionSize }}
+              style={{
+                fontSize: isStep2 ? questionSizeDisplay : questionSize,
+                ...(isStep2 && isMobileOrTablet
+                  ? {
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }
+                  : null),
+              }}
             >
               {game.question}
             </p>
