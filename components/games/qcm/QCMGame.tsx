@@ -97,14 +97,42 @@ export function QCMGame({
   };
 
   const paddingEdge = isMobileOrTablet
-    ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
-    : (isDesktopSmall ? "20px" : isDesktopMedium ? "24px" : "32px");
+    ? isStep2
+      ? isSmallScreen
+        ? "6px"
+        : isMediumScreen
+          ? "10px"
+          : "14px"
+      : isSmallScreen
+        ? "8px"
+        : isMediumScreen
+          ? "12px"
+          : "16px"
+    : isDesktopSmall
+      ? "20px"
+      : isDesktopMedium
+        ? "24px"
+        : "32px";
   const gapMain = isMobileOrTablet
     ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
     : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
   const cardPadding = isMobileOrTablet
-    ? (isSmallScreen ? "12px" : isMediumScreen ? "16px" : "20px")
-    : (isDesktopSmall ? "24px" : isDesktopMedium ? "28px" : "36px");
+    ? isStep2
+      ? isSmallScreen
+        ? "10px"
+        : isMediumScreen
+          ? "14px"
+          : "18px"
+      : isSmallScreen
+        ? "12px"
+        : isMediumScreen
+          ? "16px"
+          : "20px"
+    : isDesktopSmall
+      ? "24px"
+      : isDesktopMedium
+        ? "28px"
+        : "36px";
   const cardRadius = isMobileOrTablet
     ? (isSmallScreen ? "12px" : "14px")
     : (isDesktopSmall ? "16px" : isDesktopMedium ? "20px" : "24px");
