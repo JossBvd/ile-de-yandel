@@ -205,6 +205,7 @@ export function QCMGame({
               boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
               padding: cardPadding,
               borderRadius: cardRadius,
+              position: isStep2 ? "relative" : undefined,
             }}
           >
             <h2
@@ -229,12 +230,31 @@ export function QCMGame({
             >
               {game.question}
             </p>
-            <div className="flex justify-center mt-2">
-              <ReadAloudButton
-                text={`${step.title}. ${game.question}`}
-                ariaLabel="Lire la question"
-              />
-            </div>
+            {isStep2 ? (
+              <div
+                className="absolute"
+                style={{
+                  top: isMobileOrTablet
+                    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+                    : "12px",
+                  right: isMobileOrTablet
+                    ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
+                    : "16px",
+                }}
+              >
+                <ReadAloudButton
+                  text={`${step.title}. ${game.question}`}
+                  ariaLabel="Lire la question"
+                />
+              </div>
+            ) : (
+              <div className="flex justify-center mt-2">
+                <ReadAloudButton
+                  text={`${step.title}. ${game.question}`}
+                  ariaLabel="Lire la question"
+                />
+              </div>
+            )}
           </div>
           )}
 
@@ -270,11 +290,11 @@ export function QCMGame({
               }
 
               return (
-                <div
-                  key={option.id}
-                  className="flex items-center gap-1"
-                  style={{ minHeight: 0 }}
-                >
+              <div
+                key={option.id}
+                className="flex items-stretch gap-1 h-full"
+                style={{ minHeight: 0 }}
+              >
                   <button
                     onClick={() => handleOptionClick(index)}
                     disabled={showCorrection}
@@ -284,7 +304,7 @@ export function QCMGame({
                   ${showCorrection ? "cursor-default" : "hover:scale-105 active:scale-95"}
                   ${isStep2 && isSelected && !showCorrection ? "ring-2 ring-white ring-offset-1" : ""}
                   focus:outline-none focus:ring-2 focus:ring-orange-300
-                  flex items-center touch-manipulation flex-1 min-w-0
+                  flex items-center touch-manipulation flex-1 min-w-0 h-full
                 `}
                     style={{
                       backgroundColor: showCorrection ? backgroundColor : undefined,
