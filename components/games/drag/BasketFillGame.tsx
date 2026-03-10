@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Step, BasketFillGameData } from "@/types/step";
 import { Button } from "@/components/ui/Button";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 
 interface BasketFillGameProps {
   step: Step;
@@ -19,7 +17,6 @@ export function BasketFillGame({
 }: BasketFillGameProps) {
   const game = step.game as BasketFillGameData;
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [showVictory, setShowVictory] = useState(false);
 
   const toggleItem = (itemId: string) => {
     setSelectedItems((prev) =>
@@ -35,15 +32,10 @@ export function BasketFillGame({
       selectedItems.every((id) => game.correctItems.includes(id));
 
     if (isCorrect) {
-      setShowVictory(true);
+      onComplete();
     } else if (onDefeat) {
       onDefeat();
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   return (
@@ -81,13 +73,6 @@ export function BasketFillGame({
           </div>
         </div>
       </div>
-
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
     </>
   );
 }

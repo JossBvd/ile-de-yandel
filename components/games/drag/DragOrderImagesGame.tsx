@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Step, DragOrderImagesGameData, ImageOption } from "@/types/step";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 import { useResponsive } from "@/hooks/useResponsive";
 import {
   DndContext,
@@ -28,6 +26,16 @@ const STEP3_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
     "Info: ce climat est humide toute l'année",
   "/missions/mission-1/step-3/m1_S3_popup_indice_photos-05.webp":
     "Info: ce climat est tempéré toute l'année",
+  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-01.webp":
+    "Indice: lianes et feuillages, peu denses",
+  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-02.webp":
+    "Indice: pierre couverte de mousse",
+  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-03.webp":
+    "Indice: coquillages sur le sable",
+  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-04.webp":
+    "Indice: feuilles mortes et écorces",
+  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp":
+    "Indice: terre ou paille, plus dense",
 };
 
 interface DraggableImageProps {
@@ -75,10 +83,10 @@ function DraggableImage({ image, isInSlot, onInfoClick, sizePx }: DraggableImage
             e.stopPropagation();
             onInfoClick(image.infoImage!);
           }}
-          className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation opacity-100"
+          className="absolute top-1 right-1 w-7 h-7 min-w-[28px] min-h-[28px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation opacity-100"
           aria-label="Voir l'indice"
         >
-          <span className="text-white text-xs font-bold">i</span>
+          <span className="text-black text-sm font-bold">i</span>
         </button>
       )}
     </div>
@@ -136,10 +144,10 @@ function DroppableSlot({
                 e.stopPropagation();
                 onInfoClick(image.infoImage!);
               }}
-              className="absolute top-1 right-1 w-6 h-6 min-w-[24px] min-h-[24px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
+              className="absolute top-1 right-1 w-7 h-7 min-w-[28px] min-h-[28px] bg-yellow-500 hover:bg-yellow-600 rounded-full flex items-center justify-center shadow-md z-10 transition-all touch-manipulation"
               aria-label="Voir l'indice"
             >
-              <span className="text-white text-xs font-bold">i</span>
+              <span className="text-black text-sm font-bold">i</span>
             </button>
           )}
         </>
@@ -168,12 +176,14 @@ interface DragOrderImagesGameProps {
   step: Step;
   onComplete: () => void;
   onDefeat?: () => void;
+  questionContainerVisible?: boolean;
 }
 
 export function DragOrderImagesGame({
   step,
   onComplete,
   onDefeat,
+  questionContainerVisible = true,
 }: DragOrderImagesGameProps) {
   const game = step.game as DragOrderImagesGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
@@ -186,7 +196,6 @@ export function DragOrderImagesGame({
   const [infoModalImageUrl, setInfoModalImageUrl] = useState<string | null>(
     null,
   );
-  const [showVictory, setShowVictory] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const sensors = useDndSensors();
@@ -209,8 +218,8 @@ export function DragOrderImagesGame({
     ? (isSmallScreen ? 76 : isMediumScreen ? 84 : 92)
     : (isDesktopSmall ? 104 : isDesktopMedium ? 112 : 120);
   const questionTitleSize = isMobileOrTablet
-    ? (isSmallScreen ? "1rem" : "1.125rem")
-    : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.75rem");
+    ? (isSmallScreen ? "1.0625rem" : "1.25rem")
+    : (isDesktopSmall ? "1.375rem" : isDesktopMedium ? "1.625rem" : "1.875rem");
   const questionTextSize = isMobileOrTablet
     ? (isSmallScreen ? "1rem" : "1.0625rem")
     : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.25rem" : "1.375rem");
@@ -252,39 +261,43 @@ export function DragOrderImagesGame({
 
   const handleSubmit = () => {
     const correctSet = new Set(game.correctOrder);
+    const strictOrder = game.correctOrder.length === game.slotsCount;
     const newLockedSlots = [...lockedSlots];
     const newSlots = [...slots];
 
-    slots.forEach((imageId, index) => {
-      if (imageId && correctSet.has(imageId)) {
-        newLockedSlots[index] = true;
-      } else {
-        newSlots[index] = null;
-        newLockedSlots[index] = false;
-      }
-    });
+    if (strictOrder) {
+      slots.forEach((imageId, index) => {
+        if (imageId === game.correctOrder[index]) {
+          newLockedSlots[index] = true;
+        } else {
+          newSlots[index] = null;
+          newLockedSlots[index] = false;
+        }
+      });
+    } else {
+      slots.forEach((imageId, index) => {
+        if (imageId && correctSet.has(imageId)) {
+          newLockedSlots[index] = true;
+        } else {
+          newSlots[index] = null;
+          newLockedSlots[index] = false;
+        }
+      });
+    }
 
     setLockedSlots(newLockedSlots);
     setSlots(newSlots);
 
     const remainingIds = newSlots.filter((id): id is string => id !== null);
     const remainingSet = new Set(remainingIds);
-    const allCorrect =
-      remainingSet.size === correctSet.size &&
-      [...remainingSet].every((id) => correctSet.has(id));
+    const allCorrect = strictOrder
+      ? newSlots.every((id, i) => id === game.correctOrder[i])
+      : remainingSet.size === correctSet.size &&
+        [...remainingSet].every((id) => correctSet.has(id));
 
     if (allCorrect) {
-      if (step.id === "mission-1-step-3") {
-        onComplete();
-      } else {
-        setTimeout(() => setShowVictory(true), 500);
-      }
+      setTimeout(() => onComplete(), 500);
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   const isImageInSlot = (imageId: string) => {
@@ -303,6 +316,7 @@ export function DragOrderImagesGame({
       style={{ padding: paddingEdge }}
     >
       <div className="pointer-events-auto flex flex-col flex-1 min-h-0" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
+        {questionContainerVisible && (
         <div
           className="rounded-xl shadow-xl border-2 border-amber-800/30 shrink-0 pointer-events-auto"
           style={{
@@ -314,7 +328,7 @@ export function DragOrderImagesGame({
           }}
         >
           <h2
-            className="text-center font-bold text-gray-900 uppercase tracking-wide"
+            className="text-center text-gray-900 uppercase tracking-wide font-display"
             style={{
               fontSize: questionTitleSize,
               marginBottom: isSmallScreen ? "4px" : "6px",
@@ -324,7 +338,7 @@ export function DragOrderImagesGame({
             {step.title}
           </h2>
             <p
-              className="text-gray-800 italic text-center line-clamp-2"
+              className="text-gray-800 text-center line-clamp-2 font-sans font-bold"
               style={{ fontSize: questionTextSize, lineHeight: 1.4 }}
             >
               « {game.text || step.instruction} »
@@ -336,6 +350,7 @@ export function DragOrderImagesGame({
               />
             </div>
         </div>
+        )}
 
         <div
           className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
@@ -385,7 +400,7 @@ export function DragOrderImagesGame({
             <button
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className="rounded-full bg-transparent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:scale-105 active:scale-95 flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 shrink-0"
+              className="rounded-full bg-transparent hover:opacity-90 disabled:cursor-not-allowed transition-opacity hover:scale-105 active:scale-95 flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 shrink-0"
               style={{
                 width: sendButtonSize,
                 height: sendButtonSize,
@@ -416,6 +431,7 @@ export function DragOrderImagesGame({
           style={{ padding: paddingEdge }}
         >
           <div className="pointer-events-auto flex flex-col flex-1 min-h-0" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
+            {questionContainerVisible && (
             <div
               className="rounded-xl shadow-xl border-2 border-amber-800/30 shrink-0 pointer-events-auto"
               style={{
@@ -427,7 +443,7 @@ export function DragOrderImagesGame({
               }}
             >
               <h2
-                className="text-center font-bold text-gray-900 uppercase tracking-wide"
+                className="text-center text-gray-900 uppercase tracking-wide font-display"
                 style={{
                   fontSize: questionTitleSize,
                   marginBottom: isSmallScreen ? "4px" : "6px",
@@ -437,12 +453,13 @@ export function DragOrderImagesGame({
                 {step.title}
               </h2>
               <p
-                className="text-gray-800 italic text-center line-clamp-2"
+                className="text-gray-800 text-center line-clamp-2 font-sans font-bold"
                 style={{ fontSize: questionTextSize, lineHeight: 1.4 }}
               >
                 « {game.text || step.instruction} »
               </p>
             </div>
+            )}
             <div
               className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
               style={{ gap: isMobileOrTablet ? 8 : 12 }}
@@ -514,12 +531,6 @@ export function DragOrderImagesGame({
             </div>
           </div>
         )}
-        <VictoryModal
-          isOpen={showVictory}
-          onContinue={handleContinue}
-          raftPieceName={getRaftPieceByStepId(step.id)?.name}
-          raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-        />
       </>
     );
   }
@@ -563,12 +574,6 @@ export function DragOrderImagesGame({
           </div>
         </div>
       )}
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
       <DragOverlay>
         {activeImage ? (
           <div

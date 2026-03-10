@@ -29,7 +29,7 @@ import type { MissionId } from "@/types/mission";
 
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-1": "L'épave de l'avion",
-  "mission-2": "Mission 2",
+  "mission-2": "Dans la forêt",
   "mission-3": "Mission 3",
   "mission-4": "Mission 4",
   "mission-5": "Mission 5",
@@ -288,7 +288,7 @@ function HomeContent() {
             Paramètres
           </Button>
           <ReadAloudButton
-            text="Paramètres. Ouvrir le menu : audio description, mentions légales, politique de confidentialité, réinitialiser la progression."
+            text="Paramètres. Ouvrir le menu : audio description, mentions légales, politique de confidentialité, nouvelle partie."
             ariaLabel="Lire : Paramètres"
             className="self-center"
           />
@@ -371,7 +371,7 @@ function HomeContent() {
                     setShowParamsMenu(false);
                     if (
                       window.confirm(
-                        "Êtes-vous sûr de vouloir réinitialiser toute la progression ?",
+                        "Êtes-vous sûr de vouloir commencer une nouvelle partie ?",
                       )
                     ) {
                       resetProgress();
@@ -385,13 +385,13 @@ function HomeContent() {
                     fontSize: isMobileOrTablet ? (isSmallScreen ? '0.875rem' : '1rem') : '1rem',
                     minHeight: '44px',
                   }}
-                  aria-label="Réinitialiser la progression"
+                  aria-label="Nouvelle partie"
                 >
-                  Réinitialiser la progression
+                  Nouvelle partie
                 </button>
                 <ReadAloudButton
-                  text="Réinitialiser la progression. Effacer toute la partie et retourner à l'accueil."
-                  ariaLabel="Lire : Réinitialiser la progression"
+                  text="Nouvelle partie. Effacer toute la partie et retourner à l'accueil."
+                  ariaLabel="Lire : Nouvelle partie"
                 />
               </div>
             </div>
@@ -461,7 +461,7 @@ function HomeContent() {
                 className={`absolute flex flex-col items-center justify-center transition-all touch-manipulation ${
                   missionConfig.available
                     ? "cursor-pointer hover:scale-105 active:scale-95"
-                    : "cursor-not-allowed opacity-50"
+                    : "cursor-not-allowed"
                 }`}
                 style={
                   isMobile
@@ -663,11 +663,11 @@ function HomeContent() {
             </div>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
               <h2 
-                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4"
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4 font-display"
                 style={{
                   fontSize: isMobileOrTablet
-                    ? (isSmallScreen ? '1.5rem' : isMediumScreen ? '1.75rem' : '2rem')
-                    : (isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : '2.25rem'),
+                    ? (isSmallScreen ? '1.875rem' : isMediumScreen ? '2.125rem' : '2.375rem')
+                    : (isSmallScreen ? '1.625rem' : isMediumScreen ? '2.125rem' : '2.625rem'),
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??
@@ -676,7 +676,6 @@ function HomeContent() {
               <button
                 type="button"
                 onClick={handleExploreMission}
-                disabled={selectedMissionId === "mission-2"}
                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-500 touch-manipulation"
                 style={{
                   padding: isMobileOrTablet

@@ -12,8 +12,8 @@ export const mission2Steps: Step[] = [
 
 export const mission2: Mission = {
   id: "mission-2",
-  title: "Mission 2",
-  description: "À définir avec le client",
+  title: "Dans la forêt",
+  description: "Aide Yandel à trouver de quoi fabriquer une hache pour son radeau",
   steps: mission2Steps.map((step) => step.id),
 };
 

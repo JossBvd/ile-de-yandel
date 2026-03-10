@@ -2,19 +2,18 @@ import { Step } from "@/types/step";
 
 export const mission2Step1: Step = {
   id: "mission-2-step-1",
-  title: "Mission 2 - Step 1",
-  instruction: "Sélectionnez la bonne réponse",
-  narrative: "À définir avec le client",
+  title: "Dans la forêt",
+  instruction: "Réponds à la question pour trouver de quoi fabriquer la hache.",
+  narrative: `« Pour mon radeau, je vais avoir besoin d'une
+hache pour couper des rondins. Aide-moi à
+explorer la forêt pour trouver de quoi
+la fabriquer ! »`,
+  location: "Etape 1",
   raftPiece: "piece-2-1",
-  backgroundImage: "/backgrounds/paper_texture.webp",
+  backgroundImage: "/missions/mission-2/step-1/M2_background_jungle1.webp",
   game: {
-    type: "qcm",
-    question: "Question placeholder pour Mission 2 - Step 1",
-    options: [
-      { id: "1", text: "Réponse A" },
-      { id: "2", text: "Réponse B" },
-      { id: "3", text: "Réponse C" },
-    ],
-    correctAnswers: [0],
+    type: "enigma",
+    text: "Aide-moi à trouver la bonne quantité de rondins !\n\nPour construire un radeau solide, j'ai besoin de 14 rondins de bois, chacun mesurant 2,5 mètres de long.\n\nQuelle longueur totale de bois dois-je couper\npour avoir tous mes rondins ?",
+    correctAnswer: "35",
   },
 };

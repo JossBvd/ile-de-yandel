@@ -10,6 +10,7 @@ interface QCMGameProps {
   onComplete: () => void;
   onDefeat?: () => void;
   onGoBackToMap?: () => void;
+  questionContainerVisible?: boolean;
 }
 
 const MIN_CORRECT_TO_PASS = 1;
@@ -20,6 +21,7 @@ export function QCMGame({
   onComplete,
   onDefeat,
   onGoBackToMap,
+  questionContainerVisible = true,
 }: QCMGameProps) {
   const game = step.game as QCMGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
@@ -112,6 +114,11 @@ export function QCMGame({
   const questionSize = isMobileOrTablet
     ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem")
     : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.875rem");
+  const questionSizeDisplay = isStep2
+    ? (isMobileOrTablet
+        ? (isSmallScreen ? "1.375rem" : isMediumScreen ? "1.5rem" : "1.5rem")
+        : (isDesktopSmall ? "1.625rem" : isDesktopMedium ? "1.875rem" : "2.25rem"))
+    : questionSize;
   const gridGap = isMobileOrTablet
     ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
     : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
@@ -121,6 +128,11 @@ export function QCMGame({
   const optionTextSize = isMobileOrTablet
     ? (isSmallScreen ? "0.9375rem" : isMediumScreen ? "1rem" : "1.0625rem")
     : (isDesktopSmall ? "1.125rem" : isDesktopMedium ? "1.375rem" : "1.5rem");
+  const optionTextSizeDisplay = isStep2
+    ? (isMobileOrTablet
+        ? (isSmallScreen ? "1.1875rem" : isMediumScreen ? "1.3125rem" : "1.375rem")
+        : (isDesktopSmall ? "1.4375rem" : isDesktopMedium ? "1.6875rem" : "1.8125rem"))
+    : optionTextSize;
   const optionPaddingY = isMobileOrTablet
     ? (isSmallScreen ? "10px" : isMediumScreen ? "12px" : "14px")
     : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
@@ -156,6 +168,7 @@ export function QCMGame({
           className="w-full flex-1 flex flex-col pointer-events-auto justify-center min-h-0 overflow-y-auto"
           style={{ gap: gapMain }}
         >
+          {questionContainerVisible && (
           <div
             className="w-full shadow-xl pointer-events-auto shrink-0"
             style={{
@@ -183,8 +196,8 @@ export function QCMGame({
             </h2>
 
             <p
-              className="text-gray-800 italic text-center leading-relaxed"
-              style={{ fontSize: questionSize }}
+              className={`text-gray-800 italic text-center leading-relaxed ${isStep2 ? "font-display" : ""}`}
+              style={{ fontSize: isStep2 ? questionSizeDisplay : questionSize }}
             >
               {game.question}
             </p>
@@ -195,6 +208,7 @@ export function QCMGame({
               />
             </div>
           </div>
+          )}
 
           <div
             className="w-full pointer-events-auto shrink-0"
@@ -270,7 +284,13 @@ export function QCMGame({
                     <span className="font-bold shrink-0" style={{ fontSize: optionLetterSize }}>
                       {option.id}
                     </span>
-                    <span className="flex-1 text-left min-w-0" style={{ fontSize: optionTextSize }}>
+                    <span
+                      className={`flex-1 text-left min-w-0 ${isStep2 ? "font-display text-white" : ""}`}
+                      style={{
+                        fontSize: isStep2 ? optionTextSizeDisplay : optionTextSize,
+                        ...(isStep2 && { textShadow: "0 1px 2px rgba(0,0,0,0.9), 0 0 1px #000" }),
+                      }}
+                    >
                       {option.text}
                     </span>
                   </button>
@@ -324,7 +344,7 @@ export function QCMGame({
                       type="button"
                       onClick={handleRetryQuiz}
                       aria-label="Rejouer"
-                      className="bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                      className={`bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${isStep2 ? "font-sans" : ""}`}
                       style={{
                         padding: btnPadding,
                         fontSize: btnFontSize,
@@ -345,9 +365,9 @@ export function QCMGame({
                     <button
                       type="button"
                       onClick={handleContinue}
-                      aria-label={currentQuestion < totalQuestions ? "Question suivante" : "Terminer"}
+                      aria-label={currentQuestion < totalQuestions ? "Question suivante" : "Continuer"}
                       className={`text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${
-                        isStep2 ? "bg-orange-500 hover:bg-orange-600" : "bg-green-600 hover:bg-green-700"
+                        isStep2 ? "bg-orange-500 hover:bg-orange-600 font-sans" : "bg-green-600 hover:bg-green-700"
                       }`}
                       style={{
                         padding: btnPadding,
@@ -358,11 +378,11 @@ export function QCMGame({
                     >
                       {currentQuestion < totalQuestions
                         ? "Question suivante →"
-                        : "Terminer"}
+                        : "Continuer"}
                     </button>
                     <ReadAloudButton
-                      text={currentQuestion < totalQuestions ? "Question suivante" : "Terminer"}
-                      ariaLabel={currentQuestion < totalQuestions ? "Lire : Question suivante" : "Lire : Terminer"}
+                      text={currentQuestion < totalQuestions ? "Question suivante" : "Continuer"}
+                      ariaLabel={currentQuestion < totalQuestions ? "Lire : Question suivante" : "Lire : Continuer"}
                       className="shrink-0"
                     />
                   </div>
@@ -373,7 +393,7 @@ export function QCMGame({
                     type="button"
                     onClick={handleValidate}
                     aria-label="Valider la réponse"
-                    className="bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap"
+                    className={`bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 touch-manipulation whitespace-nowrap ${isStep2 ? "font-sans" : ""}`}
                     style={{
                       padding: btnPadding,
                       fontSize: btnFontSize,

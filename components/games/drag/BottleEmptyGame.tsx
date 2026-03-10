@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { Step, BottleEmptyGameData } from "@/types/step";
 import { Button } from "@/components/ui/Button";
-import { VictoryModal } from "@/components/ui/VictoryModal";
-import { getRaftPieceByStepId } from "@/data/raft";
 
 interface BottleEmptyGameProps {
   step: Step;
@@ -19,22 +17,16 @@ export function BottleEmptyGame({
 }: BottleEmptyGameProps) {
   const game = step.game as BottleEmptyGameData;
   const [bottleItems, setBottleItems] = useState(game.items);
-  const [showVictory, setShowVictory] = useState(false);
 
   const handleSubmit = () => {
     const isCorrect = bottleItems.every(
       (item, index) => item.id === game.correctOrder[index],
     );
     if (isCorrect) {
-      setShowVictory(true);
+      onComplete();
     } else if (onDefeat) {
       onDefeat();
     }
-  };
-
-  const handleContinue = () => {
-    setShowVictory(false);
-    onComplete();
   };
 
   return (
@@ -67,13 +59,6 @@ export function BottleEmptyGame({
           </div>
         </div>
       </div>
-
-      <VictoryModal
-        isOpen={showVictory}
-        onContinue={handleContinue}
-        raftPieceName={getRaftPieceByStepId(step.id)?.name}
-        raftPieceImage={getRaftPieceByStepId(step.id)?.image}
-      />
     </>
   );
 }

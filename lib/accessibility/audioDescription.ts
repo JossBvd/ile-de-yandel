@@ -32,12 +32,71 @@ if (isClient && synth) {
   }
 }
 
+const NATURAL_KEYWORDS = [
+  "natural",
+  "online",
+  "neural",
+  "premium",
+  "enhanced",
+  "wavenet",
+  "chirp",
+  "neural2",
+  "hd",
+];
+
+const LOW_QUALITY_KEYWORDS = [
+  "compact",
+  "x-low",
+  "very low",
+  "novelty",
+  "sam",
+  "bad news",
+  "good news",
+  "bahh",
+  "bells",
+  "boing",
+  "bubbles",
+  "cellos",
+  "wobble",
+];
+
+function voiceQualityScore(v: SpeechSynthesisVoice): number {
+  const name = (v.name ?? "").toLowerCase();
+  if (LOW_QUALITY_KEYWORDS.some((k) => name.includes(k))) return -10;
+  let score = 0;
+  if (NATURAL_KEYWORDS.some((k) => name.includes(k))) score += 20;
+  if (
+    name.includes("microsoft") &&
+    (name.includes("online") || name.includes("natural"))
+  )
+    score += 15;
+  if (name.includes("google") && (name.includes("female") || name.includes("male") || name.includes("français")))
+    score += 12;
+  if (name.includes("denise") || name.includes("hortense") || name.includes("paul"))
+    score += 10;
+  if (v.default) score += 3;
+  if (!v.localService) score += 2;
+  if (v.lang === "fr-FR") score += 5;
+  return score;
+}
+
 function selectFrenchVoice(): SpeechSynthesisVoice | null {
   const voices = getVoices();
-  const fr =
-    voices.find((v) => v.lang === "fr-FR") ??
-    voices.find((v) => v.lang.startsWith("fr"));
-  return fr ?? voices.find((v) => v.default) ?? voices[0] ?? null;
+  if (voices.length === 0) return null;
+
+  const frVoices = voices.filter(
+    (v) => v.lang === "fr-FR" || v.lang.toLowerCase().startsWith("fr"),
+  );
+  const candidates = frVoices.length > 0 ? frVoices : voices;
+
+  const scored = candidates
+    .map((v) => ({ voice: v, score: voiceQualityScore(v) }))
+    .sort((a, b) => b.score - a.score);
+
+  const best = scored.find(({ score }) => score >= 0);
+  if (best) return best.voice;
+  if (candidates.length > 0) return candidates[0];
+  return voices.find((v) => v.default) ?? voices[0] ?? null;
 }
 
 export function isAudioDescriptionSupported(): boolean {

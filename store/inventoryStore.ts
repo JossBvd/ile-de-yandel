@@ -11,18 +11,21 @@ interface InventoryState {
   collectedPieces: RaftPieceId[];
   fusedRaftPiecesCount: number;
   fusedPieces: FusedPieceId[];
+  fusionHistory: [RaftPieceId, RaftPieceId, RaftPieceId][];
   addPiece: (pieceId: RaftPieceId) => void;
   hasPiece: (pieceId: RaftPieceId) => boolean;
   consumePiecesForFusion: (pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId]) => boolean;
   getProgress: () => number;
   isRaftComplete: () => boolean;
   reset: () => void;
+  resetFusions: () => void;
 }
 
 const initialState = {
   collectedPieces: [],
   fusedRaftPiecesCount: 0,
   fusedPieces: [],
+  fusionHistory: [],
 };
 
 export const useInventoryStore = create<InventoryState>()(
@@ -52,6 +55,17 @@ export const useInventoryStore = create<InventoryState>()(
       ): boolean => {
         const state = get();
         if (state.fusedRaftPiecesCount >= MAX_FUSED_RAFT_PIECES) return false;
+
+        const [first, second, third] = pieceIds;
+        const getMissionKey = (id: RaftPieceId) => id.split("-").slice(0, 2).join("-");
+        const missionKey = getMissionKey(first);
+        if (
+          getMissionKey(second) !== missionKey ||
+          getMissionKey(third) !== missionKey
+        ) {
+          return false;
+        }
+
         const setIds = new Set(pieceIds);
         const stillHas = state.collectedPieces.filter((id) => setIds.has(id));
         if (stillHas.length !== 3) return false;
@@ -60,6 +74,7 @@ export const useInventoryStore = create<InventoryState>()(
           collectedPieces: state.collectedPieces.filter((id) => !setIds.has(id)),
           fusedRaftPiecesCount: state.fusedRaftPiecesCount + 1,
           fusedPieces: [...state.fusedPieces, nextFusedId],
+          fusionHistory: [...state.fusionHistory, pieceIds],
         });
         return true;
       },
@@ -79,6 +94,23 @@ export const useInventoryStore = create<InventoryState>()(
 
       /** Réinitialiser l'inventaire et les pièces fusion */
       reset: () => set(initialState),
+
+      /** Réinitialiser uniquement les fusions (les pièces collectées restent) */
+      resetFusions: () =>
+        set((state) => {
+          const restoredPieces = state.fusionHistory.flat();
+          const restoredSet = new Set<RaftPieceId>([
+            ...state.collectedPieces,
+            ...restoredPieces,
+          ]);
+          return {
+            ...state,
+            collectedPieces: Array.from(restoredSet),
+            fusedRaftPiecesCount: 0,
+            fusedPieces: [],
+            fusionHistory: [],
+          };
+        }),
     }),
     {
       name: "escape_game_inventory", // Clé localStorage
@@ -86,6 +118,7 @@ export const useInventoryStore = create<InventoryState>()(
         collectedPieces: state.collectedPieces,
         fusedRaftPiecesCount: state.fusedRaftPiecesCount,
         fusedPieces: state.fusedPieces,
+        fusionHistory: state.fusionHistory,
       }),
     },
   ),

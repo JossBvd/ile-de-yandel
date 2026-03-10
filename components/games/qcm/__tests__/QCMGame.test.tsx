@@ -81,7 +81,7 @@ describe('QCMGame', () => {
     expect(screen.getByText(/Correction question/)).toBeInTheDocument()
   })
 
-  it('devrait appeler onComplete quand la réponse est correcte et le bouton Terminer est cliqué', async () => {
+  it('devrait appeler onComplete quand la réponse est correcte et le bouton Continuer est cliqué', async () => {
     render(
       <QCMGame
         step={mockStep}
@@ -95,11 +95,11 @@ describe('QCMGame', () => {
     fireEvent.click(parisButton!)
 
     await waitFor(() => {
-      const terminerButton = screen.getByText('Terminer')
+      const terminerButton = screen.getByText('Continuer')
       expect(terminerButton).toBeInTheDocument()
     })
 
-    const terminerButton = screen.getByText('Terminer')
+    const terminerButton = screen.getByText('Continuer')
     fireEvent.click(terminerButton)
 
     await waitFor(() => {

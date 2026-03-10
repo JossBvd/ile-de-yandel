@@ -10,7 +10,11 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import { getStepById, getMissionById } from "@/data/missions";
 import { getNextStep } from "@/lib/engine/missionEngine";
-import { getStepPath, getStepIdFromSlug, validateStepIdFromSlug } from "@/lib/navigation";
+import {
+  getStepPath,
+  getStepIdFromSlug,
+  validateStepIdFromSlug,
+} from "@/lib/navigation";
 import { logDebug } from "@/lib/utils/logger";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
@@ -45,6 +49,10 @@ const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
     "Étape 2 accomplie. Tu as collecté : aiguille",
   "/missions/mission-1/step-3/M1_S3_popup-tissu.webp":
     "Étape 3 accomplie. Tu as collecté : chutes de tissu",
+  "/missions/mission-2/step-1/M2_S1_popup_baton.webp":
+    "Étape 1 accomplie. Tu as collecté : bâton",
+  "/missions/mission-2/step-2/M2_S2_popup-liane.webp":
+    "Étape 2 accomplie. Tu as collecté : liane",
 };
 
 function StepPageContent() {
@@ -52,15 +60,28 @@ function StepPageContent() {
   const router = useRouter();
   const missionId = params.missionId as string;
   const stepSlug = params.stepSlug as string;
-  
+
+  const isBlockedMission2Step3 =
+    missionId === "mission-2" && stepSlug === "step-3";
+
+  React.useEffect(() => {
+    if (isBlockedMission2Step3) {
+      router.replace("/");
+    }
+  }, [isBlockedMission2Step3, router]);
+
+  if (isBlockedMission2Step3) {
+    return null;
+  }
+
   const stepId = validateStepIdFromSlug(missionId, stepSlug);
-  
+
   React.useEffect(() => {
     if (!stepId) {
       router.push("/carte-de-l-ile");
     }
   }, [stepId, router]);
-  
+
   if (!stepId) {
     return null;
   }
@@ -69,7 +90,14 @@ function StepPageContent() {
     useGameProgress();
   const { addPiece } = useInventory();
   const { isRotated, width, height } = useOrientationContext();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  const {
+    isSmallScreen,
+    isMediumScreen,
+    isDesktopSmall,
+    isDesktopMedium,
+    isDesktopLarge,
+    isMobileOrTablet,
+  } = useResponsive();
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
@@ -83,6 +111,7 @@ function StepPageContent() {
   >(null);
   const [showMissionCompleteModal, setShowMissionCompleteModal] =
     useState(false);
+  const [showQuestionContainer, setShowQuestionContainer] = useState(true);
 
   const step = getStepById(stepId);
   const mission = getMissionById(missionId);
@@ -95,8 +124,12 @@ function StepPageContent() {
         `Mission ${missionNumber}, Étape ${stepIndex + 1}.`,
         step.title,
         step.instruction,
-        step.game && "question" in step.game ? (step.game as { question?: string }).question : null,
-        step.game && "text" in step.game ? (step.game as { text?: string }).text : null,
+        step.game && "question" in step.game
+          ? (step.game as { question?: string }).question
+          : null,
+        step.game && "text" in step.game
+          ? (step.game as { text?: string }).text
+          : null,
       ]
         .filter(Boolean)
         .join(" ")
@@ -106,10 +139,17 @@ function StepPageContent() {
   const { read: readAudio, enabled: audioEnabled } = useAudioDescription();
 
   React.useEffect(() => {
-    if (!audioEnabled || !audioDescriptionAutoPlay || !stepTextToRead.trim()) return;
+    if (!audioEnabled || !audioDescriptionAutoPlay || !stepTextToRead.trim())
+      return;
     const t = setTimeout(() => readAudio(stepTextToRead), 500);
     return () => clearTimeout(t);
-  }, [audioEnabled, audioDescriptionAutoPlay, stepId, readAudio, stepTextToRead]);
+  }, [
+    audioEnabled,
+    audioDescriptionAutoPlay,
+    stepId,
+    readAudio,
+    stepTextToRead,
+  ]);
 
   const isFirstStepOfMission = Boolean(mission && mission.steps[0] === stepId);
 
@@ -137,6 +177,14 @@ function StepPageContent() {
       return;
     }
     applyStepCompletionOnly();
+
+    // Mission 2 - step 3 non implémenté :
+    // après le step 2, on revient directement à la carte de l'île.
+    if (missionId === "mission-2" && step.id === "mission-2-step-2") {
+      router.push("/carte-de-l-ile");
+      return;
+    }
+
     const updatedCompletedSteps = [...completedSteps, step.id];
     const nextStepId = getNextStep(mission, updatedCompletedSteps);
     logDebug("🎮 Complétion du step:", step.id);
@@ -151,7 +199,9 @@ function StepPageContent() {
 
   const handleGameComplete = () => {
     if (!step) return;
-    announce("Mission réussie ! Vous avez obtenu une pièce du radeau.", { priority: "polite" });
+    announce("Mission réussie ! Vous avez obtenu une pièce du radeau.", {
+      priority: "polite",
+    });
     if (step.id === "mission-1-step-1") {
       setRaftObjectModalImage(
         "/missions/mission-1/step-1/M1_S1_popup-ficelle.webp",
@@ -167,6 +217,18 @@ function StepPageContent() {
     if (step.id === "mission-1-step-3") {
       setRaftObjectModalImage(
         "/missions/mission-1/step-3/M1_S3_popup-tissu.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-2-step-1") {
+      setRaftObjectModalImage(
+        "/missions/mission-2/step-1/M2_S1_popup_baton.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-2-step-2") {
+      setRaftObjectModalImage(
+        "/missions/mission-2/step-2/M2_S2_popup-liane.webp",
       );
       return;
     }
@@ -187,7 +249,9 @@ function StepPageContent() {
   };
 
   const handleGameDefeat = () => {
-    announce("Ce n'est pas la bonne réponse. Vous pouvez réessayer.", { priority: "polite" });
+    announce("Ce n'est pas la bonne réponse. Vous pouvez réessayer.", {
+      priority: "polite",
+    });
     logDebug("❌ Échec du step - Affichage de la modal de défaite");
     setShowDefeatModal(true);
   };
@@ -286,27 +350,45 @@ function StepPageContent() {
           aria-describedby="narrative-text"
           className="absolute w-full overflow-y-auto"
           style={{
-            left: isSmallScreen ? '24px' : isMediumScreen ? '32px' : isDesktopSmall ? '48px' : isDesktopMedium ? '64px' : '80px',
-            maxWidth: '50%',
-            top: isSmallScreen ? '10%' : '33.333%',
-            maxHeight: isSmallScreen ? 'none' : 'none',
-            overflow: isSmallScreen ? 'visible' : 'visible',
-            transform: isSmallScreen ? 'none' : 'translateY(-50%)',
+            left: isSmallScreen
+              ? "24px"
+              : isMediumScreen
+                ? "32px"
+                : isDesktopSmall
+                  ? "48px"
+                  : isDesktopMedium
+                    ? "64px"
+                    : "80px",
+            maxWidth: "50%",
+            top: isSmallScreen ? "10%" : "33.333%",
+            maxHeight: isSmallScreen ? "none" : "none",
+            overflow: isSmallScreen ? "visible" : "visible",
+            transform: isSmallScreen ? "none" : "translateY(-50%)",
           }}
         >
           <div
             className="relative rounded-3xl shadow-xl bg-cover bg-center bg-no-repeat"
             style={{
               backgroundImage: "url(/ui/popup_start_mission.webp)",
-              padding: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+              padding: isSmallScreen
+                ? "16px"
+                : isMediumScreen
+                  ? "24px"
+                  : "32px",
             }}
           >
             <h2
               id="narrative-title"
               className="font-bold text-gray-800"
               style={{
-                fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.75rem' : isDesktopSmall ? '2rem' : '2.25rem',
-                marginBottom: isSmallScreen ? '16px' : '24px',
+                fontSize: isSmallScreen
+                  ? "1.25rem"
+                  : isMediumScreen
+                    ? "1.75rem"
+                    : isDesktopSmall
+                      ? "2rem"
+                      : "2.25rem",
+                marginBottom: isSmallScreen ? "16px" : "24px",
                 lineHeight: 1.3,
               }}
             >
@@ -315,14 +397,22 @@ function StepPageContent() {
             <div
               id="narrative-text"
               style={{
-                marginBottom: isSmallScreen ? '24px' : '32px',
-                paddingRight: isSmallScreen ? '56px' : isMediumScreen ? '64px' : '80px',
+                marginBottom: isSmallScreen ? "24px" : "32px",
+                paddingRight: isSmallScreen
+                  ? "56px"
+                  : isMediumScreen
+                    ? "64px"
+                    : "80px",
               }}
             >
               <p
-                className="text-gray-800 italic leading-relaxed whitespace-pre-line"
+                className="text-gray-800 italic leading-relaxed whitespace-pre-line font-display"
                 style={{
-                  fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : '1.25rem',
+                  fontSize: isSmallScreen
+                    ? "1.25rem"
+                    : isMediumScreen
+                      ? "1.375rem"
+                      : "1.625rem",
                   lineHeight: 1.5,
                 }}
               >
@@ -332,8 +422,12 @@ function StepPageContent() {
             <div
               className="absolute"
               style={{
-                top: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
-                right: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
+                top: isSmallScreen ? "16px" : isMediumScreen ? "24px" : "32px",
+                right: isSmallScreen
+                  ? "16px"
+                  : isMediumScreen
+                    ? "24px"
+                    : "32px",
               }}
             >
               <ReadAloudButton
@@ -346,9 +440,17 @@ function StepPageContent() {
               onClick={handleContinueFromNarrative}
               className="absolute rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
               style={{
-                bottom: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
-                right: isSmallScreen ? '16px' : isMediumScreen ? '24px' : '32px',
-                padding: '8px',
+                bottom: isSmallScreen
+                  ? "16px"
+                  : isMediumScreen
+                    ? "24px"
+                    : "32px",
+                right: isSmallScreen
+                  ? "16px"
+                  : isMediumScreen
+                    ? "24px"
+                    : "32px",
+                padding: "8px",
               }}
               aria-label="Continuer vers l’énigme"
             >
@@ -358,8 +460,16 @@ function StepPageContent() {
                 width={64}
                 height={64}
                 style={{
-                  width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
-                  height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                  width: isSmallScreen
+                    ? "48px"
+                    : isMediumScreen
+                      ? "56px"
+                      : "64px",
+                  height: isSmallScreen
+                    ? "48px"
+                    : isMediumScreen
+                      ? "56px"
+                      : "64px",
                 }}
               />
             </button>
@@ -373,19 +483,32 @@ function StepPageContent() {
     <div
       id="main-content"
       role="main"
-      className="fixed inset-0 overflow-hidden bg-black flex"
+      className="fixed inset-0 overflow-hidden bg-black flex w-full h-full"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
+        maxWidth: "100vw",
+        maxHeight: "100dvh",
       }}
     >
       {/* Barre latérale */}
       <div
-        className="relative shrink-0 flex flex-col z-20"
+        className="relative shrink-0 flex flex-col z-20 overflow-x-hidden scrollbar-hide min-w-0"
         style={{
-          width: isMobileOrTablet 
-            ? (isSmallScreen ? '160px' : isMediumScreen ? '180px' : '200px')
+          width: isMobileOrTablet
+            ? isSmallScreen
+              ? "160px"
+              : isMediumScreen
+                ? "180px"
+                : "200px"
             : "clamp(200px, 20vw, 250px)",
+          maxWidth: isMobileOrTablet
+            ? isSmallScreen
+              ? "160px"
+              : isMediumScreen
+                ? "180px"
+                : "200px"
+            : "min(250px, 20vw)",
           backgroundImage: "url(/backgrounds/paper_texture.webp)",
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -397,58 +520,119 @@ function StepPageContent() {
       >
         <div className="flex flex-col min-h-0 flex-1">
           <div
-            className="shrink-0 flex items-start justify-between gap-2"
+            className="shrink-0"
             style={{
-              paddingTop: isSmallScreen ? '8px' : isMediumScreen ? '12px' : '24px',
-              paddingLeft: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-              paddingRight: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-              paddingBottom: isSmallScreen ? '4px' : isMediumScreen ? '4px' : '8px',
+              paddingTop:
+                audioEnabled && isMobileOrTablet
+                  ? isSmallScreen
+                    ? "6px"
+                    : "8px"
+                  : isSmallScreen
+                    ? "8px"
+                    : isMediumScreen
+                      ? "12px"
+                      : "24px",
+              paddingLeft: isSmallScreen
+                ? "12px"
+                : isMediumScreen
+                  ? "16px"
+                  : "16px",
+              paddingRight: isSmallScreen
+                ? "12px"
+                : isMediumScreen
+                  ? "16px"
+                  : "16px",
+              paddingBottom:
+                audioEnabled && isMobileOrTablet
+                  ? "2px"
+                  : isSmallScreen
+                    ? "4px"
+                    : isMediumScreen
+                      ? "4px"
+                      : "8px",
             }}
           >
             <div className="min-w-0">
-              <p 
-                className="font-bold text-gray-800 drop-shadow-sm whitespace-nowrap"
+              <p
+                className="text-gray-800 drop-shadow-sm whitespace-nowrap font-display"
                 style={{
-                  fontSize: isSmallScreen ? '1.125rem' : isMediumScreen ? '1.25rem' : isDesktopSmall ? '1.5rem' : '1.5rem',
+                  fontSize: isSmallScreen
+                    ? "1.375rem"
+                    : isMediumScreen
+                      ? "1.5rem"
+                      : isDesktopSmall
+                        ? "1.8125rem"
+                        : "1.875rem",
                 }}
               >
                 Mission {missionNumber}
               </p>
-              <p 
-                className="font-semibold text-gray-700 opacity-90"
+              <p
+                className="text-gray-700 opacity-90 font-display"
                 style={{
-                  fontSize: isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem',
+                  fontSize: isSmallScreen
+                    ? "1.125rem"
+                    : isMediumScreen
+                      ? "1.25rem"
+                      : "1.375rem",
                 }}
               >
                 Etape {stepNumber}
               </p>
             </div>
-            <div
-              className="relative shrink-0"
-              style={{
-                width: isMobileOrTablet ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px') : (isDesktopSmall ? '72px' : isDesktopMedium ? '80px' : '88px'),
-                height: isMobileOrTablet ? (isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px') : (isDesktopSmall ? '72px' : isDesktopMedium ? '80px' : '88px'),
-                opacity: 0.72,
-              }}
-            >
-              <Image
-                src="/ui/icon_bottle.webp"
-                alt="Bouteille à la mer"
-                width={128}
-                height={128}
-                className="w-full h-full object-contain"
-              />
-            </div>
           </div>
 
-          <div 
+          <div
             className="flex flex-col shrink-0 mt-auto"
             style={{
-              gap: isMobileOrTablet ? (isSmallScreen ? '10px' : isMediumScreen ? '12px' : '14px') : (isDesktopSmall ? '12px' : '16px'),
-              paddingLeft: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '12px' : '16px'),
-              paddingRight: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : (isDesktopSmall ? '12px' : '16px'),
-              paddingBottom: isMobileOrTablet ? (isSmallScreen ? '12px' : '14px') : '16px',
-              paddingTop: isMobileOrTablet ? (isSmallScreen ? '8px' : '10px') : '16px',
+              gap:
+                audioEnabled && isMobileOrTablet
+                  ? isSmallScreen
+                    ? "6px"
+                    : "8px"
+                  : isMobileOrTablet
+                    ? isSmallScreen
+                      ? "10px"
+                      : isMediumScreen
+                        ? "12px"
+                        : "14px"
+                    : isDesktopSmall
+                      ? "12px"
+                      : "16px",
+              paddingLeft: isMobileOrTablet
+                ? isSmallScreen
+                  ? "8px"
+                  : "10px"
+                : isDesktopSmall
+                  ? "12px"
+                  : "16px",
+              paddingRight: isMobileOrTablet
+                ? isSmallScreen
+                  ? "8px"
+                  : "10px"
+                : isDesktopSmall
+                  ? "12px"
+                  : "16px",
+              paddingBottom:
+                audioEnabled && isMobileOrTablet
+                  ? isSmallScreen
+                    ? "8px"
+                    : "10px"
+                  : isMobileOrTablet
+                    ? isSmallScreen
+                      ? "12px"
+                      : "14px"
+                    : "16px",
+              paddingTop:
+                audioEnabled && isMobileOrTablet
+                  ? isSmallScreen
+                    ? "6px"
+                    : "8px"
+                  : isMobileOrTablet
+                    ? isSmallScreen
+                      ? "8px"
+                      : "10px"
+                    : "16px",
             }}
           >
             <AudioDescriptionButton
@@ -456,6 +640,37 @@ function StepPageContent() {
               sizeVariant="compact"
               className="self-start"
             />
+            <div className="flex items-center gap-1 self-start">
+              <IconButton
+                icon="/ui/icon_bottle.webp"
+                alt={
+                  showQuestionContainer
+                    ? "Masquer l'instruction"
+                    : "Afficher l'instruction"
+                }
+                onClick={() => setShowQuestionContainer((v) => !v)}
+                label="Instruction"
+                showLabel
+                sizeVariant={
+                  audioEnabled && isMobileOrTablet
+                    ? "sidebarCompact"
+                    : "sidebar"
+                }
+                className="shrink-0"
+              />
+              <ReadAloudButton
+                text={
+                  showQuestionContainer
+                    ? "Instruction. Masquer l'instruction."
+                    : "Instruction. Afficher l'instruction."
+                }
+                ariaLabel={
+                  showQuestionContainer
+                    ? "Lire : Masquer l'instruction"
+                    : "Lire : Afficher l'instruction"
+                }
+              />
+            </div>
             <div className="flex items-center gap-1 self-start">
               <IconButton
                 icon="/ui/icon_clue.webp"
@@ -472,11 +687,19 @@ function StepPageContent() {
                 label="Indice"
                 showLabel
                 disabled={!step.hint}
-                sizeVariant="sidebar"
+                sizeVariant={
+                  audioEnabled && isMobileOrTablet
+                    ? "sidebarCompact"
+                    : "sidebar"
+                }
                 className="shrink-0"
               />
               <ReadAloudButton
-                text={step.hint ? "Indice. Voir un indice pour cette étape." : "Indice. Indice non disponible pour cette étape."}
+                text={
+                  step.hint
+                    ? "Indice. Voir un indice pour cette étape."
+                    : "Indice. Indice non disponible pour cette étape."
+                }
                 ariaLabel="Lire : Indice"
               />
             </div>
@@ -487,7 +710,11 @@ function StepPageContent() {
                 onClick={() => router.push("/radeau")}
                 label="Radeau"
                 showLabel
-                sizeVariant="sidebar"
+                sizeVariant={
+                  audioEnabled && isMobileOrTablet
+                    ? "sidebarCompact"
+                    : "sidebar"
+                }
                 className="shrink-0"
               />
               <ReadAloudButton
@@ -502,7 +729,11 @@ function StepPageContent() {
                 onClick={() => router.push("/carte-de-l-ile")}
                 label="Retour"
                 showLabel
-                sizeVariant="sidebar"
+                sizeVariant={
+                  audioEnabled && isMobileOrTablet
+                    ? "sidebarCompact"
+                    : "sidebar"
+                }
                 className="shrink-0"
               />
               <ReadAloudButton
@@ -515,7 +746,7 @@ function StepPageContent() {
       </div>
 
       {/* Zone de jeu */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden min-w-0">
         {step.backgroundHintZones && step.backgroundHintZones.length > 0 ? (
           <ClickableBackground
             imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
@@ -528,7 +759,7 @@ function StepPageContent() {
               onComplete={handleGameComplete}
               onDefeat={handleGameDefeat}
               onGoBackToMap={handleDefeatGoBack}
-              skipVictoryModal={step.id === "mission-1-step-1"}
+              questionContainerVisible={showQuestionContainer}
             />
           </ClickableBackground>
         ) : (
@@ -541,7 +772,7 @@ function StepPageContent() {
               onComplete={handleGameComplete}
               onDefeat={handleGameDefeat}
               onGoBackToMap={handleDefeatGoBack}
-              skipVictoryModal={step.id === "mission-1-step-1"}
+              questionContainerVisible={showQuestionContainer}
             />
           </StepBackground>
         )}
@@ -591,18 +822,26 @@ function StepPageContent() {
                 ariaLabel="Lire le message"
               />
             </div>
-            <div 
+            <div
               className="absolute"
               style={{
-                bottom: isSmallScreen ? '12px' : isMediumScreen ? '16px' : '16px',
-                right: isSmallScreen ? '32px' : isMediumScreen ? '48px' : '48px',
+                bottom: isSmallScreen
+                  ? "12px"
+                  : isMediumScreen
+                    ? "16px"
+                    : "16px",
+                right: isSmallScreen
+                  ? "32px"
+                  : isMediumScreen
+                    ? "48px"
+                    : "48px",
               }}
             >
               <button
                 type="button"
                 onClick={handleRaftObjectModalClose}
                 className="rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                style={{ padding: '6px' }}
+                style={{ padding: "6px" }}
                 aria-label="Continuer au step suivant"
               >
                 <Image
@@ -611,8 +850,16 @@ function StepPageContent() {
                   width={64}
                   height={64}
                   style={{
-                    width: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
-                    height: isSmallScreen ? '48px' : isMediumScreen ? '56px' : '64px',
+                    width: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : "64px",
+                    height: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : "64px",
                   }}
                 />
               </button>
@@ -679,11 +926,19 @@ function StepPageContent() {
             >
               <div className="flex flex-1 min-h-0 flex-col justify-center">
                 <div className="flex gap-4 items-center">
-                  <div 
+                  <div
                     className="shrink-0 bg-white border-2 border-amber-900/20 rounded-sm overflow-hidden self-center"
                     style={{
-                      width: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
-                      height: isSmallScreen ? '144px' : isMediumScreen ? '176px' : '208px',
+                      width: isSmallScreen
+                        ? "144px"
+                        : isMediumScreen
+                          ? "176px"
+                          : "208px",
+                      height: isSmallScreen
+                        ? "144px"
+                        : isMediumScreen
+                          ? "176px"
+                          : "208px",
                     }}
                   >
                     {hintModal.image ? (
@@ -715,7 +970,9 @@ function StepPageContent() {
                         type="button"
                         onClick={() =>
                           readAudio(
-                            [hintModal.title, hintModal.hint].filter(Boolean).join(". "),
+                            [hintModal.title, hintModal.hint]
+                              .filter(Boolean)
+                              .join(". "),
                           )
                         }
                         className="mt-2 text-sm text-orange-600 hover:text-orange-700 underline"
