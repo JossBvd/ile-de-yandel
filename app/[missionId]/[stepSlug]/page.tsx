@@ -53,6 +53,8 @@ const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
     "Étape 1 accomplie. Tu as collecté : bâton",
   "/missions/mission-2/step-2/M2_S2_popup-liane.webp":
     "Étape 2 accomplie. Tu as collecté : liane",
+  "/missions/mission-2/step-3/M2_S3_popup-silex.webp":
+    "Étape 3 accomplie. Tu as collecté : silex",
 };
 
 function StepPageContent() {
@@ -60,20 +62,6 @@ function StepPageContent() {
   const router = useRouter();
   const missionId = params.missionId as string;
   const stepSlug = params.stepSlug as string;
-
-  const isBlockedMission2Step3 =
-    missionId === "mission-2" && stepSlug === "step-3";
-
-  React.useEffect(() => {
-    if (isBlockedMission2Step3) {
-      router.replace("/");
-    }
-  }, [isBlockedMission2Step3, router]);
-
-  if (isBlockedMission2Step3) {
-    return null;
-  }
-
   const stepId = validateStepIdFromSlug(missionId, stepSlug);
 
   React.useEffect(() => {
@@ -178,13 +166,6 @@ function StepPageContent() {
     }
     applyStepCompletionOnly();
 
-    // Mission 2 - step 3 non implémenté :
-    // après le step 2, on revient directement à la carte de l'île.
-    if (missionId === "mission-2" && step.id === "mission-2-step-2") {
-      router.push("/carte-de-l-ile");
-      return;
-    }
-
     const updatedCompletedSteps = [...completedSteps, step.id];
     const nextStepId = getNextStep(mission, updatedCompletedSteps);
     logDebug("🎮 Complétion du step:", step.id);
@@ -232,12 +213,18 @@ function StepPageContent() {
       );
       return;
     }
+    if (step.id === "mission-2-step-3") {
+      setRaftObjectModalImage(
+        "/missions/mission-2/step-3/M2_S3_popup-silex.webp",
+      );
+      return;
+    }
     applyStepCompletionAndNavigate();
   };
 
   const handleRaftObjectModalClose = () => {
     setRaftObjectModalImage(null);
-    if (step?.id === "mission-1-step-3") {
+    if (step?.id === "mission-1-step-3" || step?.id === "mission-2-step-3") {
       setShowMissionCompleteModal(true);
     } else {
       applyStepCompletionAndNavigate();
@@ -642,14 +629,22 @@ function StepPageContent() {
             />
             <div className="flex items-center gap-1 self-start">
               <IconButton
-                icon="/ui/icon_bottle.webp"
+                icon={
+                  step.id === "mission-2-step-3"
+                    ? "/missions/mission-2/step-3/m2_S3_loupe_icon.webp"
+                    : "/ui/icon_bottle.webp"
+                }
                 alt={
-                  showQuestionContainer
-                    ? "Masquer l'instruction"
-                    : "Afficher l'instruction"
+                  step.id === "mission-2-step-3"
+                    ? showQuestionContainer
+                      ? "Masquer les panneaux du jeu pour inspecter le décor"
+                      : "Afficher les panneaux du jeu"
+                    : showQuestionContainer
+                      ? "Masquer l'instruction"
+                      : "Afficher l'instruction"
                 }
                 onClick={() => setShowQuestionContainer((v) => !v)}
-                label="Instruction"
+                label={step.id === "mission-2-step-3" ? "Inspecter" : "Instruction"}
                 showLabel
                 sizeVariant={
                   audioEnabled && isMobileOrTablet
@@ -660,14 +655,22 @@ function StepPageContent() {
               />
               <ReadAloudButton
                 text={
-                  showQuestionContainer
-                    ? "Instruction. Masquer l'instruction."
-                    : "Instruction. Afficher l'instruction."
+                  step.id === "mission-2-step-3"
+                    ? showQuestionContainer
+                      ? "Inspecter. Masquer les panneaux du jeu pour voir le décor."
+                      : "Inspecter. Afficher les panneaux du jeu."
+                    : showQuestionContainer
+                      ? "Instruction. Masquer l'instruction."
+                      : "Instruction. Afficher l'instruction."
                 }
                 ariaLabel={
-                  showQuestionContainer
-                    ? "Lire : Masquer l'instruction"
-                    : "Lire : Afficher l'instruction"
+                  step.id === "mission-2-step-3"
+                    ? showQuestionContainer
+                      ? "Lire : Masquer les panneaux du jeu pour voir le décor"
+                      : "Lire : Afficher les panneaux du jeu"
+                    : showQuestionContainer
+                      ? "Lire : Masquer l'instruction"
+                      : "Lire : Afficher l'instruction"
                 }
               />
             </div>

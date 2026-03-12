@@ -10,6 +10,7 @@ import { BasketFillGame } from "@/components/games/drag/BasketFillGame";
 import { BottleEmptyGame } from "@/components/games/drag/BottleEmptyGame";
 import { ImageClickGame } from "@/components/games/image-click/ImageClickGame";
 import { EnigmaGame } from "@/components/games/enigma/EnigmaGame";
+import { PhotosynthesisAtomsGame } from "@/components/games/drag/PhotosynthesisAtomsGame";
 
 interface GameRendererProps {
   step: Step;
@@ -85,6 +86,15 @@ export function GameRenderer({
     case "enigma":
       return (
         <EnigmaGame
+          step={step}
+          onComplete={onComplete}
+          onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
+        />
+      );
+    case "photosynthesis-atoms":
+      return (
+        <PhotosynthesisAtomsGame
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}

@@ -11,7 +11,8 @@ export type GameType =
   | "basket-fill"
   | "bottle-empty"
   | "image-click"
-  | "enigma";
+  | "enigma"
+  | "photosynthesis-atoms";
 
 export interface Hint {
   text?: string;
@@ -103,6 +104,11 @@ export interface DragOrderImagesGameData {
   slotsCount: number;
 }
 
+export interface PhotosynthesisAtomsGameData {
+  type: "photosynthesis-atoms";
+  text: string;
+}
+
 export interface EnigmaGameData {
   type: "enigma";
   text: string;
@@ -117,7 +123,8 @@ export type GameData =
   | BasketFillGameData
   | BottleEmptyGameData
   | ImageClickGameData
-  | EnigmaGameData;
+  | EnigmaGameData
+  | PhotosynthesisAtomsGameData;
 
 export interface BackgroundHintZone {
   x: number;

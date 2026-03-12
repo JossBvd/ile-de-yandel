@@ -21,7 +21,7 @@ interface MissionCompleteModalProps {
 export function MissionCompleteModal({
   isOpen,
   missionId = "mission-1",
-  completionText = "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !",
+  completionText,
   onJournalClick,
   onRaftClick,
   onMapClick,
@@ -69,6 +69,11 @@ export function MissionCompleteModal({
   if (!isOpen) return null;
 
   const missionNumber = missionId.replace("mission-", "") || "1";
+  const effectiveCompletionText =
+    completionText ??
+    (missionId === "mission-2"
+      ? "Grâce à tout ce que j’ai collecté dans la forêt, je vais pouvoir fabriquer une hache et collecter les rondins pour mon radeau !"
+      : "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !");
 
   return (
     <div
@@ -165,7 +170,7 @@ export function MissionCompleteModal({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ReadAloudButton
-                    text={`Mission ${missionNumber} accomplie ! ${completionText}`}
+                  text={`Mission ${missionNumber} accomplie ! ${effectiveCompletionText}`}
                     ariaLabel="Lire le message de fin de mission"
                   />
                 </div>
@@ -227,7 +232,7 @@ export function MissionCompleteModal({
                           : "1.5rem",
                   }}
                 >
-                  « {completionText} »
+                  « {effectiveCompletionText} »
                 </p>
               </div>
 
