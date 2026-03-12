@@ -638,13 +638,19 @@ function StepPageContent() {
                   step.id === "mission-2-step-3"
                     ? showQuestionContainer
                       ? "Masquer les panneaux du jeu pour inspecter le décor"
-                      : "Afficher les panneaux du jeu"
+                      : "Afficher les panneaux du jeu (mode énigme)"
                     : showQuestionContainer
                       ? "Masquer l'instruction"
                       : "Afficher l'instruction"
                 }
                 onClick={() => setShowQuestionContainer((v) => !v)}
-                label={step.id === "mission-2-step-3" ? "Inspecter" : "Instruction"}
+                label={
+                  step.id === "mission-2-step-3"
+                    ? showQuestionContainer
+                      ? "Inspecter"
+                      : "Énigme"
+                    : "Instruction"
+                }
                 showLabel
                 sizeVariant={
                   audioEnabled && isMobileOrTablet
@@ -658,7 +664,7 @@ function StepPageContent() {
                   step.id === "mission-2-step-3"
                     ? showQuestionContainer
                       ? "Inspecter. Masquer les panneaux du jeu pour voir le décor."
-                      : "Inspecter. Afficher les panneaux du jeu."
+                      : "Énigme. Afficher les panneaux du jeu."
                     : showQuestionContainer
                       ? "Instruction. Masquer l'instruction."
                       : "Instruction. Afficher l'instruction."
@@ -667,7 +673,7 @@ function StepPageContent() {
                   step.id === "mission-2-step-3"
                     ? showQuestionContainer
                       ? "Lire : Masquer les panneaux du jeu pour voir le décor"
-                      : "Lire : Afficher les panneaux du jeu"
+                      : "Lire : Énigme. Afficher les panneaux du jeu"
                     : showQuestionContainer
                       ? "Lire : Masquer l'instruction"
                       : "Lire : Afficher l'instruction"
