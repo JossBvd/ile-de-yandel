@@ -1,5 +1,5 @@
 import { validateStepAnswer } from '../stepEngine'
-import { Step, QCMGameData, DragSortGameData, DragSelectImageGameData, BasketFillGameData, BottleEmptyGameData, ImageClickGameData } from '@/types/step'
+import { Step, QCMGameData, DragSortGameData, DragSelectImageGameData, BasketFillGameData, BottleEmptyGameData, ImageClickGameData, EnigmaGameData, PhotosynthesisAtomsGameData } from '@/types/step'
 
 describe('stepEngine', () => {
   describe('validateStepAnswer', () => {
@@ -378,6 +378,45 @@ describe('stepEngine', () => {
 
         expect(result.isValid).toBe(false)
         expect(result.message).toContain('Vous devez trouver')
+      })
+    })
+
+    describe('Enigma (validation dans le composant)', () => {
+      it('devrait retourner non reconnu car la validation est gérée par EnigmaGame', () => {
+        const step: Step = {
+          id: 'test-step',
+          title: 'Test',
+          instruction: 'Test',
+          game: {
+            type: 'enigma',
+            text: 'Quel est le mot ?',
+            correctAnswer: 'secret',
+          } as EnigmaGameData,
+        }
+
+        const result = validateStepAnswer(step, 'secret')
+
+        expect(result.isValid).toBe(false)
+        expect(result.message).toContain('non reconnu')
+      })
+    })
+
+    describe('Photosynthesis Atoms (validation dans le composant)', () => {
+      it('devrait retourner non reconnu car la validation est gérée par PhotosynthesisAtomsGame', () => {
+        const step: Step = {
+          id: 'test-step',
+          title: 'Test',
+          instruction: 'Test',
+          game: {
+            type: 'photosynthesis-atoms',
+            text: 'Fusionne les atomes.',
+          } as PhotosynthesisAtomsGameData,
+        }
+
+        const result = validateStepAnswer(step, [])
+
+        expect(result.isValid).toBe(false)
+        expect(result.message).toContain('non reconnu')
       })
     })
 

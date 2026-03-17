@@ -35,6 +35,8 @@ const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-5": "Mission 5",
 };
 
+const DEVELOPED_MISSIONS = new Set<string>(["mission-1", "mission-2"]);
+
 function HomeContent() {
   const router = useRouter();
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(
@@ -434,14 +436,20 @@ function HomeContent() {
             if (!mission) return null;
 
             const missionNumber = missionConfig.id.split("-")[1];
-
             const missionTitle = mission.title ?? `Mission ${missionNumber}`;
-            const ariaLabel = missionConfig.available
+            const clickable =
+              missionConfig.available &&
+              DEVELOPED_MISSIONS.has(missionConfig.id);
+            const ariaLabel = clickable
               ? `Accéder à ${missionTitle}`
-              : `${missionTitle}, verrouillée`;
-            const readAloudText = missionConfig.available
+              : missionConfig.available
+                ? `${missionTitle}, bientôt disponible`
+                : `${missionTitle}, verrouillée`;
+            const readAloudText = clickable
               ? `Mission ${missionNumber} : ${missionTitle}. Disponible. Cliquez pour jouer.`
-              : `Mission ${missionNumber} : ${missionTitle}. Verrouillée.`;
+              : missionConfig.available
+                ? `Mission ${missionNumber} : ${missionTitle}. Bientôt disponible.`
+                : `Mission ${missionNumber} : ${missionTitle}. Verrouillée.`;
 
             return (
               <div
@@ -450,16 +458,16 @@ function HomeContent() {
                 tabIndex={0}
                 aria-label={ariaLabel}
                 onClick={() =>
-                  handleMissionClick(missionConfig.id, missionConfig.available)
+                  handleMissionClick(missionConfig.id, clickable)
                 }
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handleMissionClick(missionConfig.id, missionConfig.available);
+                    handleMissionClick(missionConfig.id, clickable);
                   }
                 }}
                 className={`absolute flex flex-col items-center justify-center transition-all touch-manipulation ${
-                  missionConfig.available
+                  clickable
                     ? "cursor-pointer hover:scale-105 active:scale-95"
                     : "cursor-not-allowed"
                 }`}
@@ -497,7 +505,7 @@ function HomeContent() {
                   </div>
                   <Image
                     src={
-                      missionConfig.available
+                      clickable
                         ? "/ui/mission_button.webp"
                         : "/ui/mission_button_locked.webp"
                     }
