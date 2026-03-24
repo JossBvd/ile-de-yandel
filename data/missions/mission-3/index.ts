@@ -12,7 +12,7 @@ export const mission3Steps: Step[] = [
 
 export const mission3: Mission = {
   id: "mission-3",
-  title: "Mission 3",
+  title: "Le bosquet",
   description: "À définir avec le client",
   steps: mission3Steps.map((step) => step.id),
 };

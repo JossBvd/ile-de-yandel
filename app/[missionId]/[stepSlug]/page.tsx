@@ -55,6 +55,12 @@ const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
     "Étape 2 accomplie. Tu as collecté : liane",
   "/missions/mission-2/step-3/M2_S3_popup-silex.webp":
     "Étape 3 accomplie. Tu as collecté : silex",
+  "/missions/mission-3/step-1/M3_S1_popup-noix.webp":
+    "Étape 1 accomplie. Tu as collecté : noix",
+  "/missions/mission-3/step-2/M3_S2_popup-baies.webp":
+    "Étape 2 accomplie. Tu as collecté : des baies comestibles",
+  "/missions/mission-3/step-3/M3_S2_popup-fruits.webp":
+    "Étape 3 accomplie. Tu as collecté : des fruits",
 };
 
 function StepPageContent() {
@@ -219,12 +225,34 @@ function StepPageContent() {
       );
       return;
     }
+    if (step.id === "mission-3-step-1") {
+      setRaftObjectModalImage(
+        "/missions/mission-3/step-1/M3_S1_popup-noix.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-3-step-2") {
+      setRaftObjectModalImage(
+        "/missions/mission-3/step-2/M3_S2_popup-baies.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-3-step-3") {
+      setRaftObjectModalImage(
+        "/missions/mission-3/step-3/M3_S2_popup-fruits.webp",
+      );
+      return;
+    }
     applyStepCompletionAndNavigate();
   };
 
   const handleRaftObjectModalClose = () => {
     setRaftObjectModalImage(null);
-    if (step?.id === "mission-1-step-3" || step?.id === "mission-2-step-3") {
+    if (
+      step?.id === "mission-1-step-3" ||
+      step?.id === "mission-2-step-3" ||
+      step?.id === "mission-3-step-3"
+    ) {
       setShowMissionCompleteModal(true);
     } else {
       applyStepCompletionAndNavigate();
@@ -1072,6 +1100,11 @@ function StepPageContent() {
       <MissionCompleteModal
         isOpen={showMissionCompleteModal}
         missionId={missionId}
+        completionText={
+          missionId === "mission-3"
+            ? "Grâce à tout ce que\nj’ai collecté dans le bosquet,\nj’ai pu faire le plein de\nnourriture pour mon radeau !"
+            : undefined
+        }
         onJournalClick={handleMissionCompleteJournal}
         onRaftClick={handleMissionCompleteRaft}
         onMapClick={handleMissionCompleteMap}

@@ -30,12 +30,12 @@ import type { MissionId } from "@/types/mission";
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-1": "L'épave de l'avion",
   "mission-2": "Dans la forêt",
-  "mission-3": "Mission 3",
+  "mission-3": "Le bosquet",
   "mission-4": "Mission 4",
   "mission-5": "Mission 5",
 };
 
-const DEVELOPED_MISSIONS = new Set<string>(["mission-1", "mission-2"]);
+const DEVELOPED_MISSIONS = new Set<string>(["mission-1", "mission-2", "mission-3"]);
 
 function HomeContent() {
   const router = useRouter();

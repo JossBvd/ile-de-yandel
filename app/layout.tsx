@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Baloo_2, Covered_By_Your_Grace } from "next/font/google";
+import { Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
@@ -9,12 +9,6 @@ const baloo = Baloo_2({
   variable: "--font-baloo",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-const coveredByYourGrace = Covered_By_Your_Grace({
-  variable: "--font-covered",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -56,7 +50,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${baloo.variable} ${coveredByYourGrace.variable} antialiased`}
+        className={`${baloo.variable} antialiased`}
         style={{
           margin: 0,
           padding: 0,

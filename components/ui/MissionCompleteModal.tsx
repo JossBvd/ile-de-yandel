@@ -73,7 +73,9 @@ export function MissionCompleteModal({
     completionText ??
     (missionId === "mission-2"
       ? "Grâce à tout ce que j’ai collecté dans la forêt, je vais pouvoir fabriquer une hache et collecter les rondins pour mon radeau !"
-      : "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !");
+      : missionId === "mission-3"
+        ? "Grâce à tout ce que j’ai collecté dans le bosquet, j’ai pu faire le plein de nourriture pour mon radeau !"
+        : "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !");
 
   return (
     <div
@@ -220,7 +222,7 @@ export function MissionCompleteModal({
 
                 <p
                   id="mission-complete-desc"
-                  className="font-display leading-relaxed wrap-break-word text-center"
+                  className="font-display leading-relaxed wrap-break-word text-center whitespace-pre-line"
                   style={{
                     color: "#1a1a1a",
                     fontSize: isSmallScreen

@@ -36,6 +36,42 @@ const STEP3_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
     "Indice: feuilles mortes et écorces",
   "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp":
     "Indice: terre ou paille, plus dense",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-01.webp":
+    "Indice de l'image un.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-02.webp":
+    "Indice de l'image deux.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-03.webp":
+    "Indice de l'image trois.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-04.webp":
+    "Indice de l'image quatre.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-05.webp":
+    "Indice de l'image cinq.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-06.webp":
+    "Indice de l'image six.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-07.webp":
+    "Indice de l'image sept.",
+  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-08.webp":
+    "Indice de l'image huit.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-01.webp":
+    "Indice baie un.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-02.webp":
+    "Indice baie deux.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-03.webp":
+    "Indice baie trois.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-04.webp":
+    "Indice baie quatre.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-05.webp":
+    "Indice baie cinq.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-06.webp":
+    "Indice baie six.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-07.webp":
+    "Indice baie sept.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-08.webp":
+    "Indice baie huit.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-09.webp":
+    "Indice baie neuf.",
+  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-10.webp":
+    "Indice baie dix.",
 };
 
 interface DraggableImageProps {
@@ -188,6 +224,7 @@ export function DragOrderImagesGame({
   const game = step.game as DragOrderImagesGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
   const isMission2Step2 = step.id === "mission-2-step-2";
+  const isMission3Step2 = step.id === "mission-3-step-2";
   const [slots, setSlots] = useState<(string | null)[]>(
     Array(game.slotsCount).fill(null),
   );
@@ -230,6 +267,12 @@ export function DragOrderImagesGame({
         : isMediumScreen
           ? 100
           : 112
+      : isMission3Step2
+        ? isSmallScreen
+          ? 82
+          : isMediumScreen
+            ? 90
+            : 98
       : isSmallScreen
         ? 100
         : isMediumScreen
@@ -358,7 +401,7 @@ export function DragOrderImagesGame({
 
   const handleSubmit = () => {
     const correctSet = new Set(game.correctOrder);
-    const strictOrder = game.correctOrder.length === game.slotsCount;
+    const strictOrder = game.enforceOrder ?? game.correctOrder.length === game.slotsCount;
     const newLockedSlots = [...lockedSlots];
     const newSlots = [...slots];
 
@@ -454,8 +497,16 @@ export function DragOrderImagesGame({
           style={{ gap: isMobileOrTablet ? 8 : 12 }}
         >
           <div
-            className="w-full flex flex-wrap justify-center items-center shrink-0"
-            style={{ gap: gapImages }}
+            className={
+              isMission3Step2
+                ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
+                : "w-full flex flex-wrap justify-center items-center shrink-0"
+            }
+            style={{
+              gap: gapImages,
+              maxWidth: isMission3Step2 ? imageSize * 5 + gapImages * 4 : undefined,
+              margin: isMission3Step2 ? "0 auto" : undefined,
+            }}
           >
             {game.sourceImages.map((image) => (
               <DraggableImage
@@ -562,8 +613,16 @@ export function DragOrderImagesGame({
               style={{ gap: isMobileOrTablet ? 8 : 12 }}
             >
               <div
-                className="w-full flex flex-wrap justify-center items-center shrink-0"
-                style={{ gap: gapImages }}
+                className={
+                  isMission3Step2
+                    ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
+                    : "w-full flex flex-wrap justify-center items-center shrink-0"
+                }
+                style={{
+                  gap: gapImages,
+                  maxWidth: isMission3Step2 ? imageSize * 5 + gapImages * 4 : undefined,
+                  margin: isMission3Step2 ? "0 auto" : undefined,
+                }}
               >
                 {game.sourceImages.map((img) => (
                   <div

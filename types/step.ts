@@ -74,8 +74,10 @@ export interface DragSortGameData {
 
 export interface DragSelectImageGameData {
   type: "drag-select-image";
+  text?: string;
   images: ImageOption[];
   correctImages: string[];
+  maxSelections?: number;
 }
 
 export interface BasketFillGameData {
@@ -102,6 +104,7 @@ export interface DragOrderImagesGameData {
   sourceImages: ImageOption[];
   correctOrder: string[];
   slotsCount: number;
+  enforceOrder?: boolean;
 }
 
 export interface PhotosynthesisAtomsGameData {

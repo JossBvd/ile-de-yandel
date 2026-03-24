@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-baloo), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-covered), cursive;
+  --font-display: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   --color-orange-300: #fbbf77;
   --color-orange-400: #f9a855;
@@ -48,7 +48,8 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-covered), cursive;
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 /* Prévention du scroll sur mobile - uniquement sur les pages de jeu */

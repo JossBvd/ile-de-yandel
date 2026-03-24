@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Step, EnigmaGameData } from "@/types/step";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -30,17 +30,80 @@ export function EnigmaGame({
   const [answer, setAnswer] = useState("");
   const [hasError, setHasError] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
+  const [decodedLetters, setDecodedLetters] = useState<string[]>(
+    Array(10).fill(""),
+  );
+  const [lockedDecodedLetters, setLockedDecodedLetters] = useState<boolean[]>(
+    Array(10).fill(false),
+  );
+  const decodedInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const isStep1 = step.id.endsWith("-step-1");
   const isMission2Step1 = step.id === "mission-2-step-1";
+  const isMission3Step3 = step.id === "mission-3-step-3";
+  const mission3Step3DecodeImages = [
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-01.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-02.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-03.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-04.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-05.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-06.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-07.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-08.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-09.webp",
+    "/missions/mission-3/step-3/M3_S3_lettres-decodage-10.webp",
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const normalizedAnswer = answer.trim().toLowerCase();
-    const normalizedCorrect = game.correctAnswer.trim().toLowerCase();
+    const normalize = (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    const normalizedAnswer = normalize(answer);
+    const normalizedCorrect = normalize(game.correctAnswer);
 
     if (normalizedAnswer === normalizedCorrect) {
+      setHasError(false);
+      setShowRedFlash(false);
+      logDebug("✅ Réponse correcte !");
+      onComplete();
+    } else {
+      logDebug("❌ Mauvaise réponse");
+      setHasError(true);
+      setShowRedFlash(true);
+    }
+  };
+
+  const handleDecodedSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const normalize = (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    const normalizedCorrect = normalize(game.correctAnswer);
+    const nextLocked = lockedDecodedLetters.map((locked, index) => {
+      if (locked) return true;
+      const normalizedLetter = normalize(decodedLetters[index] ?? "");
+      const expectedLetter = normalizedCorrect[index] ?? "";
+      return normalizedLetter === expectedLetter;
+    });
+
+    const nextLetters = decodedLetters.map((letter, index) =>
+      nextLocked[index] ? letter : "",
+    );
+    setLockedDecodedLetters(nextLocked);
+    setDecodedLetters(nextLetters);
+
+    const isAllCorrect = nextLetters.every((letter) => letter !== "");
+    if (isAllCorrect) {
       setHasError(false);
       setShowRedFlash(false);
       logDebug("✅ Réponse correcte !");
@@ -62,6 +125,272 @@ export function EnigmaGame({
     setAnswer(e.target.value);
     if (hasError) setHasError(false);
   };
+
+  const handleDecodedLetterChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (lockedDecodedLetters[index]) return;
+    const value = e.target.value.slice(-1);
+    setDecodedLetters((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+    if (hasError) setHasError(false);
+
+    if (value && index < decodedLetters.length - 1) {
+      decodedInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleDecodedLetterKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (lockedDecodedLetters[index]) return;
+    if (e.key === "Backspace" && !decodedLetters[index] && index > 0) {
+      decodedInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  if (isMission3Step3) {
+    return (
+      <>
+        <div
+          aria-hidden
+          className={`fixed inset-0 z-100 pointer-events-none transition-opacity duration-150 ${
+            showRedFlash ? "opacity-100" : "opacity-0"
+          }`}
+          style={{
+            background: "rgba(180, 0, 0, 0.35)",
+            boxShadow: "inset 0 0 80px 20px rgba(200, 0, 0, 0.2)",
+          }}
+        />
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+          style={{
+            padding: isSmallScreen
+              ? "8px"
+              : isMediumScreen
+                ? "12px"
+                : isDesktopSmall
+                  ? "16px"
+                  : "24px",
+          }}
+        >
+          <div
+            className="flex flex-col items-center justify-center pointer-events-auto"
+            style={{
+              gap: isSmallScreen ? "10px" : isMediumScreen ? "12px" : "16px",
+              width: isSmallScreen ? "90%" : isMediumScreen ? "84%" : "78%",
+              maxWidth: isSmallScreen ? "90%" : isMediumScreen ? "84%" : "78%",
+            }}
+          >
+            {questionContainerVisible && (
+              <div
+                className="rounded-[1.25rem] flex flex-col pointer-events-auto border border-amber-900/50 bg-[#f5f0e6] bg-auto bg-center bg-no-repeat w-full"
+                style={{
+                  backgroundImage: "url(/backgrounds/paper_texture.webp)",
+                  boxShadow:
+                    "0 2px 12px rgba(0,0,0,0.12), 0 0 0 1px rgba(139,90,43,0.2)",
+                  padding: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "14px"
+                      : "16px"
+                    : isDesktopSmall
+                      ? "18px"
+                      : isDesktopMedium
+                        ? "22px"
+                        : "26px",
+                }}
+                role="region"
+                aria-label="Énoncé de l'énigme"
+              >
+                <div className="flex flex-row items-start gap-2 w-full">
+                  <p
+                    className="flex-1 min-w-0 text-gray-800 italic font-display whitespace-pre-line text-center"
+                    style={{
+                      fontSize: isMobileOrTablet
+                        ? isSmallScreen
+                          ? "1.0625rem"
+                          : "1.125rem"
+                        : isDesktopSmall
+                          ? "1.25rem"
+                          : "1.5rem",
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {game.text}
+                  </p>
+                  <ReadAloudButton
+                    text={game.text}
+                    ariaLabel="Lire l'énigme"
+                    className="shrink-0"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div
+              className="rounded-[1.25rem] flex flex-col pointer-events-auto border border-amber-900/50 bg-[#f5f0e6] bg-auto bg-center bg-no-repeat w-full"
+              style={{
+                backgroundImage: "url(/backgrounds/paper_texture.webp)",
+                boxShadow:
+                  "0 2px 12px rgba(0,0,0,0.12), 0 0 0 1px rgba(139,90,43,0.2)",
+                padding: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "12px"
+                    : "14px"
+                  : isDesktopSmall
+                    ? "16px"
+                    : isDesktopMedium
+                      ? "18px"
+                      : "22px",
+                gap: isSmallScreen ? "10px" : isMediumScreen ? "12px" : "16px",
+              }}
+            >
+              <form
+                onSubmit={handleDecodedSubmit}
+                className="flex items-center justify-center"
+                style={{
+                  flexDirection: "row",
+                  gap: isSmallScreen
+                    ? "8px"
+                    : isMediumScreen
+                      ? "12px"
+                      : isDesktopSmall
+                        ? "16px"
+                        : "20px",
+                }}
+                aria-label="Formulaire de réponse à l'énigme"
+              >
+                <div
+                  className="grid grid-cols-10 justify-items-center items-center"
+                  style={{ gap: isSmallScreen ? 4 : 6 }}
+                >
+                  {mission3Step3DecodeImages.map((src, index) => (
+                    <div
+                      key={`decoded-cell-${index}`}
+                      className="flex flex-col items-center"
+                      style={{ gap: isSmallScreen ? 4 : 6 }}
+                    >
+                      <div
+                        className="relative overflow-hidden rounded-md border border-white/50 bg-black/10"
+                        style={{
+                          width: isSmallScreen
+                            ? 42
+                            : isMediumScreen
+                              ? 48
+                              : isDesktopSmall
+                                ? 64
+                                : 72,
+                          height: isSmallScreen
+                            ? 42
+                            : isMediumScreen
+                              ? 48
+                              : isDesktopSmall
+                                ? 64
+                                : 72,
+                        }}
+                        aria-label={`Lettre ${index + 1}`}
+                      >
+                        <Image
+                          src={src}
+                          alt={`Lettre ${index + 1}`}
+                          fill
+                          className="object-contain"
+                          draggable={false}
+                        />
+                      </div>
+                      <input
+                        ref={(node) => {
+                          decodedInputRefs.current[index] = node;
+                        }}
+                        type="text"
+                        inputMode="text"
+                        autoComplete="off"
+                        value={decodedLetters[index]}
+                        onChange={(e) => handleDecodedLetterChange(index, e)}
+                        onKeyDown={(e) => handleDecodedLetterKeyDown(index, e)}
+                        maxLength={1}
+                        disabled={lockedDecodedLetters[index]}
+                        aria-label={`Saisir la lettre ${index + 1}`}
+                        aria-invalid={hasError}
+                        className={`rounded border text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-600 touch-manipulation transition-colors disabled:opacity-100 ${
+                          lockedDecodedLetters[index]
+                            ? "bg-green-100 border-green-600"
+                            : hasError
+                              ? "bg-red-50 border-red-600"
+                              : "bg-white border-gray-800"
+                        }`}
+                        style={{
+                          width: isSmallScreen
+                            ? "36px"
+                            : isMediumScreen
+                              ? "42px"
+                              : isDesktopSmall
+                                ? "58px"
+                                : "64px",
+                          height: isSmallScreen
+                            ? "36px"
+                            : isMediumScreen
+                              ? "42px"
+                              : isDesktopSmall
+                                ? "58px"
+                                : "64px",
+                          fontSize: isSmallScreen
+                            ? "1rem"
+                            : isMediumScreen
+                              ? "1.125rem"
+                              : isDesktopSmall
+                                ? "1.25rem"
+                                : "1.375rem",
+                          textTransform: "uppercase",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="submit"
+                  disabled={decodedLetters.some((letter) => !letter.trim())}
+                  className="shrink-0 rounded-full bg-transparent hover:opacity-90 disabled:cursor-not-allowed transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 touch-manipulation flex items-center justify-center"
+                  aria-label="Envoyer"
+                  style={{
+                    width: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : isDesktopSmall
+                          ? "80px"
+                          : "88px",
+                    height: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : isDesktopSmall
+                          ? "80px"
+                          : "88px",
+                    minWidth: "48px",
+                    minHeight: "48px",
+                  }}
+                >
+                  <Image
+                    src="/ui/icon_bottle_send.webp"
+                    alt=""
+                    width={144}
+                    height={144}
+                    className="w-full h-full object-contain"
+                  />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
