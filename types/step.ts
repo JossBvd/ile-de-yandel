@@ -9,15 +9,18 @@ export type GameType =
   | "drag-select-image"
   | "drag-order-images"
   | "basket-fill"
+  | "basket-weight"
   | "bottle-empty"
   | "image-click"
   | "enigma"
-  | "photosynthesis-atoms";
+  | "photosynthesis-atoms"
+  | "point-click-multi-enigma";
 
 export interface Hint {
   text?: string;
   visualHighlight?: string;
   simplifiedInstruction?: string;
+  image?: string;
 }
 
 export interface QCMOption {
@@ -86,6 +89,23 @@ export interface BasketFillGameData {
   correctItems: string[];
 }
 
+export interface BasketWeightItem {
+  id: string;
+  src: string;
+  alt: string;
+  weightGrams: number;
+  maxUses?: number;
+}
+
+export interface BasketWeightGameData {
+  type: "basket-weight";
+  text?: string;
+  basketImages: string[];
+  initialWeightGrams: number;
+  targetWeightGrams: number;
+  items: BasketWeightItem[];
+}
+
 export interface BottleEmptyGameData {
   type: "bottle-empty";
   items: BottleItem[];
@@ -118,16 +138,32 @@ export interface EnigmaGameData {
   correctAnswer: string;
 }
 
+export interface PointClickMultiEnigmaTarget {
+  x: number;
+  y: number;
+  image: string;
+  readAloudText?: string;
+}
+
+export interface PointClickMultiEnigmaGameData {
+  type: "point-click-multi-enigma";
+  question: string;
+  correctAnswers: string[];
+  targets: PointClickMultiEnigmaTarget[];
+}
+
 export type GameData =
   | QCMGameData
   | DragSortGameData
   | DragSelectImageGameData
   | DragOrderImagesGameData
   | BasketFillGameData
+  | BasketWeightGameData
   | BottleEmptyGameData
   | ImageClickGameData
   | EnigmaGameData
-  | PhotosynthesisAtomsGameData;
+  | PhotosynthesisAtomsGameData
+  | PointClickMultiEnigmaGameData;
 
 export interface BackgroundHintZone {
   x: number;

@@ -213,11 +213,11 @@ export function EnigmaGame({
                     style={{
                       fontSize: isMobileOrTablet
                         ? isSmallScreen
-                          ? "1.0625rem"
-                          : "1.125rem"
+                          ? "1rem"
+                          : "1.0625rem"
                         : isDesktopSmall
-                          ? "1.25rem"
-                          : "1.5rem",
+                          ? "1.125rem"
+                          : "1.375rem",
                       lineHeight: 1.4,
                     }}
                   >
@@ -453,16 +453,25 @@ export function EnigmaGame({
                   >
                     {(() => {
                       const parts = game.text.split(/\n\n/).filter(Boolean);
-                      const textSize = isMobileOrTablet
+                      const textSizeDisplay = isMobileOrTablet
+                        ? isSmallScreen
+                          ? "1rem"
+                          : "1.0625rem"
+                        : isDesktopSmall
+                          ? "1.125rem"
+                          : isDesktopMedium
+                            ? "1.25rem"
+                            : "1.375rem";
+                      const sentenceQuoteDisplay = isMobileOrTablet
                         ? isSmallScreen
                           ? "1.0625rem"
                           : "1.125rem"
                         : isDesktopSmall
-                          ? "1.25rem"
+                          ? "1.125rem"
                           : isDesktopMedium
-                            ? "1.375rem"
-                            : "1.5rem";
-                      const sentenceSize = isMobileOrTablet
+                            ? "1.25rem"
+                            : "1.375rem";
+                      const sentenceBodySize = isMobileOrTablet
                         ? isSmallScreen
                           ? "1.125rem"
                           : "1.1875rem"
@@ -475,7 +484,7 @@ export function EnigmaGame({
                         return (
                           <p
                             className="text-gray-800 italic font-display w-full"
-                            style={{ fontSize: sentenceSize, lineHeight: 1.4 }}
+                            style={{ fontSize: sentenceQuoteDisplay, lineHeight: 1.4 }}
                           >
                             « {game.text} »
                           </p>
@@ -484,7 +493,7 @@ export function EnigmaGame({
                         <>
                           <p
                             className="text-gray-800 leading-tight italic font-display w-full"
-                            style={{ fontSize: textSize, lineHeight: 1.4 }}
+                            style={{ fontSize: textSizeDisplay, lineHeight: 1.4 }}
                           >
                             {parts[0]}
                           </p>
@@ -493,7 +502,7 @@ export function EnigmaGame({
                               key={i}
                               className="text-gray-800 font-semibold leading-tight w-full whitespace-pre-line"
                               style={{
-                                fontSize: sentenceSize,
+                                fontSize: sentenceBodySize,
                                 lineHeight: 1.5,
                               }}
                             >
@@ -722,13 +731,13 @@ export function EnigmaGame({
                         : "1.25rem";
                     const sentenceSize = isMobileOrTablet
                       ? isSmallScreen
-                        ? "1.0625rem"
-                        : "1.125rem"
+                        ? "1rem"
+                        : "1.0625rem"
                       : isDesktopSmall
-                        ? "1.25rem"
+                        ? "1.125rem"
                         : isDesktopMedium
-                          ? "1.375rem"
-                          : "1.5rem";
+                          ? "1.25rem"
+                          : "1.375rem";
                     return hasTwoParts ? (
                       <>
                         <p

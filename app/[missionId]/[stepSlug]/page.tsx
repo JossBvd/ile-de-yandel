@@ -40,6 +40,8 @@ const HINT_IMAGE_READ_ALOUD: Record<string, string> = {
     "Indice: cette casquette est déchirée (é - e)",
   "/missions/mission-1/step-1/M1_S1_popup-indice-04.webp":
     "Indice : ces robes sont déchirées (é-e-s)",
+  "/missions/mission-3/step-3/M3_S3_indice_décodage.webp":
+    "Indice visuel pour l'énigme de décodage.",
 };
 
 const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
@@ -61,6 +63,12 @@ const RAFT_OBJECT_MODAL_READ_ALOUD: Record<string, string> = {
     "Étape 2 accomplie. Tu as collecté : des baies comestibles",
   "/missions/mission-3/step-3/M3_S2_popup-fruits.webp":
     "Étape 3 accomplie. Tu as collecté : des fruits",
+  "/missions/mission-4/step-1/M4_S2_popup-propulsion.webp":
+    "Étape 1 accomplie. Tu as collecté : la propulsion pour ton radeau",
+  "/missions/mission-4/step-2/M4_S2_popup-propulsion.webp":
+    "Étape 2 accomplie. Tu as collecté : les lianes pour ton radeau",
+  "/missions/mission-4/step-3/M4_S3_popup-grappin.webp":
+    "Étape 3 accomplie. Tu as collecté : le grappin pour ton radeau",
 };
 
 function StepPageContent() {
@@ -243,6 +251,24 @@ function StepPageContent() {
       );
       return;
     }
+    if (step.id === "mission-4-step-1") {
+      setRaftObjectModalImage(
+        "/missions/mission-4/step-1/M4_S2_popup-propulsion.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-4-step-2") {
+      setRaftObjectModalImage(
+        "/missions/mission-4/step-2/M4_S2_popup-propulsion.webp",
+      );
+      return;
+    }
+    if (step.id === "mission-4-step-3") {
+      setRaftObjectModalImage(
+        "/missions/mission-4/step-3/M4_S3_popup-grappin.webp",
+      );
+      return;
+    }
     applyStepCompletionAndNavigate();
   };
 
@@ -251,7 +277,8 @@ function StepPageContent() {
     if (
       step?.id === "mission-1-step-3" ||
       step?.id === "mission-2-step-3" ||
-      step?.id === "mission-3-step-3"
+      step?.id === "mission-3-step-3" ||
+      step?.id === "mission-4-step-3"
     ) {
       setShowMissionCompleteModal(true);
     } else {
@@ -424,10 +451,10 @@ function StepPageContent() {
                 className="text-gray-800 italic leading-relaxed whitespace-pre-line font-display"
                 style={{
                   fontSize: isSmallScreen
-                    ? "1.25rem"
+                    ? "1.125rem"
                     : isMediumScreen
-                      ? "1.375rem"
-                      : "1.625rem",
+                      ? "1.25rem"
+                      : "1.5rem",
                   lineHeight: 1.5,
                 }}
               >
@@ -572,12 +599,12 @@ function StepPageContent() {
                 className="text-gray-800 drop-shadow-sm whitespace-nowrap font-display"
                 style={{
                   fontSize: isSmallScreen
-                    ? "1.375rem"
+                    ? "1.25rem"
                     : isMediumScreen
-                      ? "1.5rem"
+                      ? "1.375rem"
                       : isDesktopSmall
-                        ? "1.8125rem"
-                        : "1.875rem",
+                        ? "1.6875rem"
+                        : "1.8125rem",
                 }}
               >
                 Mission {missionNumber}
@@ -586,10 +613,10 @@ function StepPageContent() {
                 className="text-gray-700 opacity-90 font-display"
                 style={{
                   fontSize: isSmallScreen
-                    ? "1.125rem"
+                    ? "1rem"
                     : isMediumScreen
-                      ? "1.25rem"
-                      : "1.375rem",
+                      ? "1.125rem"
+                      : "1.25rem",
                 }}
               >
                 Etape {stepNumber}
@@ -714,6 +741,17 @@ function StepPageContent() {
                 alt="Indice"
                 onClick={() => {
                   if (step.hint) {
+                    if (step.hint.image) {
+                      setHintModal({
+                        x: 50,
+                        y: 50,
+                        radius: 0,
+                        title: "Indice",
+                        hint: step.hint.text || step.hint.simplifiedInstruction || "",
+                        image: step.hint.image,
+                      });
+                      return;
+                    }
                     setGeneralHintModal({
                       title: "Indice",
                       hint:
@@ -924,20 +962,35 @@ function StepPageContent() {
         >
           {hintModal.image && !hintModal.hint ? (
             <div
-              className="relative w-full max-w-4xl"
-              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
+              className="relative w-full max-w-4xl rounded-3xl p-4 shadow-2xl"
+              style={{
+                height: isRotated ? `${height * 0.9}px` : "90dvh",
+                maxHeight: isRotated ? `${height * 0.9}px` : "90dvh",
+              }}
+              onClick={() => setHintModal(null)}
             >
-              <Image
-                src={hintModal.image}
-                alt={hintModal.title ?? "Indice visuel"}
-                width={1200}
-                height={800}
-                className="w-full h-auto object-contain pointer-events-none"
-                style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
-                sizes="(max-width: 640px) 100vw, 80vw"
-              />
               <div
-                className="absolute top-4 right-4 z-10"
+                className="absolute inset-0 rounded-3xl"
+                style={{
+                  backgroundImage: "url(/backgrounds/paper_texture.webp)",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  border: "3px solid #8B4513",
+                }}
+                aria-hidden
+              />
+              <div className="relative z-10 w-full h-full overflow-hidden rounded-2xl">
+                <Image
+                  src={hintModal.image}
+                  alt={hintModal.title ?? "Indice visuel"}
+                  width={1200}
+                  height={800}
+                  className="w-full h-full object-contain pointer-events-none"
+                  sizes="(max-width: 640px) 100vw, 80vw"
+                />
+              </div>
+              <div
+                className="absolute top-6 right-6 z-20"
                 onClick={(e) => e.stopPropagation()}
               >
                 <ReadAloudButton
@@ -1100,11 +1153,7 @@ function StepPageContent() {
       <MissionCompleteModal
         isOpen={showMissionCompleteModal}
         missionId={missionId}
-        completionText={
-          missionId === "mission-3"
-            ? "Grâce à tout ce que\nj’ai collecté dans le bosquet,\nj’ai pu faire le plein de\nnourriture pour mon radeau !"
-            : undefined
-        }
+        completionText={mission?.completionText}
         onJournalClick={handleMissionCompleteJournal}
         onRaftClick={handleMissionCompleteRaft}
         onMapClick={handleMissionCompleteMap}

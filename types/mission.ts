@@ -7,6 +7,7 @@ export interface Mission {
   id: MissionId;
   title: string;
   description?: string;
+  completionText?: string;
   steps: StepId[];
 }
 

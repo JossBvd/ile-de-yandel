@@ -59,7 +59,7 @@ export function StepSidebar({
           <p 
             className="text-gray-800 drop-shadow-sm font-display"
             style={{
-              fontSize: isSmallScreen ? '1.375rem' : isMediumScreen ? '1.5rem' : isDesktopSmall ? '1.8125rem' : '1.875rem',
+              fontSize: isSmallScreen ? '1.25rem' : isMediumScreen ? '1.375rem' : isDesktopSmall ? '1.6875rem' : '1.8125rem',
             }}
           >
             Mission {missionNumber}
@@ -67,7 +67,7 @@ export function StepSidebar({
           <p 
             className="text-gray-700 opacity-90 font-display"
             style={{
-              fontSize: isSmallScreen ? '1.1875rem' : isMediumScreen ? '1.25rem' : isDesktopSmall ? '1.375rem' : '1.375rem',
+              fontSize: isSmallScreen ? '1rem' : isMediumScreen ? '1.125rem' : isDesktopSmall ? '1.25rem' : '1.25rem',
             }}
           >
             Etape {stepNumber}

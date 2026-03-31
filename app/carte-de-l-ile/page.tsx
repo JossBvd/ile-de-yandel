@@ -31,11 +31,16 @@ const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-1": "L'épave de l'avion",
   "mission-2": "Dans la forêt",
   "mission-3": "Le bosquet",
-  "mission-4": "Mission 4",
+  "mission-4": "La forêt\ncôtière",
   "mission-5": "Mission 5",
 };
 
-const DEVELOPED_MISSIONS = new Set<string>(["mission-1", "mission-2", "mission-3"]);
+const DEVELOPED_MISSIONS = new Set<string>([
+  "mission-1",
+  "mission-2",
+  "mission-3",
+  "mission-4",
+]);
 
 function HomeContent() {
   const router = useRouter();
@@ -671,11 +676,11 @@ function HomeContent() {
             </div>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
               <h2 
-                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4 font-display"
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4 font-display whitespace-pre-line"
                 style={{
                   fontSize: isMobileOrTablet
-                    ? (isSmallScreen ? '1.875rem' : isMediumScreen ? '2.125rem' : '2.375rem')
-                    : (isSmallScreen ? '1.625rem' : isMediumScreen ? '2.125rem' : '2.625rem'),
+                    ? (isSmallScreen ? '1.75rem' : isMediumScreen ? '2rem' : '2.25rem')
+                    : (isSmallScreen ? '1.5rem' : isMediumScreen ? '2rem' : '2.5rem'),
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??

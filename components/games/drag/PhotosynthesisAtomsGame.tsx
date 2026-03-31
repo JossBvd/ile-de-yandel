@@ -556,8 +556,8 @@ export function PhotosynthesisAtomsGame({
                         className="text-gray-900 font-display font-bold"
                         style={{ 
                           fontSize: isMobileOrTablet 
-                            ? (isSmallScreen ? "1.1rem" : "1.2rem")
-                            : (isDesktopSmall ? "1.5rem" : "1.85rem"),
+                            ? (isSmallScreen ? "1rem" : "1.125rem")
+                            : (isDesktopSmall ? "1.375rem" : "1.75rem"),
                           paddingRight: isMobileOrTablet ? "1vw" : "0.5rem"
                         }}
                       >
@@ -782,8 +782,8 @@ export function PhotosynthesisAtomsGame({
                         className="text-gray-900 font-display font-bold"
                         style={{ 
                           fontSize: isMobileOrTablet 
-                            ? (isSmallScreen ? "1.1rem" : "1.2rem")
-                            : (isDesktopSmall ? "1.5rem" : "1.85rem"),
+                            ? (isSmallScreen ? "1rem" : "1.125rem")
+                            : (isDesktopSmall ? "1.375rem" : "1.75rem"),
                           paddingRight: isMobileOrTablet ? "1vw" : "0.5rem"
                         }}
                       >

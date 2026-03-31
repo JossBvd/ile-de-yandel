@@ -7,10 +7,12 @@ import { DragSortGame } from "@/components/games/drag/DragSortGame";
 import { DragSelectImageGame } from "@/components/games/drag/DragSelectImageGame";
 import { DragOrderImagesGame } from "@/components/games/drag/DragOrderImagesGame";
 import { BasketFillGame } from "@/components/games/drag/BasketFillGame";
+import { BasketWeightGame } from "@/components/games/drag/BasketWeightGame";
 import { BottleEmptyGame } from "@/components/games/drag/BottleEmptyGame";
 import { ImageClickGame } from "@/components/games/image-click/ImageClickGame";
 import { EnigmaGame } from "@/components/games/enigma/EnigmaGame";
 import { PhotosynthesisAtomsGame } from "@/components/games/drag/PhotosynthesisAtomsGame";
+import { PointClickMultiEnigmaGame } from "@/components/games/enigma/PointClickMultiEnigmaGame";
 
 interface GameRendererProps {
   step: Step;
@@ -67,6 +69,14 @@ export function GameRenderer({
           onDefeat={onDefeat}
         />
       );
+    case "basket-weight":
+      return (
+        <BasketWeightGame
+          step={step}
+          onComplete={onComplete}
+          onDefeat={onDefeat}
+        />
+      );
     case "bottle-empty":
       return (
         <BottleEmptyGame
@@ -95,6 +105,15 @@ export function GameRenderer({
     case "photosynthesis-atoms":
       return (
         <PhotosynthesisAtomsGame
+          step={step}
+          onComplete={onComplete}
+          onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
+        />
+      );
+    case "point-click-multi-enigma":
+      return (
+        <PointClickMultiEnigmaGame
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}

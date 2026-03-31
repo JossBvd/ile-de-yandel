@@ -70,12 +70,7 @@ export function MissionCompleteModal({
 
   const missionNumber = missionId.replace("mission-", "") || "1";
   const effectiveCompletionText =
-    completionText ??
-    (missionId === "mission-2"
-      ? "Grâce à tout ce que j’ai collecté dans la forêt, je vais pouvoir fabriquer une hache et collecter les rondins pour mon radeau !"
-      : missionId === "mission-3"
-        ? "Grâce à tout ce que j’ai collecté dans le bosquet, j’ai pu faire le plein de nourriture pour mon radeau !"
-        : "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !");
+    completionText ?? "Mission accomplie !";
 
   return (
     <div
@@ -226,11 +221,11 @@ export function MissionCompleteModal({
                   style={{
                     color: "#1a1a1a",
                     fontSize: isSmallScreen
-                      ? "1.0625rem"
+                      ? "1rem"
                       : isMediumScreen
-                        ? "1.1875rem"
+                        ? "1.125rem"
                         : isDesktopSmall
-                          ? "1.3125rem"
+                          ? "1.25rem"
                           : "1.5rem",
                   }}
                 >
@@ -365,12 +360,12 @@ export function MissionCompleteModal({
                     style={{
                       color: "#1a1a1a",
                       fontSize: isSmallScreen
-                        ? "0.875rem"
+                        ? "0.8125rem"
                         : isMediumScreen
-                          ? "1rem"
+                          ? "0.9375rem"
                           : isDesktopSmall
-                            ? "1.0625rem"
-                            : "1.0625rem",
+                            ? "1rem"
+                            : "1rem",
                       marginTop: "-4px",
                     }}
                   >
@@ -493,12 +488,12 @@ export function MissionCompleteModal({
                     style={{
                       color: "#1a1a1a",
                       fontSize: isSmallScreen
-                        ? "0.875rem"
+                        ? "0.8125rem"
                         : isMediumScreen
-                          ? "1rem"
+                          ? "0.9375rem"
                           : isDesktopSmall
-                            ? "1.0625rem"
-                            : "1.0625rem",
+                            ? "1rem"
+                            : "1rem",
                       marginTop: "-4px",
                     }}
                   >
@@ -621,12 +616,12 @@ export function MissionCompleteModal({
                     style={{
                       color: "#1a1a1a",
                       fontSize: isSmallScreen
-                        ? "0.875rem"
+                        ? "0.8125rem"
                         : isMediumScreen
-                          ? "1rem"
+                          ? "0.9375rem"
                           : isDesktopSmall
-                            ? "1.0625rem"
-                            : "1.0625rem",
+                            ? "1rem"
+                            : "1rem",
                       marginTop: "-4px",
                     }}
                   >

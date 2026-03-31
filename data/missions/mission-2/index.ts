@@ -13,7 +13,10 @@ export const mission2Steps: Step[] = [
 export const mission2: Mission = {
   id: "mission-2",
   title: "Dans la forêt",
-  description: "Aide Yandel à trouver de quoi fabriquer une hache pour son radeau",
+  description:
+    "Aide Yandel à trouver de quoi fabriquer une hache pour son radeau",
+  completionText:
+    "Grâce à tout ce que j'ai collecté dans la forêt, je vais pouvoir fabriquer une hache et collecter les rondins pour mon radeau !",
   steps: mission2Steps.map((step) => step.id),
 };
 

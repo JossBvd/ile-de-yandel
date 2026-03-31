@@ -2,19 +2,36 @@ import { Step } from "@/types/step";
 
 export const mission4Step3: Step = {
   id: "mission-4-step-3",
-  title: "Mission 4 - Step 3",
-  instruction: "Sélectionnez la bonne réponse",
-  narrative: "À définir avec le client",
+  title: "La meilleure liane",
+  instruction:
+    "Explore la zone pour retrouver le nom de la meilleure plante pour faire des lianes",
   raftPiece: "piece-4-3",
-  backgroundImage: "/backgrounds/paper_texture.webp",
+  backgroundImage:
+    "/missions/mission-4/step-3/M4_background_pointclic-02.webp",
   game: {
-    type: "qcm",
-    question: "Question placeholder pour Mission 4 - Step 3",
-    options: [
-      { id: "1", text: "Réponse A" },
-      { id: "2", text: "Réponse B" },
-      { id: "3", text: "Réponse C" },
+    type: "point-click-multi-enigma",
+    question:
+      "Explore la zone pour retrouver le nom\nde la meilleure plante pour faire des lianes",
+    correctAnswers: ["RO", "T", "IN"],
+    targets: [
+      {
+        x: 5,
+        y: 40,
+        image: "/missions/mission-4/step-3/M4_S3_popup-indice-01.webp",
+        readAloudText: "Indice 1 : ro -",
+      },
+      {
+        x: 80,
+        y: 53,
+        image: "/missions/mission-4/step-3/M4_S3_popup-indice-02.webp",
+        readAloudText: "Indice 2 : - t -",
+      },
+      {
+        x: 65,
+        y: 90,
+        image: "/missions/mission-4/step-3/M4_S3_popup-indice-03.webp",
+        readAloudText: "Indice 3 : - in",
+      },
     ],
-    correctAnswers: [0],
   },
 };

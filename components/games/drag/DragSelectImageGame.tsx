@@ -40,10 +40,11 @@ export function DragSelectImageGame({
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } =
     useResponsive();
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [lockedImages, setLockedImages] = useState<string[]>([]);
   const [infoModalImageUrl, setInfoModalImageUrl] = useState<string | null>(null);
 
   const maxSelections = game.maxSelections ?? game.correctImages.length;
-  const canSubmit = selectedImages.length === maxSelections;
+  const canSubmit = selectedImages.length > 0;
 
   const imageSize = isMobileOrTablet
     ? isSmallScreen
@@ -66,6 +67,10 @@ export function DragSelectImageGame({
       : "20px";
 
   const toggleImage = (imageId: string) => {
+    if (lockedImages.includes(imageId)) {
+      return;
+    }
+
     setSelectedImages((prev) => {
       if (prev.includes(imageId)) {
         return prev.filter((id) => id !== imageId);
@@ -79,18 +84,16 @@ export function DragSelectImageGame({
 
   const handleSubmit = () => {
     const correctSet = new Set(game.correctImages);
-    const selectedSet = new Set(selectedImages);
-    const isCorrect =
-      selectedSet.size === correctSet.size &&
-      [...selectedSet].every((id) => correctSet.has(id));
+    const newlyValidated = selectedImages.filter((id) => correctSet.has(id));
+    const updatedLocked = Array.from(new Set([...lockedImages, ...newlyValidated]));
+    const hasCompletedAllCorrect = updatedLocked.length === correctSet.size;
 
-    if (isCorrect) {
+    setLockedImages(updatedLocked);
+    setSelectedImages(updatedLocked);
+
+    if (hasCompletedAllCorrect) {
       onComplete();
-      return;
     }
-
-    // Conserver uniquement les bonnes réponses déjà trouvées.
-    setSelectedImages((prev) => prev.filter((id) => correctSet.has(id)));
   };
 
   return (
@@ -107,7 +110,7 @@ export function DragSelectImageGame({
           <h2
             className="text-center text-gray-900 uppercase tracking-wide font-display"
             style={{
-              fontSize: isMobileOrTablet ? (isSmallScreen ? "1.125rem" : "1.25rem") : "1.625rem",
+              fontSize: isMobileOrTablet ? (isSmallScreen ? "1rem" : "1.125rem") : "1.5rem",
               marginBottom: isSmallScreen ? "4px" : "6px",
               lineHeight: 1.25,
             }}
@@ -143,7 +146,11 @@ export function DragSelectImageGame({
               maxWidth: imageSize * 4 + (isMobileOrTablet ? 8 : 12) * 3,
             }}
           >
-            {game.images.map((image) => (
+            {game.images.map((image) => {
+              const isLocked = lockedImages.includes(image.id);
+              const isSelected = selectedImages.includes(image.id);
+
+              return (
               <div
                 key={image.id}
                 onClick={() => toggleImage(image.id)}
@@ -153,10 +160,12 @@ export function DragSelectImageGame({
                     toggleImage(image.id);
                   }
                 }}
-                className={`relative rounded-lg overflow-hidden border-2 transition-all touch-manipulation ${
-                  selectedImages.includes(image.id)
-                    ? "border-yellow-400 shadow-[0_0_0_3px_rgba(250,204,21,0.35)]"
-                    : "border-white/70"
+                className={`relative rounded-lg overflow-hidden border-[3px] transition-all touch-manipulation ${
+                  isLocked
+                    ? "border-green-400 shadow-[0_0_0_4px_rgba(34,197,94,0.5)]"
+                    : isSelected
+                    ? "border-yellow-300 shadow-[0_0_0_4px_rgba(250,204,21,0.55)]"
+                    : "border-white/80"
                 }`}
                 style={{ width: imageSize, height: imageSize }}
                 role="button"
@@ -167,9 +176,33 @@ export function DragSelectImageGame({
                   src={image.src}
                   alt={image.alt}
                   fill
-                  className="object-cover"
+                  className={`object-cover transition-all ${
+                    isLocked
+                      ? "brightness-[0.9] saturate-[1.15]"
+                      : isSelected
+                      ? "brightness-[1.05]"
+                      : ""
+                  }`}
                   draggable={false}
                 />
+                {isLocked && (
+                  <div className="absolute inset-0 bg-green-500/30 pointer-events-none" />
+                )}
+                {isSelected && !isLocked && (
+                  <div className="absolute inset-0 bg-yellow-400/25 pointer-events-none" />
+                )}
+                {isSelected && (
+                  <div
+                    className={`absolute top-1 left-1 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 ${
+                      isLocked
+                        ? "bg-green-500 border-green-200"
+                        : "bg-yellow-400 border-yellow-100"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                )}
                 {image.infoImage && (
                   <button
                     type="button"
@@ -184,7 +217,7 @@ export function DragSelectImageGame({
                   </button>
                 )}
               </div>
-            ))}
+            )})}
           </div>
             <button
               onClick={handleSubmit}

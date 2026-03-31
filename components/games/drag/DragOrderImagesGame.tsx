@@ -318,8 +318,8 @@ export function DragOrderImagesGame({
         ? 112
         : 120;
   const questionTitleSize = isMobileOrTablet
-    ? (isSmallScreen ? "1.0625rem" : "1.25rem")
-    : (isDesktopSmall ? "1.375rem" : isDesktopMedium ? "1.625rem" : "1.875rem");
+    ? (isSmallScreen ? "1rem" : "1.125rem")
+    : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.75rem");
   const questionTextSize = isMobileOrTablet
     ? isMission2Step2
       ? isSmallScreen
