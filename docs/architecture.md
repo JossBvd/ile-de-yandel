@@ -47,13 +47,23 @@ public/                 # Assets statiques (missions, ui, backgrounds, raft…)
 
 | Route | Rôle |
 |-------|------|
-| `/` | Accueil / pseudo joueur. |
+| `/` | Accueil / pseudo joueur + **workflow intro accessibilité** (voir ci-dessous). |
 | `/carte-de-l-ile` | Carte des missions. |
 | `/[missionId]/[stepSlug]` | **Écran principal d’un step** (mini-jeu + barre latérale + modales). Slug dérivé de l’id du step (`mission-x-step-y` → `step-y`). |
 | `/journal-de-bord` | Journal narrative. |
 | `/radeau` | Assemblage / fusion des pièces. |
 
 La navigation canonique des steps passe par `lib/navigation.ts` (`getStepPath`, validation des slugs par rapport aux données `MISSIONS`).
+
+### Workflow intro accessibilité + narration
+
+Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflowDone === false` :
+
+1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — *"Veux-tu activer l'audiodescription ?"* → choix enregistré dans `audioDescriptionStore`.
+2. **Écran DYS** : même composant (acronym="DYS") — *"Veux-tu activer l'aide à la lecture ?"* → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`.
+3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yandel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
+
+Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
 
 ---
 
@@ -98,10 +108,13 @@ Les stores et les pages appellent ces fonctions plutôt que de dupliquer la logi
 | `gameStore` | Steps complétés, mission courante, missions terminées (clé `lib/constants.ts`). |
 | `inventoryStore` | Pièces du radeau collectées. |
 | `hintStore` | Indices utilisés (si applicable). |
-| `audioDescriptionStore` | Préférences description audio. |
+| `audioDescriptionStore` | Préférences description audio (`audioDescriptionEnabled`, `audioDescriptionFirstVisitDone`, `autoPlay`, `speed`). Expose `reset()`. |
+| `readingAidStore` | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`. |
 | `uiStore` | État UI transverse. |
 
 Persistance via middleware `persist` ; les noms de clés `localStorage` sont centralisés dans `lib/constants.ts`.
+
+**Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
 
 ---
 
@@ -146,6 +159,14 @@ Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndColli
 ### 7.4 `components/ui/` — transverse
 
 Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `DefeatModal`, `MissionCompleteModal`, légales…), **accessibilité** (`ReadAloudButton`, `AudioDescriptionProvider`, `SkipLink`, `AudioDescriptionButton`), **PWA** (`PWAInstallPrompt`), barre de progression, etc.
+
+Composants d'accessibilité intro :
+
+| Composant | Responsabilité |
+|-----------|----------------|
+| **`IntroAccessibilityChoiceModal`** | Modal générique Oui/Non utilisée pour les 2 écrans du workflow intro (AD puis DYS). Props : `acronym` ("AD" \| "DYS"), `question`, `onYes`, `onNo`. Fond parchemin, titre grand, boutons orange. |
+| **`IntroNarrativeScreen`** | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yandel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
+| **`ReadingAidEffect`** | Composant sans rendu (`null`) monté dans le layout. Ajoute/retire la classe `reading-aid-enabled` sur `<html>` selon `readingAidStore.readingAidEnabled`. |
 
 ---
 

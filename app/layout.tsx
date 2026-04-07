@@ -1,12 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Baloo_2 } from "next/font/google";
+import { Baloo_2, Lexend } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
 import { SkipLink } from "@/components/ui/SkipLink";
+import { ReadingAidEffect } from "@/components/ui/ReadingAidEffect";
 
 const baloo = Baloo_2({
   variable: "--font-baloo",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const lexend = Lexend({
+  variable: "--font-reading-aid",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -50,7 +57,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${baloo.variable} antialiased`}
+        className={`${baloo.variable} ${lexend.variable} antialiased`}
         style={{
           margin: 0,
           padding: 0,
@@ -59,6 +66,7 @@ export default function RootLayout({
         }}
       >
         <AudioDescriptionProvider>
+          <ReadingAidEffect />
           <SkipLink />
           {children}
           <PWAInstallPrompt />

@@ -52,6 +52,18 @@ body {
   font-weight: 700;
 }
 
+html.reading-aid-enabled *,
+html.reading-aid-enabled *::before,
+html.reading-aid-enabled *::after {
+  font-family: var(--font-reading-aid), Arial, Helvetica, sans-serif !important;
+}
+
+html.reading-aid-enabled body {
+  letter-spacing: 0.03em;
+  line-height: 1.6;
+  word-spacing: 0.1em;
+}
+
 /* Prévention du scroll sur mobile - uniquement sur les pages de jeu */
 @media (max-width: 1024px) {
   html {
