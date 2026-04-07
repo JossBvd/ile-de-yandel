@@ -15,12 +15,11 @@ function sanitizePseudo(input: string): string {
     .substring(0, 20);
 }
 
-function WelcomeContent() {
+function WelcomeContent({ onNarrativeStart }: { onNarrativeStart: () => void }) {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
   const [showAudioChoice, setShowAudioChoice] = useState(false);
   const [showReadingAidChoice, setShowReadingAidChoice] = useState(false);
-  const [showIntroNarrative, setShowIntroNarrative] = useState(false);
   const { setFirstVisitChoice: setAudioFirstVisitChoice } = useAudioDescriptionStore();
   const {
     introWorkflowDone,
@@ -126,29 +125,34 @@ function WelcomeContent() {
           setReadingAidFirstVisitChoice(true);
           setIntroWorkflowDone(true);
           setShowReadingAidChoice(false);
-          setShowIntroNarrative(true);
+          onNarrativeStart();
         }}
         onNo={() => {
           setReadingAidFirstVisitChoice(false);
           setIntroWorkflowDone(true);
           setShowReadingAidChoice(false);
-          setShowIntroNarrative(true);
+          onNarrativeStart();
         }}
       />
-
-      {showIntroNarrative && (
-        <IntroNarrativeScreen
-          onComplete={() => router.push("/carte-de-l-ile")}
-        />
-      )}
     </div>
   );
 }
 
 export default function WelcomePage() {
+  const router = useRouter();
+  const [showIntroNarrative, setShowIntroNarrative] = useState(false);
+
+  if (showIntroNarrative) {
+    return (
+      <OrientationGuard>
+        <IntroNarrativeScreen onComplete={() => router.push("/carte-de-l-ile")} />
+      </OrientationGuard>
+    );
+  }
+
   return (
     <OrientationGuard allowPortrait>
-      <WelcomeContent />
+      <WelcomeContent onNarrativeStart={() => setShowIntroNarrative(true)} />
     </OrientationGuard>
   );
 }

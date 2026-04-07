@@ -60,10 +60,26 @@ La navigation canonique des steps passe par `lib/navigation.ts` (`getStepPath`, 
 Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflowDone === false` :
 
 1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — *"Veux-tu activer l'audiodescription ?"* → choix enregistré dans `audioDescriptionStore`.
-2. **Écran DYS** : même composant (acronym="DYS") — *"Veux-tu activer l'aide à la lecture ?"* → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`.
+2. **Écran DYS** : même composant (acronym="DYS") — *"Veux-tu activer l'aide à la lecture ?"* → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
 3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yandel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
 
 Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
+
+#### Structure de `WelcomePage` (`app/page.tsx`)
+
+`WelcomePage` gère l'état `showIntroNarrative` et rend **deux branches distinctes** avec des `OrientationGuard` différents :
+
+```
+showIntroNarrative === false
+  └── OrientationGuard allowPortrait   ← portrait autorisé (saisie du pseudo)
+        └── WelcomeContent             ← prop onNarrativeStart → setShowIntroNarrative(true)
+
+showIntroNarrative === true
+  └── OrientationGuard                 ← paysage obligatoire (overlay bloquant si portrait)
+        └── IntroNarrativeScreen       ← prop onComplete → router.push("/carte-de-l-ile")
+```
+
+Ce découpage garantit que dès la validation DYS, l'overlay "mode paysage requis" s'active exactement comme sur les pages de jeu.
 
 ---
 
