@@ -30,29 +30,21 @@ export function EnigmaGame({
   const [answer, setAnswer] = useState("");
   const [hasError, setHasError] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
-  const [decodedLetters, setDecodedLetters] = useState<string[]>(
-    Array(10).fill(""),
+  const decodeLetterImages = game.decodeLetterImages ?? [];
+  const isLetterDecode =
+    game.layout === "letter-decode" && decodeLetterImages.length > 0;
+  const isStackedLayout = game.layout === "stacked";
+  const hasBackgroundHintZones = Boolean(
+    step.backgroundHintZones && step.backgroundHintZones.length > 0,
+  );
+  const letterCount = isLetterDecode ? decodeLetterImages.length : 0;
+  const [decodedLetters, setDecodedLetters] = useState<string[]>(() =>
+    letterCount > 0 ? Array(letterCount).fill("") : [],
   );
   const [lockedDecodedLetters, setLockedDecodedLetters] = useState<boolean[]>(
-    Array(10).fill(false),
+    () => (letterCount > 0 ? Array(letterCount).fill(false) : []),
   );
   const decodedInputRefs = useRef<Array<HTMLInputElement | null>>([]);
-
-  const isStep1 = step.id.endsWith("-step-1");
-  const isMission2Step1 = step.id === "mission-2-step-1";
-  const isMission3Step3 = step.id === "mission-3-step-3";
-  const mission3Step3DecodeImages = [
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-01.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-02.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-03.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-04.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-05.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-06.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-07.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-08.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-09.webp",
-    "/missions/mission-3/step-3/M3_S3_lettres-decodage-10.webp",
-  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +146,7 @@ export function EnigmaGame({
     }
   };
 
-  if (isMission3Step3) {
+  if (isLetterDecode) {
     return (
       <>
         <div
@@ -266,10 +258,13 @@ export function EnigmaGame({
                 aria-label="Formulaire de réponse à l'énigme"
               >
                 <div
-                  className="grid grid-cols-10 justify-items-center items-center"
-                  style={{ gap: isSmallScreen ? 4 : 6 }}
+                  className="grid justify-items-center items-center"
+                  style={{
+                    gap: isSmallScreen ? 4 : 6,
+                    gridTemplateColumns: `repeat(${decodeLetterImages.length}, minmax(0, 1fr))`,
+                  }}
                 >
-                  {mission3Step3DecodeImages.map((src, index) => (
+                  {decodeLetterImages.map((src, index) => (
                     <div
                       key={`decoded-cell-${index}`}
                       className="flex flex-col items-center"
@@ -405,7 +400,7 @@ export function EnigmaGame({
         }}
       />
       {questionContainerVisible &&
-        (isMission2Step1 ? (
+        (isStackedLayout ? (
           <div
             className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
             style={{
@@ -660,9 +655,9 @@ export function EnigmaGame({
                     ? "16px"
                     : "24px",
               maxHeight:
-                isStep1 && isMobileOrTablet
+                hasBackgroundHintZones && isMobileOrTablet
                   ? "24%"
-                  : isStep1
+                  : hasBackgroundHintZones
                     ? "33.333%"
                     : "33vh",
             }}

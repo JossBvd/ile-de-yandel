@@ -11,6 +11,11 @@ Aide-moi à fabriquer le lance-grappin
 et je pourrais aller chercher les plus solides ! »`,
   location: "Sur la plage",
   raftPiece: "piece-4-1",
+  raftObject: {
+    image: "/missions/mission-4/step-1/M4_S2_popup-propulsion.webp",
+    readAloudText:
+      "Étape 1 accomplie. Tu as collecté : la propulsion pour ton radeau",
+  },
   backgroundImage: "/missions/mission-4/step-1/M4_background_playa-02.webp",
   game: {
     type: "qcm",
@@ -23,5 +28,7 @@ et je pourrais aller chercher les plus solides ! »`,
       { id: "D", text: "Celles qui sont\nlourdes" },
     ],
     correctAnswers: [2],
+    twoStepValidation: true,
+    tightDesktopQuestionLayout: true,
   },
 };

@@ -21,6 +21,7 @@ export interface Hint {
   visualHighlight?: string;
   simplifiedInstruction?: string;
   image?: string;
+  readAloudText?: string;
 }
 
 export interface QCMOption {
@@ -40,6 +41,7 @@ export interface ImageOption {
   alt: string;
   info?: string;
   infoImage?: string;
+  readAloudText?: string;
 }
 
 export interface BasketItem {
@@ -67,6 +69,10 @@ export interface QCMGameData {
   question: string;
   options: QCMOption[];
   correctAnswers: number[];
+  /** Sélection puis bouton Valider (ex. mission 1 step 2, mission 4 step 1). */
+  twoStepValidation?: boolean;
+  /** Ajuste ligne hauteur / marge question sur desktop (questions longues). */
+  tightDesktopQuestionLayout?: boolean;
 }
 
 export interface DragSortGameData {
@@ -101,9 +107,12 @@ export interface BasketWeightGameData {
   type: "basket-weight";
   text?: string;
   basketImages: string[];
+  overflowImage?: string;
   initialWeightGrams: number;
   targetWeightGrams: number;
   items: BasketWeightItem[];
+  measurementUnit?: "grams" | "centiliters";
+  resetButtonLabel?: string;
 }
 
 export interface BottleEmptyGameData {
@@ -118,6 +127,11 @@ export interface ImageClickGameData {
   clickableZones: ClickableZone[];
 }
 
+export type DragOrderLayoutVariant =
+  | "standard"
+  | "compact-source"
+  | "grid-5-cols";
+
 export interface DragOrderImagesGameData {
   type: "drag-order-images";
   text?: string;
@@ -125,17 +139,60 @@ export interface DragOrderImagesGameData {
   correctOrder: string[];
   slotsCount: number;
   enforceOrder?: boolean;
+  layoutVariant?: DragOrderLayoutVariant;
+}
+
+export type PhotosynthesisRecipeKey = "water" | "co2" | "light";
+
+export interface PhotosynthesisAtomConfig {
+  id: string;
+  src: string;
+  alt: string;
+}
+
+export interface PhotosynthesisRecipeConfig {
+  key: PhotosynthesisRecipeKey;
+  label: string;
+  speech: string;
+  atomCounts: Record<string, number>;
+}
+
+export interface PhotosynthesisInspectTarget {
+  top: string;
+  left: string;
+  image: string;
+  readAloudText?: string;
+}
+
+export interface PhotosynthesisBarTexts {
+  fusion: string;
+  fusionSpeech: string;
+  inspect: string;
+  inspectSpeech: string;
+}
+
+export interface PhotosynthesisUiAssets {
+  targetIconSrc: string;
 }
 
 export interface PhotosynthesisAtomsGameData {
   type: "photosynthesis-atoms";
   text: string;
+  atoms: PhotosynthesisAtomConfig[];
+  recipes: PhotosynthesisRecipeConfig[];
+  inspectTargets: PhotosynthesisInspectTarget[];
+  ui: PhotosynthesisUiAssets;
+  bar: PhotosynthesisBarTexts;
 }
+
+export type EnigmaLayout = "inline" | "stacked" | "letter-decode";
 
 export interface EnigmaGameData {
   type: "enigma";
   text: string;
   correctAnswer: string;
+  layout?: EnigmaLayout;
+  decodeLetterImages?: string[];
 }
 
 export interface PointClickMultiEnigmaTarget {
@@ -150,6 +207,7 @@ export interface PointClickMultiEnigmaGameData {
   question: string;
   correctAnswers: string[];
   targets: PointClickMultiEnigmaTarget[];
+  targetIconSrc: string;
 }
 
 export type GameData =
@@ -172,6 +230,22 @@ export interface BackgroundHintZone {
   hint: string;
   title?: string;
   image?: string;
+  icon?: string;
+  readAloudText?: string;
+}
+
+export interface StepRaftObject {
+  image: string;
+  readAloudText?: string;
+}
+
+export interface StepCompletionFlags {
+  showMissionModalAfterStep?: boolean;
+}
+
+export interface StepUiConfig {
+  instructionInspectToggle?: boolean;
+  inspectLoupeIcon?: string;
 }
 
 export interface Step {
@@ -181,6 +255,9 @@ export interface Step {
   narrative?: string;
   location?: string;
   raftPiece?: RaftPieceId;
+  raftObject?: StepRaftObject;
+  completion?: StepCompletionFlags;
+  ui?: StepUiConfig;
   backgroundImage?: string;
   backgroundHintZones?: BackgroundHintZone[];
   hint?: Hint;

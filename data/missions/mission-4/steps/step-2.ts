@@ -5,6 +5,11 @@ export const mission4Step2: Step = {
   title: "Le bon poids",
   instruction: "Remplis le panier avec les bonnes lianes",
   raftPiece: "piece-4-2",
+  raftObject: {
+    image: "/missions/mission-4/step-2/M4_S2_popup-propulsion.webp",
+    readAloudText:
+      "Étape 2 accomplie. Tu as collecté : les lianes pour ton radeau",
+  },
   backgroundImage: "/missions/mission-4/step-1/M4_background_playa-02.webp",
   game: {
     type: "basket-weight",

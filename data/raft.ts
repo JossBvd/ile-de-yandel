@@ -1,3 +1,4 @@
+import { ALL_STEPS } from "@/data/missions";
 import { RaftPiece } from "@/types/inventory";
 
 export const RAFT_PIECES: RaftPiece[] = [
@@ -107,6 +108,35 @@ export const RAFT_PIECES: RaftPiece[] = [
     stepId: "mission-5-step-3",
   },
 ];
+
+function validateRaftPiecesAgainstSteps(): void {
+  for (const piece of RAFT_PIECES) {
+    const step = ALL_STEPS.find((s) => s.id === piece.stepId);
+    if (!step) {
+      throw new Error(
+        `Raft: pièce ${piece.id} référence un step inconnu (${piece.stepId}).`,
+      );
+    }
+    if (step.raftPiece !== piece.id) {
+      throw new Error(
+        `Raft: pièce ${piece.id} / step ${step.id} — raftPiece du step (${step.raftPiece}) incohérent.`,
+      );
+    }
+  }
+  for (const step of ALL_STEPS) {
+    if (!step.raftPiece) continue;
+    const piece = RAFT_PIECES.find((p) => p.id === step.raftPiece);
+    if (!piece || piece.stepId !== step.id) {
+      throw new Error(
+        `Raft: step ${step.id} a raftPiece ${step.raftPiece} sans entrée RAFT_PIECES valide.`,
+      );
+    }
+  }
+}
+
+if (process.env.NODE_ENV !== "production") {
+  validateRaftPiecesAgainstSteps();
+}
 
 export function getRaftPieceById(id: string): RaftPiece | undefined {
   return RAFT_PIECES.find((piece) => piece.id === id);

@@ -22,7 +22,12 @@ interface BasketWeightGameProps {
   onDefeat?: () => void;
 }
 
-function formatWeight(grams: number): string {
+function formatWeight(value: number, unit: "grams" | "centiliters"): string {
+  if (unit === "centiliters") {
+    return `${value} cl`;
+  }
+
+  const grams = value;
   if (grams % 1000 === 0) return `${grams / 1000} kg`;
   if (grams >= 1000) {
     const kg = grams / 1000;
@@ -36,7 +41,12 @@ function getBasketImageSrc(
   initialWeight: number,
   targetWeight: number,
   basketImages: string[],
+  overflowImage?: string,
 ): string {
+  if (currentWeight > targetWeight && overflowImage) {
+    return overflowImage;
+  }
+
   const count = basketImages.length;
   if (count === 0) return "";
   if (count === 1) return basketImages[0];
@@ -50,9 +60,15 @@ interface DraggableLianeProps {
   item: BasketWeightItem;
   size: number;
   disabled?: boolean;
+  measurementUnit: "grams" | "centiliters";
 }
 
-function DraggableLiane({ item, size, disabled = false }: DraggableLianeProps) {
+function DraggableLiane({
+  item,
+  size,
+  disabled = false,
+  measurementUnit,
+}: DraggableLianeProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
     disabled,
@@ -69,7 +85,7 @@ function DraggableLiane({ item, size, disabled = false }: DraggableLianeProps) {
           : "cursor-grab active:cursor-grabbing hover:scale-105"
       } ${isDragging ? "opacity-50" : ""}`}
       style={{ width: size, height: size }}
-      aria-label={`${item.alt}, ${formatWeight(item.weightGrams)}`}
+      aria-label={`${item.alt}, ${formatWeight(item.weightGrams, measurementUnit)}`}
     >
       <Image
         src={item.src}
@@ -121,6 +137,7 @@ function DroppableBasket({ basketImageSrc, size }: DroppableBasketProps) {
 
 export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
   const game = step.game as BasketWeightGameData;
+  const measurementUnit = game.measurementUnit ?? "grams";
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
 
@@ -152,6 +169,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
     game.initialWeightGrams,
     game.targetWeightGrams,
     game.basketImages,
+    game.overflowImage,
   );
 
   const itemSize = isMobileOrTablet
@@ -329,6 +347,9 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
 
   return (
     <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      {isExceeded && (
+        <div className="absolute inset-0 z-20 bg-black/55 pointer-events-auto" />
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={collisionDetection}
@@ -336,7 +357,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
         onDragEnd={handleDragEnd}
       >
         <div
-          className="pointer-events-auto flex items-center"
+          className="pointer-events-auto flex items-center relative"
           style={{ gap, paddingLeft: outerLeftPadding }}
         >
           <div className="flex flex-col items-center" style={{ gap: draggableColumnGap }}>
@@ -350,6 +371,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                   item={item}
                   size={itemSize}
                   disabled={isExceeded || isWon || exhausted}
+                  measurementUnit={measurementUnit}
                 />
               );
             })}
@@ -395,7 +417,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                     fontSize: weightTextSize,
                   }}
                 >
-                  {formatWeight(currentWeightGrams)}
+                  {formatWeight(currentWeightGrams, measurementUnit)}
                 </div>
               </div>
 
@@ -443,7 +465,9 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
 
                 <button
                   onClick={resetBasket}
-                  className="mt-2 rounded-xl font-bold text-white shadow-md transition-all active:scale-95 hover:brightness-110"
+                  className={`mt-2 rounded-xl font-bold text-white shadow-md transition-all active:scale-95 hover:brightness-110 relative ${
+                    isExceeded ? "z-30" : ""
+                  }`}
                   style={{
                     backgroundColor: "#F59E0B",
                     padding: "8px 16px",
@@ -451,9 +475,9 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                     minHeight: 44,
                     minWidth: 120,
                   }}
-                  aria-label="Vider le panier"
+                  aria-label={game.resetButtonLabel ?? "Vider le panier"}
                 >
-                  Vider le panier
+                  {game.resetButtonLabel ?? "Vider le panier"}
                 </button>
               </div>
             </div>

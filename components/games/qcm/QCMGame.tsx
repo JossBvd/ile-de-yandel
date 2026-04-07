@@ -26,9 +26,8 @@ export function QCMGame({
   const game = step.game as QCMGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
   const isMultiple = game.correctAnswers.length > 1;
-  const isStep2 =
-    step.id === "mission-1-step-2" || step.id === "mission-4-step-1";
-  const isMission4Step1 = step.id === "mission-4-step-1";
+  const isStep2 = game.twoStepValidation === true;
+  const tightDesktopQuestion = game.tightDesktopQuestionLayout === true;
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showCorrection, setShowCorrection] = useState(false);
@@ -117,7 +116,7 @@ export function QCMGame({
         : "32px";
   const gapMain = isMobileOrTablet
     ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
-    : isMission4Step1
+    : tightDesktopQuestion
       ? (isDesktopSmall ? "12px" : isDesktopMedium ? "14px" : "16px")
       : (isDesktopSmall ? "18px" : isDesktopMedium ? "22px" : "28px");
   const cardPadding = isMobileOrTablet
@@ -132,7 +131,7 @@ export function QCMGame({
         : isMediumScreen
           ? "16px"
           : "20px"
-    : isMission4Step1
+    : tightDesktopQuestion
       ? (isDesktopSmall ? "12px" : isDesktopMedium ? "14px" : "16px")
       : isDesktopSmall
         ? "24px"
@@ -148,7 +147,7 @@ export function QCMGame({
   const questionSize = isMobileOrTablet
     ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem")
     : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.875rem");
-  const titleSizeMission4Desktop = isMission4Step1 && !isMobileOrTablet
+  const titleSizeMission4Desktop = tightDesktopQuestion && !isMobileOrTablet
     ? (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.375rem" : "1.5rem")
     : null;
   const effectiveTitleSize = titleSizeMission4Desktop ?? titleSize;
@@ -212,7 +211,7 @@ export function QCMGame({
               className="font-bold text-gray-900 text-center"
               style={{
                 fontSize: effectiveTitleSize,
-                marginBottom: isMission4Step1 && !isMobileOrTablet
+                marginBottom: tightDesktopQuestion && !isMobileOrTablet
                   ? "6px"
                   : isMobileOrTablet
                     ? (isSmallScreen ? "8px" : isMediumScreen ? "10px" : "12px")
@@ -228,11 +227,11 @@ export function QCMGame({
 
             <p
               className={`text-gray-800 italic text-center whitespace-pre-line max-w-[min(56rem,100%)] mx-auto px-1 ${isStep2 ? "font-display" : ""} ${
-                isMission4Step1 && !isMobileOrTablet ? "leading-snug" : "leading-relaxed"
+                tightDesktopQuestion && !isMobileOrTablet ? "leading-snug" : "leading-relaxed"
               }`}
               style={{
                 fontSize: questionSize,
-                lineHeight: isMission4Step1 && !isMobileOrTablet ? 1.28 : undefined,
+                lineHeight: tightDesktopQuestion && !isMobileOrTablet ? 1.28 : undefined,
               }}
             >
               {game.question}

@@ -6,25 +6,6 @@ import { Step, DragSelectImageGameData } from "@/types/step";
 import { useResponsive } from "@/hooks/useResponsive";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
-const SELECT_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-01.webp":
-    "Indice de l'image un.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-02.webp":
-    "Indice de l'image deux.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-03.webp":
-    "Indice de l'image trois.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-04.webp":
-    "Indice de l'image quatre.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-05.webp":
-    "Indice de l'image cinq.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-06.webp":
-    "Indice de l'image six.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-07.webp":
-    "Indice de l'image sept.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-08.webp":
-    "Indice de l'image huit.",
-};
-
 interface DragSelectImageGameProps {
   step: Step;
   onComplete: () => void;
@@ -268,7 +249,12 @@ export function DragSelectImageGame({
               onClick={(e) => e.stopPropagation()}
             >
               <ReadAloudButton
-                text={SELECT_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"}
+                text={(() => {
+                  const img = game.images.find(
+                    (i) => i.infoImage === infoModalImageUrl,
+                  );
+                  return img?.readAloudText ?? img?.info ?? "Indice";
+                })()}
                 ariaLabel="Lire l'indice"
               />
             </div>

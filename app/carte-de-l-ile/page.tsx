@@ -32,7 +32,7 @@ const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-2": "Dans la forêt",
   "mission-3": "Le bosquet",
   "mission-4": "La forêt\ncôtière",
-  "mission-5": "Mission 5",
+  "mission-5": "Le bosquet",
 };
 
 const DEVELOPED_MISSIONS = new Set<string>([
@@ -40,6 +40,7 @@ const DEVELOPED_MISSIONS = new Set<string>([
   "mission-2",
   "mission-3",
   "mission-4",
+  "mission-5",
 ]);
 
 function HomeContent() {
@@ -149,7 +150,7 @@ function HomeContent() {
     },
     {
       id: "mission-5",
-      available: isMissionUnlocked("mission-4"),
+      available: true,
       positionMobile: {
         top: "78%",
         left: "72%",

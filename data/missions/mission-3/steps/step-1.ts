@@ -3,10 +3,15 @@ import { Step } from "@/types/step";
 export const mission3Step1: Step = {
   id: "mission-3-step-1",
   title: "Exploration",
-  instruction: "Sélectionne les explorateurs qui appartiennent à la Renaissance",
+  instruction:
+    "Sélectionne les explorateurs qui appartiennent à la Renaissance",
   narrative:
     "« Avant de pouvoir rentrer chez moi,\nj’ai besoin de rassembler des vivres !\nAide moi à explorer les environs pour\ntrouver de la nourriture ! »",
   raftPiece: "piece-3-1",
+  raftObject: {
+    image: "/missions/mission-3/step-1/M3_S1_popup-noix.webp",
+    readAloudText: "Étape 1 accomplie. Tu as collecté : noix",
+  },
   backgroundImage: "/missions/mission-3/step-1/M3_background_berries.webp",
   game: {
     type: "drag-select-image",
@@ -18,6 +23,7 @@ export const mission3Step1: Step = {
         alt: "Vascos de gama",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-02.webp",
+        readAloudText: "Indice de l'image deux.",
       },
       {
         id: "img-2",
@@ -25,6 +31,7 @@ export const mission3Step1: Step = {
         alt: "Roald Amundsen",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-01.webp",
+        readAloudText: "Indice de l'image un.",
       },
       {
         id: "img-3",
@@ -32,6 +39,7 @@ export const mission3Step1: Step = {
         alt: "Fernand de Magellan",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-03.webp",
+        readAloudText: "Indice de l'image trois.",
       },
       {
         id: "img-4",
@@ -39,6 +47,7 @@ export const mission3Step1: Step = {
         alt: "David Livingstone",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-06.webp",
+        readAloudText: "Indice de l'image six.",
       },
       {
         id: "img-5",
@@ -46,6 +55,7 @@ export const mission3Step1: Step = {
         alt: "James Cook",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-04.webp",
+        readAloudText: "Indice de l'image quatre.",
       },
       {
         id: "img-6",
@@ -53,6 +63,7 @@ export const mission3Step1: Step = {
         alt: "Christophe Colomb",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-05.webp",
+        readAloudText: "Indice de l'image cinq.",
       },
       {
         id: "img-7",
@@ -60,6 +71,7 @@ export const mission3Step1: Step = {
         alt: "Marco Polo",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-07.webp",
+        readAloudText: "Indice de l'image sept.",
       },
       {
         id: "img-8",
@@ -67,6 +79,7 @@ export const mission3Step1: Step = {
         alt: "Amerigo Vespucci",
         info: "",
         infoImage: "/missions/mission-3/step-1/m3_S1_popup_indice_photos-08.webp",
+        readAloudText: "Indice de l'image huit.",
       },
     ],
     correctImages: ["img-1", "img-3", "img-6", "img-7"],

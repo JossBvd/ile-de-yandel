@@ -7,9 +7,14 @@ export const mission3Step2: Step = {
     "Parmi ces baies, seulement quatre sont comestibles. Retrouve-les pour faire des réserves !",
   narrative: "Yandel doit identifier les baies comestibles pour survivre.",
   raftPiece: "piece-3-2",
+  raftObject: {
+    image: "/missions/mission-3/step-2/M3_S2_popup-baies.webp",
+    readAloudText: "Étape 2 accomplie. Tu as collecté : des baies comestibles",
+  },
   backgroundImage: "/missions/mission-3/step-1/M3_background_berries.webp",
   game: {
     type: "drag-order-images",
+    layoutVariant: "grid-5-cols",
     text: "Parmi ces baies, seulement quatre sont comestibles. Retrouve-les pour faire des réserves !",
     sourceImages: [
       {
@@ -18,6 +23,7 @@ export const mission3Step2: Step = {
         alt: "Laurier Cerise",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-01.webp",
+        readAloudText: "Indice baie un.",
       },
       {
         id: "img-2",
@@ -25,6 +31,7 @@ export const mission3Step2: Step = {
         alt: "Gui",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-02.webp",
+        readAloudText: "Indice baie deux.",
       },
       {
         id: "img-3",
@@ -32,6 +39,7 @@ export const mission3Step2: Step = {
         alt: "Sorbier",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-07.webp",
+        readAloudText: "Indice baie sept.",
       },
       {
         id: "img-4",
@@ -39,6 +47,7 @@ export const mission3Step2: Step = {
         alt: "Belladone",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-10.webp",
+        readAloudText: "Indice baie dix.",
       },
       {
         id: "img-5",
@@ -46,6 +55,7 @@ export const mission3Step2: Step = {
         alt: "Physalis",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-08.webp",
+        readAloudText: "Indice baie huit.",
       },
       {
         id: "img-6",
@@ -53,6 +63,7 @@ export const mission3Step2: Step = {
         alt: "Douce Amère",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-03.webp",
+        readAloudText: "Indice baie trois.",
       },
       {
         id: "img-7",
@@ -60,6 +71,7 @@ export const mission3Step2: Step = {
         alt: "Bryone Dioïque",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-05.webp",
+        readAloudText: "Indice baie cinq.",
       },
       {
         id: "img-8",
@@ -67,6 +79,7 @@ export const mission3Step2: Step = {
         alt: "Baie d'Açaï",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-09.webp",
+        readAloudText: "Indice baie neuf.",
       },
       {
         id: "img-9",
@@ -74,6 +87,7 @@ export const mission3Step2: Step = {
         alt: "Camu Camu",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-04.webp",
+        readAloudText: "Indice baie quatre.",
       },
       {
         id: "img-10",
@@ -81,6 +95,7 @@ export const mission3Step2: Step = {
         alt: "Sureau",
         info: "",
         infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-06.webp",
+        readAloudText: "Indice baie six.",
       },
     ],
     correctOrder: ["img-5", "img-8", "img-9", "img-10"],

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Step, PointClickMultiEnigmaGameData } from "@/types/step";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -20,6 +21,7 @@ export function PointClickMultiEnigmaGame({
   questionContainerVisible = true,
 }: PointClickMultiEnigmaGameProps) {
   const game = step.game as PointClickMultiEnigmaGameData;
+  const { targetIconSrc } = game;
   const {
     isSmallScreen,
     isMediumScreen,
@@ -40,6 +42,15 @@ export function PointClickMultiEnigmaGame({
     const t = setTimeout(() => setShowRedFlash(false), 200);
     return () => clearTimeout(t);
   }, [showRedFlash]);
+
+  useEffect(() => {
+    if (!openPopupImage) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenPopupImage(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [openPopupImage]);
 
   const normalize = (value: string) =>
     value
@@ -92,11 +103,7 @@ export function PointClickMultiEnigmaGame({
         ? "120px"
         : "140px";
 
-  const inputHeight = isSmallScreen
-    ? "38px"
-    : isMediumScreen
-      ? "44px"
-      : "50px";
+  const inputHeight = isSmallScreen ? "38px" : isMediumScreen ? "44px" : "50px";
 
   const inputFontSize = isSmallScreen
     ? "0.875rem"
@@ -155,7 +162,7 @@ export function PointClickMultiEnigmaGame({
           aria-label={`Indice ${index + 1}`}
         >
           <Image
-            src="/missions/mission-4/step-3/M4_S3_target-icon .webp"
+            src={targetIconSrc}
             alt=""
             fill
             className="object-contain"
@@ -211,7 +218,12 @@ export function PointClickMultiEnigmaGame({
             role="region"
             aria-label="Consigne du jeu"
           >
-            <div className="flex flex-col items-center" style={{ gap: isSmallScreen ? "10px" : isMediumScreen ? "12px" : "16px" }}>
+            <div
+              className="flex flex-col items-center"
+              style={{
+                gap: isSmallScreen ? "10px" : isMediumScreen ? "12px" : "16px",
+              }}
+            >
               {/* Question text */}
               <div className="flex flex-row items-start gap-2 w-full">
                 <p
@@ -261,10 +273,7 @@ export function PointClickMultiEnigmaGame({
                         –
                       </span>
                     )}
-                    <label
-                      htmlFor={`m4s3-input-${index}`}
-                      className="sr-only"
-                    >
+                    <label htmlFor={`m4s3-input-${index}`} className="sr-only">
                       Partie {index + 1} de la réponse
                     </label>
                     <input
@@ -319,58 +328,63 @@ export function PointClickMultiEnigmaGame({
         </div>
       )}
 
-      {/* Modal popup indice */}
-      {openPopupImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.75)" }}
-          onClick={() => setOpenPopupImage(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Indice"
-        >
+      {openPopupImage &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            className="relative"
-            style={{
-              maxWidth: "90vw",
-              maxHeight: "90dvh",
-            }}
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-300 flex items-center justify-center cursor-pointer"
+            style={{ background: "rgba(0,0,0,0.75)" }}
+            onClick={() => setOpenPopupImage(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Indice"
           >
-            <Image
-              src={openPopupImage}
-              alt="Indice"
-              width={900}
-              height={600}
-              className="rounded-xl object-contain"
-              style={{ maxWidth: "90vw", maxHeight: "85dvh" }}
-              draggable={false}
-            />
             <div
-              className="absolute"
-              style={{ top: "12px", right: "12px" }}
-              onClick={(e) => e.stopPropagation()}
+              className="relative cursor-default"
+              style={{
+                maxWidth: "90vw",
+                maxHeight: "90dvh",
+              }}
             >
-              <ReadAloudButton
-                text={
-                  game.targets.find((t) => t.image === openPopupImage)
-                    ?.readAloudText ?? "Indice visuel."
-                }
-                ariaLabel="Lire la description de l'indice"
+              <Image
+                src={openPopupImage}
+                alt="Indice"
+                width={900}
+                height={600}
+                className="rounded-xl object-contain pointer-events-none"
+                style={{ maxWidth: "90vw", maxHeight: "85dvh" }}
+                draggable={false}
               />
+              <div
+                className="absolute"
+                style={{ top: "12px", right: "12px" }}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <ReadAloudButton
+                  text={
+                    game.targets.find((t) => t.image === openPopupImage)
+                      ?.readAloudText ?? "Indice visuel."
+                  }
+                  ariaLabel="Lire la description de l'indice"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenPopupImage(null);
+                }}
+                className="absolute top-3 left-3 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white transition-colors touch-manipulation cursor-pointer"
+                style={{ width: "36px", height: "36px", fontSize: "1.125rem" }}
+                aria-label="Fermer l'indice"
+              >
+                ✕
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setOpenPopupImage(null)}
-              className="absolute top-3 left-3 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white transition-colors touch-manipulation"
-              style={{ width: "36px", height: "36px", fontSize: "1.125rem" }}
-              aria-label="Fermer l'indice"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

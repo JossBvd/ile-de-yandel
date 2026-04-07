@@ -6,6 +6,12 @@ export const mission4Step3: Step = {
   instruction:
     "Explore la zone pour retrouver le nom de la meilleure plante pour faire des lianes",
   raftPiece: "piece-4-3",
+  raftObject: {
+    image: "/missions/mission-4/step-3/M4_S3_popup-grappin.webp",
+    readAloudText:
+      "Étape 3 accomplie. Tu as collecté : le grappin pour ton radeau",
+  },
+  completion: { showMissionModalAfterStep: true },
   backgroundImage:
     "/missions/mission-4/step-3/M4_background_pointclic-02.webp",
   game: {
@@ -13,6 +19,7 @@ export const mission4Step3: Step = {
     question:
       "Explore la zone pour retrouver le nom\nde la meilleure plante pour faire des lianes",
     correctAnswers: ["RO", "T", "IN"],
+    targetIconSrc: "/missions/mission-4/step-3/M4_S3_target-icon.webp",
     targets: [
       {
         x: 5,

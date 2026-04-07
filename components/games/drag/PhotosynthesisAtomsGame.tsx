@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
-import { Step } from "@/types/step";
+import { Step, PhotosynthesisAtomsGameData } from "@/types/step";
 import { useResponsive } from "@/hooks/useResponsive";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 import {
@@ -15,22 +15,7 @@ import {
 import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 
-type AtomId =
-  | "atom-1"
-  | "atom-2"
-  | "atom-3"
-  | "atom-4"
-  | "atom-5"
-  | "atom-6";
-
-const M2S3_INSPECT_HINT_READ_ALOUD: Record<string, string> = {
-  "/missions/mission-2/step-3/M2_S3_popup-indice-01.webp":
-    "Cette plante a besoin d'eau",
-  "/missions/mission-2/step-3/M2_S3_popup-indice-02.webp":
-    "Cette plante utilise du dioxyde de carbone",
-  "/missions/mission-2/step-3/M2_S3_popup-indice-03.webp":
-    "La croissance se fait grâce aux photons lumineux",
-};
+const emptySubscribe = () => () => {};
 
 interface PhotosynthesisAtomsGameProps {
   step: Step;
@@ -40,7 +25,7 @@ interface PhotosynthesisAtomsGameProps {
 }
 
 interface AtomImageConfig {
-  id: AtomId;
+  id: string;
   src: string;
   alt: string;
 }
@@ -128,9 +113,14 @@ function DroppableFusionSlot({
 }
 
 export function PhotosynthesisAtomsGame({
+  step,
   questionContainerVisible = true,
   onComplete,
 }: PhotosynthesisAtomsGameProps) {
+  const game = step.game as PhotosynthesisAtomsGameData;
+  const atomImages: AtomImageConfig[] = game.atoms;
+  const atomRowCount = Math.ceil(atomImages.length / 3) || 1;
+
   const {
     isSmallScreen,
     isMediumScreen,
@@ -140,7 +130,11 @@ export function PhotosynthesisAtomsGame({
     height: windowHeight,
   } = useResponsive();
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const paddingEdge = isMobileOrTablet
     ? isSmallScreen
@@ -237,80 +231,22 @@ export function PhotosynthesisAtomsGame({
   const fusionSlotGap = isMobileOrTablet ? "2vw" : "1rem";
   const rightPanelGap = isMobileOrTablet ? "4vh" : "2.5rem";
 
-  const atomImages: AtomImageConfig[] = [
-    {
-      id: "atom-1",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-01.webp",
-      alt: "Atome gris",
-    },
-    {
-      id: "atom-2",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-02.webp",
-      alt: "Atome noir",
-    },
-    {
-      id: "atom-3",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-03.webp",
-      alt: "Atome bleu",
-    },
-    {
-      id: "atom-4",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-04.webp",
-      alt: "Atome jaune",
-    },
-    {
-      id: "atom-5",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-05.webp",
-      alt: "Atome rouge",
-    },
-    {
-      id: "atom-6",
-      src: "/missions/mission-2/step-3/M2_S3_beadsmolecule-06.webp",
-      alt: "Atome violet",
-    },
-  ];
-
-  const [fusionSlots, setFusionSlots] = useState<(AtomId | null)[]>([
+  const [fusionSlots, setFusionSlots] = useState<(string | null)[]>([
     null,
     null,
     null,
   ]);
-  const [completed, setCompleted] = useState({
-    water: false,
-    co2: false,
-    light: false,
-  });
-  const [activeAtomId, setActiveAtomId] = useState<AtomId | null>(null);
+  const [completed, setCompleted] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(game.recipes.map((r) => [r.key, false])),
+  );
+  const [activeAtomId, setActiveAtomId] = useState<string | null>(null);
   const [inspectHintImage, setInspectHintImage] = useState<string | null>(null);
 
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
 
-  useEffect(() => {
-    // eslint-disable-next-line
-    setMounted(true);
-  }, []);
-
-  const recipes: Record<
-    "water" | "co2" | "light",
-    Partial<Record<AtomId, number>>
-  > = {
-    water: {
-      "atom-3": 2,
-      "atom-2": 1,
-    },
-    co2: {
-      "atom-1": 1,
-      "atom-2": 2,
-    },
-    light: {
-      "atom-5": 2,
-      "atom-6": 1,
-    },
-  };
-
   const handleDragStart = (event: { active: { id: string | number } }) => {
-    setActiveAtomId(event.active.id as AtomId);
+    setActiveAtomId(String(event.active.id));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -331,7 +267,7 @@ export function PhotosynthesisAtomsGame({
       return;
     }
 
-    const atomId = active.id as AtomId;
+    const atomId = String(active.id);
 
     setFusionSlots((prev) => {
       const next = [...prev];
@@ -341,20 +277,20 @@ export function PhotosynthesisAtomsGame({
   };
 
   const isRecipeMatch = (
-    selection: AtomId[],
-    recipe: Partial<Record<AtomId, number>>,
+    selection: string[],
+    recipe: Record<string, number>,
   ) => {
     if (selection.length !== 3) {
       return false;
     }
 
-    const counts: Partial<Record<AtomId, number>> = {};
+    const counts: Record<string, number> = {};
     selection.forEach((id) => {
       counts[id] = (counts[id] ?? 0) + 1;
     });
 
-    const recipeKeys = Object.keys(recipe) as AtomId[];
-    const countKeys = Object.keys(counts) as AtomId[];
+    const recipeKeys = Object.keys(recipe);
+    const countKeys = Object.keys(counts);
 
     if (recipeKeys.length !== countKeys.length) {
       return false;
@@ -366,9 +302,7 @@ export function PhotosynthesisAtomsGame({
   };
 
   const handleFusion = () => {
-    const selection = fusionSlots.filter(
-      (id): id is AtomId => id !== null,
-    );
+    const selection = fusionSlots.filter((id): id is string => id !== null);
     if (selection.length !== 3) {
       return;
     }
@@ -376,15 +310,13 @@ export function PhotosynthesisAtomsGame({
     const nextCompleted = { ...completed };
     let matched = false;
 
-    if (!nextCompleted.water && isRecipeMatch(selection, recipes.water)) {
-      nextCompleted.water = true;
-      matched = true;
-    } else if (!nextCompleted.co2 && isRecipeMatch(selection, recipes.co2)) {
-      nextCompleted.co2 = true;
-      matched = true;
-    } else if (!nextCompleted.light && isRecipeMatch(selection, recipes.light)) {
-      nextCompleted.light = true;
-      matched = true;
+    for (const recipe of game.recipes) {
+      if (nextCompleted[recipe.key]) continue;
+      if (isRecipeMatch(selection, recipe.atomCounts)) {
+        nextCompleted[recipe.key] = true;
+        matched = true;
+        break;
+      }
     }
 
     setFusionSlots([null, null, null]);
@@ -395,14 +327,15 @@ export function PhotosynthesisAtomsGame({
 
     setCompleted(nextCompleted);
 
-    if (nextCompleted.water && nextCompleted.co2 && nextCompleted.light) {
+    const allDone = game.recipes.every((r) => nextCompleted[r.key]);
+    if (allDone) {
       setTimeout(() => {
         onComplete();
       }, 500);
     }
   };
 
-  const getAtomById = (id: AtomId | null): AtomImageConfig | null =>
+  const getAtomById = (id: string | null): AtomImageConfig | null =>
     id ? atomImages.find((atom) => atom.id === id) ?? null : null;
 
   const activeAtom =
@@ -437,7 +370,7 @@ export function PhotosynthesisAtomsGame({
                   <div className="flex flex-col px-6"
                     style={{ gap: atomGridGap }}
                   >
-                    {[0, 1].map((rowIndex) => (
+                    {Array.from({ length: atomRowCount }, (_, rowIndex) => (
                       <div
                         key={rowIndex}
                         className="flex justify-center"
@@ -522,12 +455,8 @@ export function PhotosynthesisAtomsGame({
                   gap: rightPanelGap,
                 }}
               >
-                {[
-                  { label: "Eau (H₂O)", speech: "Eau, H 2 O" },
-                  { label: "Dioxyde de carbone (CO₂)", speech: "Dioxyde de carbone, C O 2" },
-                  { label: "Lumière (photons)", speech: "Lumière, photons" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center"
+                {game.recipes.map((item) => (
+                  <div key={item.key} className="flex items-center"
                     style={{
                       gap: isMobileOrTablet ? "2vw" : "1rem",
                     }}
@@ -596,11 +525,10 @@ export function PhotosynthesisAtomsGame({
                     lineHeight: 1.4,
                   }}
                 >
-                  Fusionne les bons atomes pour obtenir les éléments nécessaires
-                  à la PHOTOSYNTHÈSE
+                  {game.bar.fusion}
                 </p>
                 <ReadAloudButton
-                  text="Fusionne les bons atomes pour obtenir les éléments nécessaires à la photosynthèse."
+                  text={game.bar.fusionSpeech}
                   ariaLabel="Lire la consigne"
                 />
               </div>
@@ -643,7 +571,7 @@ export function PhotosynthesisAtomsGame({
                   <div className="flex flex-col px-6"
                     style={{ gap: atomGridGap }}
                   >
-                    {[0, 1].map((rowIndex) => (
+                    {Array.from({ length: atomRowCount }, (_, rowIndex) => (
                       <div
                         key={rowIndex}
                         className="flex justify-center"
@@ -723,23 +651,7 @@ export function PhotosynthesisAtomsGame({
                   gap: rightPanelGap,
                 }}
               >
-                {[
-                  {
-                    key: "water" as const,
-                    label: "Eau (H₂O)",
-                    speech: "Eau, H 2 O"
-                  },
-                  {
-                    key: "co2" as const,
-                    label: "Dioxyde de carbone (CO₂)",
-                    speech: "Dioxyde de carbone, C O 2"
-                  },
-                  {
-                    key: "light" as const,
-                    label: "Lumière (photons)",
-                    speech: "Lumière, photons"
-                  },
-                ].map((item) => (
+                {game.recipes.map((item) => (
                   <div
                     key={item.key}
                     className="flex items-center"
@@ -803,34 +715,22 @@ export function PhotosynthesisAtomsGame({
 
           {inspectMode && (
             <div className="absolute inset-0 pointer-events-none">
-              {[
-                { top: "25%", left: "78%" },
-                { top: "63%", left: "17%" },
-                { top: "68%", left: "80%" },
-              ].map((pos, index) => (
+              {game.inspectTargets.map((target, index) => (
                 <button
-                  key={index}
+                  key={`${target.image}-${index}`}
                   type="button"
                   className="absolute flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400 pointer-events-auto"
                   style={{
-                    top: pos.top,
-                    left: pos.left,
+                    top: target.top,
+                    left: target.left,
                     width: isMobileOrTablet ? 40 : 48,
                     height: isMobileOrTablet ? 40 : 48,
                   }}
                   aria-label="Voir un indice dans la jungle"
-                  onClick={() =>
-                    setInspectHintImage(
-                      index === 0
-                        ? "/missions/mission-2/step-3/M2_S3_popup-indice-01.webp"
-                        : index === 1
-                          ? "/missions/mission-2/step-3/M2_S3_popup-indice-02.webp"
-                          : "/missions/mission-2/step-3/M2_S3_popup-indice-03.webp",
-                    )
-                  }
+                  onClick={() => setInspectHintImage(target.image)}
                 >
                   <Image
-                    src="/missions/mission-2/step-3/M2_S3_target-icon.webp"
+                    src={game.ui.targetIconSrc}
                     alt=""
                     width={48}
                     height={48}
@@ -909,7 +809,8 @@ export function PhotosynthesisAtomsGame({
             >
               <ReadAloudButton
                 text={
-                  M2S3_INSPECT_HINT_READ_ALOUD[inspectHintImage] ?? "Indice"
+                  game.inspectTargets.find((t) => t.image === inspectHintImage)
+                    ?.readAloudText ?? "Indice"
                 }
                 ariaLabel="Lire l'indice"
               />

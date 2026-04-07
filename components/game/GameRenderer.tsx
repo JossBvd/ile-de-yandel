@@ -13,6 +13,7 @@ import { ImageClickGame } from "@/components/games/image-click/ImageClickGame";
 import { EnigmaGame } from "@/components/games/enigma/EnigmaGame";
 import { PhotosynthesisAtomsGame } from "@/components/games/drag/PhotosynthesisAtomsGame";
 import { PointClickMultiEnigmaGame } from "@/components/games/enigma/PointClickMultiEnigmaGame";
+import { assertNever } from "@/lib/assertNever";
 
 interface GameRendererProps {
   step: Step;
@@ -29,7 +30,8 @@ export function GameRenderer({
   onGoBackToMap,
   questionContainerVisible = true,
 }: GameRendererProps) {
-  switch (step.game.type) {
+  const game = step.game;
+  switch (game.type) {
     case "qcm":
       return (
         <QCMGame
@@ -121,10 +123,6 @@ export function GameRenderer({
         />
       );
     default:
-      return (
-        <div className="text-center text-red-600 p-8">
-          <p>Type de mini-jeu non supporté: {(step.game as any).type}</p>
-        </div>
-      );
+      return assertNever(game);
   }
 }

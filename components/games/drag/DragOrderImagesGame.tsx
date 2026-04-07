@@ -15,65 +15,6 @@ import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
-const STEP3_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-01.webp":
-    "Info: ce climat est chaud toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-02.webp":
-    "Info: ce climat est froid toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-03.webp":
-    "Info: ce climat est sec toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-04.webp":
-    "Info: ce climat est humide toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-05.webp":
-    "Info: ce climat est tempéré toute l'année",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-01.webp":
-    "Indice: lianes et feuillages, peu denses",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-02.webp":
-    "Indice: pierre couverte de mousse",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-03.webp":
-    "Indice: coquillages sur le sable",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-04.webp":
-    "Indice: feuilles mortes et écorces",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp":
-    "Indice: terre ou paille, plus dense",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-01.webp":
-    "Indice de l'image un.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-02.webp":
-    "Indice de l'image deux.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-03.webp":
-    "Indice de l'image trois.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-04.webp":
-    "Indice de l'image quatre.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-05.webp":
-    "Indice de l'image cinq.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-06.webp":
-    "Indice de l'image six.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-07.webp":
-    "Indice de l'image sept.",
-  "/missions/mission-3/step-1/m3_S1_popup_indice_photos-08.webp":
-    "Indice de l'image huit.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-01.webp":
-    "Indice baie un.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-02.webp":
-    "Indice baie deux.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-03.webp":
-    "Indice baie trois.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-04.webp":
-    "Indice baie quatre.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-05.webp":
-    "Indice baie cinq.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-06.webp":
-    "Indice baie six.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-07.webp":
-    "Indice baie sept.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-08.webp":
-    "Indice baie huit.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-09.webp":
-    "Indice baie neuf.",
-  "/missions/mission-3/step-2/M3_S2_popup-indice-baies-10.webp":
-    "Indice baie dix.",
-};
-
 interface DraggableImageProps {
   image: ImageOption;
   isInSlot: boolean;
@@ -223,8 +164,8 @@ export function DragOrderImagesGame({
 }: DragOrderImagesGameProps) {
   const game = step.game as DragOrderImagesGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
-  const isMission2Step2 = step.id === "mission-2-step-2";
-  const isMission3Step2 = step.id === "mission-3-step-2";
+  const isCompactSource = game.layoutVariant === "compact-source";
+  const isGrid5Cols = game.layoutVariant === "grid-5-cols";
   const [slots, setSlots] = useState<(string | null)[]>(
     Array(game.slotsCount).fill(null),
   );
@@ -244,7 +185,7 @@ export function DragOrderImagesGame({
   }, []);
 
   const paddingEdge = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? "4px 6px"
         : isMediumScreen
@@ -261,13 +202,13 @@ export function DragOrderImagesGame({
         ? "20px"
         : "24px";
   const imageSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 92
         : isMediumScreen
           ? 100
           : 112
-      : isMission3Step2
+      : isGrid5Cols
         ? isSmallScreen
           ? 82
           : isMediumScreen
@@ -284,7 +225,7 @@ export function DragOrderImagesGame({
         ? 144
         : 160;
   const slotSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 96
         : isMediumScreen
@@ -301,7 +242,7 @@ export function DragOrderImagesGame({
         ? 152
         : 168;
   const sendButtonSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 68
         : isMediumScreen
@@ -321,7 +262,7 @@ export function DragOrderImagesGame({
     ? (isSmallScreen ? "1rem" : "1.125rem")
     : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.75rem");
   const questionTextSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? "1rem"
         : "1.03125rem"
@@ -334,7 +275,7 @@ export function DragOrderImagesGame({
         ? "1.25rem"
         : "1.375rem";
   const gapImages = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 4
         : 6
@@ -345,7 +286,7 @@ export function DragOrderImagesGame({
       ? 8
       : 12;
   const gapSlotsInner = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 4
         : 6
@@ -356,7 +297,7 @@ export function DragOrderImagesGame({
       ? 8
       : 12;
   const gapSlotsOuter = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 8
         : 10
@@ -498,14 +439,14 @@ export function DragOrderImagesGame({
         >
           <div
             className={
-              isMission3Step2
+              isGrid5Cols
                 ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
                 : "w-full flex flex-wrap justify-center items-center shrink-0"
             }
             style={{
               gap: gapImages,
-              maxWidth: isMission3Step2 ? imageSize * 5 + gapImages * 4 : undefined,
-              margin: isMission3Step2 ? "0 auto" : undefined,
+              maxWidth: isGrid5Cols ? imageSize * 5 + gapImages * 4 : undefined,
+              margin: isGrid5Cols ? "0 auto" : undefined,
             }}
           >
             {game.sourceImages.map((image) => (
@@ -614,14 +555,14 @@ export function DragOrderImagesGame({
             >
               <div
                 className={
-                  isMission3Step2
+                  isGrid5Cols
                     ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
                     : "w-full flex flex-wrap justify-center items-center shrink-0"
                 }
                 style={{
                   gap: gapImages,
-                  maxWidth: isMission3Step2 ? imageSize * 5 + gapImages * 4 : undefined,
-                  margin: isMission3Step2 ? "0 auto" : undefined,
+                  maxWidth: isGrid5Cols ? imageSize * 5 + gapImages * 4 : undefined,
+                  margin: isGrid5Cols ? "0 auto" : undefined,
                 }}
               >
                 {game.sourceImages.map((img) => (
@@ -678,9 +619,12 @@ export function DragOrderImagesGame({
                 onClick={(e) => e.stopPropagation()}
               >
                 <ReadAloudButton
-                  text={
-                    STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
-                  }
+                  text={(() => {
+                    const img = game.sourceImages.find(
+                      (i) => i.infoImage === infoModalImageUrl,
+                    );
+                    return img?.readAloudText ?? img?.info ?? "Indice";
+                  })()}
                   ariaLabel="Lire l'indice"
                 />
               </div>
@@ -721,9 +665,12 @@ export function DragOrderImagesGame({
               onClick={(e) => e.stopPropagation()}
             >
               <ReadAloudButton
-                text={
-                  STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
-                }
+                text={(() => {
+                  const img = game.sourceImages.find(
+                    (i) => i.infoImage === infoModalImageUrl,
+                  );
+                  return img?.readAloudText ?? img?.info ?? "Indice";
+                })()}
                 ariaLabel="Lire l'indice"
               />
             </div>

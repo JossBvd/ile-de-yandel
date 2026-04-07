@@ -119,6 +119,48 @@ export function ClickableBackground({
     });
   };
 
+  const getZoneDisplayPosition = (zone: BackgroundHintZone) => {
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (!containerRect || !imageDimensions) return null;
+
+    const visualWidth = isRotated ? containerRect.height : containerRect.width;
+    const visualHeight = isRotated ? containerRect.width : containerRect.height;
+    const containerRatio = visualWidth / visualHeight;
+    const imageRatio = imageDimensions.width / imageDimensions.height;
+
+    let imageWidth: number;
+    let imageHeight: number;
+    let offsetX: number;
+    let offsetY: number;
+
+    if (containerRatio > imageRatio) {
+      imageHeight = visualHeight;
+      imageWidth = imageHeight * imageRatio;
+      offsetX = (visualWidth - imageWidth) / 2;
+      offsetY = 0;
+    } else {
+      imageWidth = visualWidth;
+      imageHeight = imageWidth / imageRatio;
+      offsetX = 0;
+      offsetY = (visualHeight - imageHeight) / 2;
+    }
+
+    const centerX = offsetX + (zone.x / 100) * imageWidth;
+    const centerY = offsetY + (zone.y / 100) * imageHeight;
+
+    if (isRotated) {
+      return {
+        left: containerRect.width - centerY,
+        top: centerX,
+      };
+    }
+
+    return {
+      left: centerX,
+      top: centerY,
+    };
+  };
+
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest(".game-panel, button, a, input, select, textarea")) {
@@ -190,6 +232,39 @@ export function ClickableBackground({
         className={`${objectFit} pointer-events-none`}
         priority
       />
+      {hintZones.map((zone, index) => {
+        if (!zone.icon) return null;
+        const position = getZoneDisplayPosition(zone);
+        if (!position) return null;
+
+        return (
+          <button
+            key={`hint-zone-icon-${index}`}
+            type="button"
+            className="absolute -translate-x-1/2 -translate-y-1/2 bg-transparent border-0 p-0 cursor-pointer touch-manipulation"
+            style={{
+              left: `${position.left}px`,
+              top: `${position.top}px`,
+              width: "48px",
+              height: "48px",
+              zIndex: 5,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onHintClick(zone);
+            }}
+            aria-label={zone.title ?? `Indice ${index + 1}`}
+          >
+            <Image
+              src={zone.icon}
+              alt=""
+              fill
+              className="object-contain"
+              draggable={false}
+            />
+          </button>
+        );
+      })}
       {debugMode && hintZones.map((zone, index) => {
         const containerRect = containerRef.current?.getBoundingClientRect();
         if (!containerRect || !imageDimensions) return null;
