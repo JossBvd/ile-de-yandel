@@ -58,6 +58,9 @@ export function StepPageModals({
   onMissionCompleteRaft,
   onMissionCompleteMap,
 }: StepPageModalsProps) {
+  const isMission3Step3VisualHint =
+    step?.id === "mission-3-step-3" && Boolean(hintModal?.image && !hintModal?.hint);
+
   return (
     <>
       <DefeatModal
@@ -173,6 +176,10 @@ export function StepPageModals({
               style={{
                 height: isRotated ? `${height * 0.9}px` : "90dvh",
                 maxHeight: isRotated ? `${height * 0.9}px` : "90dvh",
+                backgroundColor: isMission3Step3VisualHint ? "#E6D2A2" : "transparent",
+                border: isMission3Step3VisualHint ? "3px solid #8B5A2B" : "none",
+                borderRadius: isMission3Step3VisualHint ? "24px" : "0px",
+                padding: isMission3Step3VisualHint ? "16px" : "0px",
               }}
               onClick={() => onCloseHintModal()}
             >

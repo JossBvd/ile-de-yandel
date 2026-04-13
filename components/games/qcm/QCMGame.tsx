@@ -25,6 +25,7 @@ export function QCMGame({
 }: QCMGameProps) {
   const game = step.game as QCMGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  const isMission5Step1 = step.id === "mission-5-step-1";
   const isMultiple = game.correctAnswers.length > 1;
   const isStep2 = game.twoStepValidation === true;
   const tightDesktopQuestion = game.tightDesktopQuestionLayout === true;
@@ -179,6 +180,13 @@ export function QCMGame({
   const btnFontSize = isMobileOrTablet
     ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem")
     : (isDesktopSmall ? "1.125rem" : "1.25rem");
+  const questionContainerMaxHeight = isMission5Step1
+    ? isSmallScreen
+      ? "26dvh"
+      : isMediumScreen
+        ? "30dvh"
+        : "34dvh"
+    : undefined;
 
   return (
     <>
@@ -225,17 +233,22 @@ export function QCMGame({
                   : `${step.title} - Question ${currentQuestion}/${totalQuestions}`}
             </h2>
 
-            <p
-              className={`text-gray-800 italic text-center whitespace-pre-line max-w-[min(56rem,100%)] mx-auto px-1 ${isStep2 ? "font-display" : ""} ${
-                tightDesktopQuestion && !isMobileOrTablet ? "leading-snug" : "leading-relaxed"
-              }`}
-              style={{
-                fontSize: questionSize,
-                lineHeight: tightDesktopQuestion && !isMobileOrTablet ? 1.28 : undefined,
-              }}
+            <div
+              className="max-w-[min(56rem,100%)] mx-auto px-1 w-full overflow-y-auto scrollbar-hide"
+              style={{ maxHeight: questionContainerMaxHeight }}
             >
-              {game.question}
-            </p>
+              <p
+                className={`text-gray-800 italic text-center whitespace-pre-line ${isStep2 ? "font-display" : ""} ${
+                  tightDesktopQuestion && !isMobileOrTablet ? "leading-snug" : "leading-relaxed"
+                }`}
+                style={{
+                  fontSize: questionSize,
+                  lineHeight: tightDesktopQuestion && !isMobileOrTablet ? 1.28 : undefined,
+                }}
+              >
+                {game.question}
+              </p>
+            </div>
             {isStep2 ? (
               <div
                 className="absolute"
