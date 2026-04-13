@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { OrientationGuard } from "@/components/game/OrientationGuard";
+import { IntroAccessibilityChoiceModal } from "@/components/ui/IntroAccessibilityChoiceModal";
+import { IntroNarrativeScreen } from "@/components/ui/IntroNarrativeScreen";
+import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
+import { useReadingAidStore } from "@/store/readingAidStore";
 
 function sanitizePseudo(input: string): string {
   return input
@@ -11,9 +15,17 @@ function sanitizePseudo(input: string): string {
     .substring(0, 20);
 }
 
-function WelcomeContent() {
+function WelcomeContent({ onNarrativeStart }: { onNarrativeStart: () => void }) {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
+  const [showAudioChoice, setShowAudioChoice] = useState(false);
+  const [showReadingAidChoice, setShowReadingAidChoice] = useState(false);
+  const { setFirstVisitChoice: setAudioFirstVisitChoice } = useAudioDescriptionStore();
+  const {
+    introWorkflowDone,
+    setFirstVisitChoice: setReadingAidFirstVisitChoice,
+    setIntroWorkflowDone,
+  } = useReadingAidStore();
 
   useEffect(() => {
     const savedPseudo = localStorage.getItem("playerPseudo");
@@ -26,6 +38,10 @@ function WelcomeContent() {
     const sanitized = sanitizePseudo(pseudo);
     if (!sanitized || sanitized.length < 1) return;
     localStorage.setItem("playerPseudo", sanitized);
+    if (!introWorkflowDone) {
+      setShowAudioChoice(true);
+      return;
+    }
     router.push("/carte-de-l-ile");
   };
 
@@ -84,14 +100,59 @@ function WelcomeContent() {
           JOUER !
         </button>
       </div>
+
+      <IntroAccessibilityChoiceModal
+        isOpen={showAudioChoice}
+        acronym="AD"
+        question="Veux - tu activer l'audiodescription ?"
+        onYes={() => {
+          setAudioFirstVisitChoice(true);
+          setShowAudioChoice(false);
+          setShowReadingAidChoice(true);
+        }}
+        onNo={() => {
+          setAudioFirstVisitChoice(false);
+          setShowAudioChoice(false);
+          setShowReadingAidChoice(true);
+        }}
+      />
+
+      <IntroAccessibilityChoiceModal
+        isOpen={showReadingAidChoice}
+        acronym="DYS"
+        question="Veux - tu activer l'aide à la lecture ?"
+        onYes={() => {
+          setReadingAidFirstVisitChoice(true);
+          setIntroWorkflowDone(true);
+          setShowReadingAidChoice(false);
+          onNarrativeStart();
+        }}
+        onNo={() => {
+          setReadingAidFirstVisitChoice(false);
+          setIntroWorkflowDone(true);
+          setShowReadingAidChoice(false);
+          onNarrativeStart();
+        }}
+      />
     </div>
   );
 }
 
 export default function WelcomePage() {
+  const router = useRouter();
+  const [showIntroNarrative, setShowIntroNarrative] = useState(false);
+
+  if (showIntroNarrative) {
+    return (
+      <OrientationGuard>
+        <IntroNarrativeScreen onComplete={() => router.push("/carte-de-l-ile")} />
+      </OrientationGuard>
+    );
+  }
+
   return (
     <OrientationGuard allowPortrait>
-      <WelcomeContent />
+      <WelcomeContent onNarrativeStart={() => setShowIntroNarrative(true)} />
     </OrientationGuard>
   );
 }

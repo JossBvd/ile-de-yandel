@@ -4,6 +4,9 @@ import {
   getStepPath,
   getIlePath,
   getHomePath,
+  validateMissionId,
+  validateStepSlug,
+  validateStepIdFromSlug,
 } from '../navigation'
 import { StepId } from '@/types/step'
 import { MissionId } from '@/types/mission'
@@ -56,6 +59,38 @@ describe('navigation utilities', () => {
     it('devrait retourner le chemin vers la page d\'accueil', () => {
       const result = getHomePath()
       expect(result).toBe('/')
+    })
+  })
+
+  describe('validateMissionId', () => {
+    it('accepte une mission du catalogue', () => {
+      expect(validateMissionId('mission-1')).toBe(true)
+    })
+    it('refuse un id inconnu', () => {
+      expect(validateMissionId('mission-999')).toBe(false)
+    })
+  })
+
+  describe('validateStepSlug', () => {
+    it('accepte un slug présent dans la mission', () => {
+      expect(validateStepSlug('mission-1', 'step-1')).toBe(true)
+    })
+    it('refuse un slug absent', () => {
+      expect(validateStepSlug('mission-1', 'step-99')).toBe(false)
+    })
+    it('refuse si la mission est inconnue', () => {
+      expect(validateStepSlug('mission-999', 'step-1')).toBe(false)
+    })
+  })
+
+  describe('validateStepIdFromSlug', () => {
+    it('retourne l’id du step si valide', () => {
+      expect(validateStepIdFromSlug('mission-2', 'step-3')).toBe(
+        'mission-2-step-3',
+      )
+    })
+    it('retourne null si le slug n’existe pas dans la mission', () => {
+      expect(validateStepIdFromSlug('mission-2', 'step-99')).toBeNull()
     })
   })
 })

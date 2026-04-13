@@ -16,6 +16,7 @@ interface AudioDescriptionState {
   setAudioDescriptionAutoPlay: (autoPlay: boolean) => void;
   setAudioDescriptionSpeed: (speed: AudioDescriptionSpeed) => void;
   setFirstVisitChoice: (enabled: boolean) => void;
+  reset: () => void;
 }
 
 const initialState = {
@@ -42,6 +43,7 @@ export const useAudioDescriptionStore = create<AudioDescriptionState>()(
           audioDescriptionEnabled: enabled,
           audioDescriptionFirstVisitDone: true,
         }),
+      reset: () => set(initialState),
     }),
     {
       name: STORAGE_KEY_AUDIO_DESCRIPTION,

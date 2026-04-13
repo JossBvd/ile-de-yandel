@@ -14,6 +14,8 @@ export const mission5: Mission = {
   id: "mission-5",
   title: "Mission 5",
   description: "À définir avec le client",
+  completionText:
+    "Grâce à tout ce que\nj’ai collecté sur la plage,\nje vais pouvoir installer un\ncollecteur d’eau sur mon\nradeau !",
   steps: mission5Steps.map((step) => step.id),
 };
 

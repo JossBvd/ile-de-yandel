@@ -15,29 +15,6 @@ import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
-const STEP3_INFO_IMAGE_READ_ALOUD: Record<string, string> = {
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-01.webp":
-    "Info: ce climat est chaud toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-02.webp":
-    "Info: ce climat est froid toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-03.webp":
-    "Info: ce climat est sec toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-04.webp":
-    "Info: ce climat est humide toute l'année",
-  "/missions/mission-1/step-3/m1_S3_popup_indice_photos-05.webp":
-    "Info: ce climat est tempéré toute l'année",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-01.webp":
-    "Indice: lianes et feuillages, peu denses",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-02.webp":
-    "Indice: pierre couverte de mousse",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-03.webp":
-    "Indice: coquillages sur le sable",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-04.webp":
-    "Indice: feuilles mortes et écorces",
-  "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp":
-    "Indice: terre ou paille, plus dense",
-};
-
 interface DraggableImageProps {
   image: ImageOption;
   isInSlot: boolean;
@@ -187,7 +164,8 @@ export function DragOrderImagesGame({
 }: DragOrderImagesGameProps) {
   const game = step.game as DragOrderImagesGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
-  const isMission2Step2 = step.id === "mission-2-step-2";
+  const isCompactSource = game.layoutVariant === "compact-source";
+  const isGrid5Cols = game.layoutVariant === "grid-5-cols";
   const [slots, setSlots] = useState<(string | null)[]>(
     Array(game.slotsCount).fill(null),
   );
@@ -207,7 +185,7 @@ export function DragOrderImagesGame({
   }, []);
 
   const paddingEdge = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? "4px 6px"
         : isMediumScreen
@@ -224,12 +202,18 @@ export function DragOrderImagesGame({
         ? "20px"
         : "24px";
   const imageSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 92
         : isMediumScreen
           ? 100
           : 112
+      : isGrid5Cols
+        ? isSmallScreen
+          ? 82
+          : isMediumScreen
+            ? 90
+            : 98
       : isSmallScreen
         ? 100
         : isMediumScreen
@@ -241,7 +225,7 @@ export function DragOrderImagesGame({
         ? 144
         : 160;
   const slotSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 96
         : isMediumScreen
@@ -258,7 +242,7 @@ export function DragOrderImagesGame({
         ? 152
         : 168;
   const sendButtonSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 68
         : isMediumScreen
@@ -275,10 +259,10 @@ export function DragOrderImagesGame({
         ? 112
         : 120;
   const questionTitleSize = isMobileOrTablet
-    ? (isSmallScreen ? "1.0625rem" : "1.25rem")
-    : (isDesktopSmall ? "1.375rem" : isDesktopMedium ? "1.625rem" : "1.875rem");
+    ? (isSmallScreen ? "1rem" : "1.125rem")
+    : (isDesktopSmall ? "1.25rem" : isDesktopMedium ? "1.5rem" : "1.75rem");
   const questionTextSize = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? "1rem"
         : "1.03125rem"
@@ -291,7 +275,7 @@ export function DragOrderImagesGame({
         ? "1.25rem"
         : "1.375rem";
   const gapImages = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 4
         : 6
@@ -302,7 +286,7 @@ export function DragOrderImagesGame({
       ? 8
       : 12;
   const gapSlotsInner = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 4
         : 6
@@ -313,7 +297,7 @@ export function DragOrderImagesGame({
       ? 8
       : 12;
   const gapSlotsOuter = isMobileOrTablet
-    ? isMission2Step2
+    ? isCompactSource
       ? isSmallScreen
         ? 8
         : 10
@@ -358,7 +342,7 @@ export function DragOrderImagesGame({
 
   const handleSubmit = () => {
     const correctSet = new Set(game.correctOrder);
-    const strictOrder = game.correctOrder.length === game.slotsCount;
+    const strictOrder = game.enforceOrder ?? game.correctOrder.length === game.slotsCount;
     const newLockedSlots = [...lockedSlots];
     const newSlots = [...slots];
 
@@ -454,8 +438,16 @@ export function DragOrderImagesGame({
           style={{ gap: isMobileOrTablet ? 8 : 12 }}
         >
           <div
-            className="w-full flex flex-wrap justify-center items-center shrink-0"
-            style={{ gap: gapImages }}
+            className={
+              isGrid5Cols
+                ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
+                : "w-full flex flex-wrap justify-center items-center shrink-0"
+            }
+            style={{
+              gap: gapImages,
+              maxWidth: isGrid5Cols ? imageSize * 5 + gapImages * 4 : undefined,
+              margin: isGrid5Cols ? "0 auto" : undefined,
+            }}
           >
             {game.sourceImages.map((image) => (
               <DraggableImage
@@ -562,8 +554,16 @@ export function DragOrderImagesGame({
               style={{ gap: isMobileOrTablet ? 8 : 12 }}
             >
               <div
-                className="w-full flex flex-wrap justify-center items-center shrink-0"
-                style={{ gap: gapImages }}
+                className={
+                  isGrid5Cols
+                    ? "w-full grid grid-cols-5 justify-items-center items-center shrink-0"
+                    : "w-full flex flex-wrap justify-center items-center shrink-0"
+                }
+                style={{
+                  gap: gapImages,
+                  maxWidth: isGrid5Cols ? imageSize * 5 + gapImages * 4 : undefined,
+                  margin: isGrid5Cols ? "0 auto" : undefined,
+                }}
               >
                 {game.sourceImages.map((img) => (
                   <div
@@ -619,9 +619,12 @@ export function DragOrderImagesGame({
                 onClick={(e) => e.stopPropagation()}
               >
                 <ReadAloudButton
-                  text={
-                    STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
-                  }
+                  text={(() => {
+                    const img = game.sourceImages.find(
+                      (i) => i.infoImage === infoModalImageUrl,
+                    );
+                    return img?.readAloudText ?? img?.info ?? "Indice";
+                  })()}
                   ariaLabel="Lire l'indice"
                 />
               </div>
@@ -662,9 +665,12 @@ export function DragOrderImagesGame({
               onClick={(e) => e.stopPropagation()}
             >
               <ReadAloudButton
-                text={
-                  STEP3_INFO_IMAGE_READ_ALOUD[infoModalImageUrl] ?? "Indice"
-                }
+                text={(() => {
+                  const img = game.sourceImages.find(
+                    (i) => i.infoImage === infoModalImageUrl,
+                  );
+                  return img?.readAloudText ?? img?.info ?? "Indice";
+                })()}
                 ariaLabel="Lire l'indice"
               />
             </div>

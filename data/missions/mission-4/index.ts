@@ -12,8 +12,10 @@ export const mission4Steps: Step[] = [
 
 export const mission4: Mission = {
   id: "mission-4",
-  title: "Mission 4",
-  description: "À définir avec le client",
+  title: "La forêt côtière",
+  description: "Lianes et lance-grappin pour renforcer le radeau",
+  completionText:
+    "Grâce à tout ce que j'ai collecté dans la forêt côtière, je vais pouvoir renforcer et propulser mon radeau !",
   steps: mission4Steps.map((step) => step.id),
 };
 

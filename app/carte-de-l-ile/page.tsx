@@ -15,7 +15,6 @@ import { getStepPath } from "@/lib/navigation";
 import { IconButton } from "@/components/ui/IconButton";
 import { Button } from "@/components/ui/Button";
 import { AudioDescriptionSettingsModal } from "@/components/ui/AudioDescriptionSettingsModal";
-import { AudioDescriptionChoiceModal } from "@/components/ui/AudioDescriptionChoiceModal";
 import { MentionsLegalesModal } from "@/components/ui/MentionsLegalesModal";
 import { PolitiqueConfidentialiteModal } from "@/components/ui/PolitiqueConfidentialiteModal";
 import { AudioDescriptionButton } from "@/components/ui/AudioDescriptionButton";
@@ -25,17 +24,24 @@ import { useInventory } from "@/hooks/useInventory";
 import { isMissionCompleted, getNextStep } from "@/lib/engine/missionEngine";
 import { useUIStore } from "@/store/uiStore";
 import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
+import { useReadingAidStore } from "@/store/readingAidStore";
 import type { MissionId } from "@/types/mission";
 
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-1": "L'épave de l'avion",
   "mission-2": "Dans la forêt",
-  "mission-3": "Mission 3",
-  "mission-4": "Mission 4",
-  "mission-5": "Mission 5",
+  "mission-3": "Le bosquet",
+  "mission-4": "La forêt\ncôtière",
+  "mission-5": "Le bosquet",
 };
 
-const DEVELOPED_MISSIONS = new Set<string>(["mission-1", "mission-2"]);
+const DEVELOPED_MISSIONS = new Set<string>([
+  "mission-1",
+  "mission-2",
+  "mission-3",
+  "mission-4",
+  "mission-5",
+]);
 
 function HomeContent() {
   const router = useRouter();
@@ -55,7 +61,8 @@ function HomeContent() {
   } = useGameProgress();
   const { collectedPieces, reset: resetInventory } = useInventory();
   const { viewedMissions, raftViewed, journalViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, markJournalAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
-  const { audioDescriptionFirstVisitDone } = useAudioDescriptionStore();
+  const { reset: resetAudioDescription } = useAudioDescriptionStore();
+  const { readingAidEnabled, setReadingAidEnabled, reset: resetReadingAid } = useReadingAidStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
@@ -327,6 +334,35 @@ function HomeContent() {
                 <button
                   type="button"
                   role="menuitem"
+                  onClick={() => setReadingAidEnabled(!readingAidEnabled)}
+                  className="flex-1 min-w-0 text-left py-2 px-3 rounded font-medium text-gray-800 hover:bg-[#ddd0b0] touch-manipulation transition-colors flex items-center justify-between"
+                  style={{
+                    fontSize: isMobileOrTablet ? (isSmallScreen ? '0.875rem' : '1rem') : '1rem',
+                    minHeight: '44px',
+                  }}
+                  aria-pressed={readingAidEnabled}
+                  aria-label={`Aide à la lecture : ${readingAidEnabled ? 'activée' : 'désactivée'}`}
+                >
+                  <span>Aide à la lecture</span>
+                  <span
+                    className={`ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                      readingAidEnabled
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-300 text-gray-600'
+                    }`}
+                  >
+                    {readingAidEnabled ? 'ON' : 'OFF'}
+                  </span>
+                </button>
+                <ReadAloudButton
+                  text={`Aide à la lecture. Actuellement ${readingAidEnabled ? 'activée' : 'désactivée'}. Cliquer pour ${readingAidEnabled ? 'désactiver' : 'activer'}.`}
+                  ariaLabel="Lire : Aide à la lecture"
+                />
+              </div>
+              <div className="flex items-center gap-2 w-full">
+                <button
+                  type="button"
+                  role="menuitem"
                   onClick={() => {
                     setShowParamsMenu(false);
                     setShowMentionsLegales(true);
@@ -379,6 +415,8 @@ function HomeContent() {
                       resetProgress();
                       resetInventory();
                       resetUI();
+                      resetAudioDescription();
+                      resetReadingAid();
                       router.push("/");
                     }
                   }}
@@ -404,10 +442,6 @@ function HomeContent() {
       <AudioDescriptionSettingsModal
         isOpen={showAudioSettings}
         onClose={() => setShowAudioSettings(false)}
-      />
-      <AudioDescriptionChoiceModal
-        isOpen={!audioDescriptionFirstVisitDone}
-        onClose={() => {}}
       />
       <MentionsLegalesModal
         isOpen={showMentionsLegales}
@@ -671,11 +705,11 @@ function HomeContent() {
             </div>
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-14">
               <h2 
-                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4 font-display"
+                className="m-0 font-bold text-gray-800 text-center drop-shadow-sm px-4 font-display whitespace-pre-line"
                 style={{
                   fontSize: isMobileOrTablet
-                    ? (isSmallScreen ? '1.875rem' : isMediumScreen ? '2.125rem' : '2.375rem')
-                    : (isSmallScreen ? '1.625rem' : isMediumScreen ? '2.125rem' : '2.625rem'),
+                    ? (isSmallScreen ? '1.75rem' : isMediumScreen ? '2rem' : '2.25rem')
+                    : (isSmallScreen ? '1.5rem' : isMediumScreen ? '2rem' : '2.5rem'),
                 }}
               >
                 {MISSION_DISPLAY_NAMES[selectedMissionId] ??

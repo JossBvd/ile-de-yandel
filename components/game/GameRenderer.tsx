@@ -7,10 +7,13 @@ import { DragSortGame } from "@/components/games/drag/DragSortGame";
 import { DragSelectImageGame } from "@/components/games/drag/DragSelectImageGame";
 import { DragOrderImagesGame } from "@/components/games/drag/DragOrderImagesGame";
 import { BasketFillGame } from "@/components/games/drag/BasketFillGame";
+import { BasketWeightGame } from "@/components/games/drag/BasketWeightGame";
 import { BottleEmptyGame } from "@/components/games/drag/BottleEmptyGame";
 import { ImageClickGame } from "@/components/games/image-click/ImageClickGame";
 import { EnigmaGame } from "@/components/games/enigma/EnigmaGame";
 import { PhotosynthesisAtomsGame } from "@/components/games/drag/PhotosynthesisAtomsGame";
+import { PointClickMultiEnigmaGame } from "@/components/games/enigma/PointClickMultiEnigmaGame";
+import { assertNever } from "@/lib/assertNever";
 
 interface GameRendererProps {
   step: Step;
@@ -27,7 +30,8 @@ export function GameRenderer({
   onGoBackToMap,
   questionContainerVisible = true,
 }: GameRendererProps) {
-  switch (step.game.type) {
+  const game = step.game;
+  switch (game.type) {
     case "qcm":
       return (
         <QCMGame
@@ -67,6 +71,14 @@ export function GameRenderer({
           onDefeat={onDefeat}
         />
       );
+    case "basket-weight":
+      return (
+        <BasketWeightGame
+          step={step}
+          onComplete={onComplete}
+          onDefeat={onDefeat}
+        />
+      );
     case "bottle-empty":
       return (
         <BottleEmptyGame
@@ -101,11 +113,16 @@ export function GameRenderer({
           questionContainerVisible={questionContainerVisible}
         />
       );
-    default:
+    case "point-click-multi-enigma":
       return (
-        <div className="text-center text-red-600 p-8">
-          <p>Type de mini-jeu non supporté: {(step.game as any).type}</p>
-        </div>
+        <PointClickMultiEnigmaGame
+          step={step}
+          onComplete={onComplete}
+          onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
+        />
       );
+    default:
+      return assertNever(game);
   }
 }

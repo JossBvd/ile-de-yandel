@@ -9,6 +9,11 @@ Les parois sont couvertes de dessins anciens.
 Il doit trouver la troisième pièce de son radeau.`,
   location: "Dans la grotte",
   raftPiece: "piece-1-3",
+  raftObject: {
+    image: "/missions/mission-1/step-3/M1_S3_popup-tissu.webp",
+    readAloudText: "Étape 3 accomplie. Tu as collecté : chutes de tissu",
+  },
+  completion: { showMissionModalAfterStep: true },
   backgroundImage: "/missions/mission-1/step-2/M1_S2_background_quiz.webp",
   game: {
     type: "drag-order-images",
@@ -20,6 +25,8 @@ Il doit trouver la troisième pièce de son radeau.`,
         alt: "Photo 1",
         info: "",
         infoImage: "/missions/mission-1/step-3/m1_S3_popup_indice_photos-04.webp",
+        readAloudText:
+          "Info: ce climat est humide toute l'année",
       },
       {
         id: "img-2",
@@ -27,6 +34,8 @@ Il doit trouver la troisième pièce de son radeau.`,
         alt: "Photo 2",
         info: "",
         infoImage: "/missions/mission-1/step-3/m1_S3_popup_indice_photos-05.webp",
+        readAloudText:
+          "Info: ce climat est tempéré toute l'année",
       },
       {
         id: "img-3",
@@ -34,6 +43,8 @@ Il doit trouver la troisième pièce de son radeau.`,
         alt: "Photo 3",
         info: "",
         infoImage: "/missions/mission-1/step-3/m1_S3_popup_indice_photos-03.webp",
+        readAloudText:
+          "Info: ce climat est sec toute l'année",
       },
       {
         id: "img-4",
@@ -41,6 +52,8 @@ Il doit trouver la troisième pièce de son radeau.`,
         alt: "Photo 4",
         info: "",
         infoImage: "/missions/mission-1/step-3/m1_S3_popup_indice_photos-02.webp",
+        readAloudText:
+          "Info: ce climat est froid toute l'année",
       },
       {
         id: "img-5",
@@ -48,6 +61,8 @@ Il doit trouver la troisième pièce de son radeau.`,
         alt: "Photo 5",
         info: "",
         infoImage: "/missions/mission-1/step-3/m1_S3_popup_indice_photos-01.webp",
+        readAloudText:
+          "Info: ce climat est chaud toute l'année",
       },
     ],
     correctOrder: ["img-1", "img-5"],

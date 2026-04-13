@@ -9,16 +9,22 @@ Le soleil brille et les vagues viennent caresser le sable doré.
 Il doit résoudre un quiz pour obtenir la deuxième pièce de son radeau.`,
   location: "Sur la plage",
   raftPiece: "piece-1-2",
+  raftObject: {
+    image: "/missions/mission-1/step-2/M1_S2_popup-aiguille.webp",
+    readAloudText: "Étape 2 accomplie. Tu as collecté : aiguille",
+  },
   backgroundImage: "/missions/mission-1/step-2/M1_S2_background_quiz.webp",
   game: {
     type: "qcm",
-    question: "Quel est le principal avantage d'un tissu synthétique pour résister aux conditions marines ?",
+    question:
+      "Quel est le principal avantage d'un tissu synthétique pour résister aux conditions marines ?",
     options: [
       { id: "A", text: "Il est plus lourd et plus facile à coudre" },
       { id: "B", text: "Il résiste à l'eau et sèche plus vite" },
       { id: "C", text: "Il a une couleur visible pour les secours" },
       { id: "D", text: "Il est biodégradable dans l'océan" },
     ],
-    correctAnswers: [1], 
+    correctAnswers: [1],
+    twoStepValidation: true,
   },
 };
