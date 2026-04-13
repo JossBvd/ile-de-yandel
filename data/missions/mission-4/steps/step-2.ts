@@ -34,22 +34,22 @@ export const mission4Step2: Step = {
     items: [
       {
         id: "liane-1",
-        src: "/missions/mission-4/step-2/M4_S2_liane-01.webp",
-        alt: "Morceau de liane fin",
+        src: "/missions/mission-4/step-2/M4_S2_lianes-01.webp",
+        alt: "Morceau de liane fine",
         weightGrams: 100,
         maxUses: 5,
       },
       {
         id: "liane-2",
-        src: "/missions/mission-4/step-2/M4_S2_liane-02.webp",
-        alt: "Morceau de liane moyen",
+        src: "/missions/mission-4/step-2/M4_S2_lianes-02.webp",
+        alt: "Morceau de liane grosse",
         weightGrams: 500,
         maxUses: 6,
       },
       {
         id: "liane-3",
-        src: "/missions/mission-4/step-2/M4_S2_liane-03.webp",
-        alt: "Morceau de liane épais",
+        src: "/missions/mission-4/step-2/M4_S2_lianes-03.webp",
+        alt: "Morceau de liane moyenne",
         weightGrams: 200,
         maxUses: 5,
       },

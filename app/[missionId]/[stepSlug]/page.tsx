@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   OrientationGuard,
   useOrientationContext,
@@ -19,6 +20,7 @@ import { StepBackground } from "@/components/game/StepBackground";
 import { StepPageNarrative } from "@/components/game/step-page/StepPageNarrative";
 import { StepPageSidebar } from "@/components/game/step-page/StepPageSidebar";
 import { StepPageModals } from "@/components/game/step-page/StepPageModals";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
 import { useAudioDescription } from "@/hooks/useAudioDescription";
 import { BackgroundHintZone } from "@/types/step";
@@ -52,6 +54,9 @@ function StepPageContent() {
 
   const [showNarrative, setShowNarrative] = useState(true);
   const [hintModal, setHintModal] = useState<BackgroundHintZone | null>(null);
+  const [inlineHintZone, setInlineHintZone] = useState<BackgroundHintZone | null>(
+    null,
+  );
   const [generalHintModal, setGeneralHintModal] = useState<{
     title: string;
     hint: string;
@@ -115,7 +120,19 @@ function StepPageContent() {
 
   React.useEffect(() => {
     setShowNarrative(isFirstStepOfMission);
+    setInlineHintZone(null);
   }, [stepId, isFirstStepOfMission]);
+
+  React.useEffect(() => {
+    if (!inlineHintZone) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setInlineHintZone(null);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [inlineHintZone]);
 
   if (!stepId) {
     return null;
@@ -274,6 +291,8 @@ function StepPageContent() {
     });
   };
 
+  const useInlineBackgroundHint = step.ui?.backgroundHintDisplay === "inline";
+
   if (
     isFirstStepOfMission &&
     showNarrative &&
@@ -333,7 +352,13 @@ function StepPageContent() {
           <ClickableBackground
             imageSrc={step.backgroundImage || "/backgrounds/jungle.webp"}
             hintZones={step.backgroundHintZones}
-            onHintClick={(zone) => setHintModal(zone)}
+            onHintClick={(zone) => {
+              if (useInlineBackgroundHint && zone.image) {
+                setInlineHintZone(zone);
+                return;
+              }
+              setHintModal(zone);
+            }}
             debugMode={false}
           >
             <GameRenderer
@@ -385,6 +410,50 @@ function StepPageContent() {
         onMissionCompleteRaft={handleMissionCompleteRaft}
         onMissionCompleteMap={handleMissionCompleteMap}
       />
+
+      {useInlineBackgroundHint && inlineHintZone?.image && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          onClick={() => setInlineHintZone(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Indice"
+        >
+          <div
+            className="relative w-full max-w-2xl max-h-[90dvh] flex items-center justify-center cursor-pointer"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={inlineHintZone.image}
+              alt={inlineHintZone.title ?? "Indice visuel"}
+              width={1200}
+              height={800}
+              className="w-full h-auto max-h-[90dvh] object-contain pointer-events-none"
+              sizes="(max-width: 640px) 100vw, 42rem"
+              draggable={false}
+            />
+            <button
+              type="button"
+              onClick={() => setInlineHintZone(null)}
+              className="absolute top-3 left-3 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white transition-colors touch-manipulation"
+              style={{ width: "36px", height: "36px", fontSize: "1.125rem" }}
+              aria-label="Fermer l'indice"
+            >
+              ✕
+            </button>
+            <div className="absolute top-4 right-4 z-10">
+              <ReadAloudButton
+                text={
+                  inlineHintZone.readAloudText ??
+                  inlineHintZone.title ??
+                  "Indice visuel"
+                }
+                ariaLabel="Lire la description de l'indice"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

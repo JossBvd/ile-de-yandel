@@ -169,24 +169,14 @@ export function StepPageModals({
         >
           {hintModal.image && !hintModal.hint ? (
             <div
-              className="relative w-full max-w-4xl rounded-3xl p-4 shadow-2xl"
+              className="relative w-full max-w-4xl shadow-2xl"
               style={{
                 height: isRotated ? `${height * 0.9}px` : "90dvh",
                 maxHeight: isRotated ? `${height * 0.9}px` : "90dvh",
               }}
               onClick={() => onCloseHintModal()}
             >
-              <div
-                className="absolute inset-0 rounded-3xl"
-                style={{
-                  backgroundImage: "url(/backgrounds/paper_texture.webp)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  border: "3px solid #8B4513",
-                }}
-                aria-hidden
-              />
-              <div className="relative z-10 w-full h-full overflow-hidden rounded-2xl">
+              <div className="relative z-10 w-full h-full overflow-hidden">
                 <Image
                   src={hintModal.image}
                   alt={hintModal.title ?? "Indice visuel"}

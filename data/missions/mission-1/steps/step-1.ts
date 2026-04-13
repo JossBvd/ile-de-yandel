@@ -93,5 +93,6 @@ fabrication ! Bonne chance ! »`,
     type: "enigma",
     text: "Explore la zone à la recherche d'indices, et complète la phrase en accordant correctement le participe passé du verbe « déchirer ».\n\n« Les vêtements retrouvés dans l'épave de l'avion sont tous ( déchirer ) »",
     correctAnswer: "déchirés",
+    accentSensitive: true,
   },
 };

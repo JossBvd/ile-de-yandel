@@ -193,6 +193,7 @@ export interface EnigmaGameData {
   correctAnswer: string;
   layout?: EnigmaLayout;
   decodeLetterImages?: string[];
+  accentSensitive?: boolean;
 }
 
 export interface PointClickMultiEnigmaTarget {
@@ -246,6 +247,7 @@ export interface StepCompletionFlags {
 export interface StepUiConfig {
   instructionInspectToggle?: boolean;
   inspectLoupeIcon?: string;
+  backgroundHintDisplay?: "modal" | "inline";
 }
 
 export interface Step {

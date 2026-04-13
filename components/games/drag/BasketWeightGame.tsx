@@ -79,7 +79,7 @@ function DraggableLiane({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`touch-none relative border-4 border-white rounded-xl overflow-hidden shadow-md transition-transform ${
+      className={`touch-none relative rounded-xl overflow-hidden shadow-md transition-transform ${
         disabled
           ? "opacity-40 cursor-not-allowed"
           : "cursor-grab active:cursor-grabbing hover:scale-105"
@@ -434,7 +434,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                       style={{ gap: 8 }}
                     >
                       <div
-                        className={`relative rounded-lg overflow-hidden border-2 border-white shadow-sm shrink-0 transition-opacity ${
+                        className={`relative rounded-lg overflow-hidden shadow-sm shrink-0 transition-opacity ${
                           exhausted ? "opacity-40" : ""
                         }`}
                         style={{

@@ -45,18 +45,18 @@ export function EnigmaGame({
     () => (letterCount > 0 ? Array(letterCount).fill(false) : []),
   );
   const decodedInputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const normalizeForComparison = (value: string) => {
+    const normalized = value.trim().toLowerCase();
+    if (game.accentSensitive) {
+      return normalized;
+    }
+    return normalized.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const normalize = (value: string) =>
-      value
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-    const normalizedAnswer = normalize(answer);
-    const normalizedCorrect = normalize(game.correctAnswer);
+    const normalizedAnswer = normalizeForComparison(answer);
+    const normalizedCorrect = normalizeForComparison(game.correctAnswer);
 
     if (normalizedAnswer === normalizedCorrect) {
       setHasError(false);
@@ -72,18 +72,10 @@ export function EnigmaGame({
 
   const handleDecodedSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const normalize = (value: string) =>
-      value
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
-    const normalizedCorrect = normalize(game.correctAnswer);
+    const normalizedCorrect = normalizeForComparison(game.correctAnswer);
     const nextLocked = lockedDecodedLetters.map((locked, index) => {
       if (locked) return true;
-      const normalizedLetter = normalize(decodedLetters[index] ?? "");
+      const normalizedLetter = normalizeForComparison(decodedLetters[index] ?? "");
       const expectedLetter = normalizedCorrect[index] ?? "";
       return normalizedLetter === expectedLetter;
     });
