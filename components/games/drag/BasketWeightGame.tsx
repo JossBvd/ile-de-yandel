@@ -295,6 +295,21 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
     }
   }, [isWon, onComplete]);
 
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("basket-weight-overflow-lock", {
+        detail: { locked: isExceeded },
+      }),
+    );
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("basket-weight-overflow-lock", {
+          detail: { locked: false },
+        }),
+      );
+    };
+  }, [isExceeded]);
+
   const resetBasket = () => {
     setCurrentWeightGrams(game.initialWeightGrams);
     setDropCounts(Object.fromEntries(game.items.map((item) => [item.id, 0])));
@@ -424,9 +439,8 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
               <div className="flex flex-col" style={{ gap: gap * 0.6 }}>
                 {game.items.map((item) => {
                   const used = dropCounts[item.id] ?? 0;
-                  const remaining =
-                    item.maxUses !== undefined ? item.maxUses - used : null;
-                  const exhausted = remaining !== null && remaining <= 0;
+                  const exhausted =
+                    item.maxUses !== undefined && used >= item.maxUses;
                   return (
                     <div
                       key={item.id}
@@ -457,7 +471,7 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                         style={{ fontSize: textSize }}
                       >
                         x{" "}
-                        {remaining !== null ? remaining : used}
+                        {used}
                       </span>
                     </div>
                   );

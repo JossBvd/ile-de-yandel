@@ -20,6 +20,7 @@ export const mission5Step3: Step = {
 Attention, si tu en mets trop, tu vas
 gâcher de l'eau !`,
     basketImages: [
+      "/missions/mission-5/step-3/M5_S3_gourde-01.webp",
       "/missions/mission-5/step-3/M5_S3_gourde-02.webp",
       "/missions/mission-5/step-3/M5_S3_gourde-03.webp",
       "/missions/mission-5/step-3/M5_S3_gourde-04.webp",
@@ -31,8 +32,8 @@ gâcher de l'eau !`,
       "/missions/mission-5/step-3/M5_S3_gourde-10.webp",
       "/missions/mission-5/step-3/M5_S3_gourde-11.webp",
     ],
-    overflowImage: "/missions/mission-5/step-3/M5_S3_gourde-01.webp",
-    initialWeightGrams: 30,
+    overflowImage: "/missions/mission-5/step-3/M5_S3_gourde-12.webp",
+    initialWeightGrams: 0,
     targetWeightGrams: 100,
     measurementUnit: "centiliters",
     resetButtonLabel: "Remonter le temps",
