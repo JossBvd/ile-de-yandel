@@ -116,17 +116,14 @@ export function IntroNarrativeScreen({
         backgroundPosition: "center",
       }}
     >
-      <div
-        className="w-full min-h-[100dvh] flex items-end"
-        style={{ padding: "0 3% 0 0" }}
-      >
+      <div className="w-full h-dvh flex items-end" style={{ padding: "0 3% 0 0" }}>
         {/* Personnage Yondel – côté gauche, collé en bas */}
         <div
           className="relative shrink-0 self-end"
           style={{ width: "42%", height: "95%" }}
         >
           <Image
-            src="/intro/Yondel_crop.webp"
+            src="/intro/yondel_crop.webp"
             alt="Yondel, le personnage principal"
             fill
             style={{ objectFit: "contain", objectPosition: "bottom center" }}

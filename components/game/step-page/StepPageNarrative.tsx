@@ -1,9 +1,37 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Step } from "@/types/step";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+
+const TYPING_SPEED_MS = 30;
+const PAGE_CHAR_LIMIT = 260;
+
+function paginateNarrative(text: string): string[] {
+  const normalized = text.trim();
+  if (!normalized) return [""];
+
+  const words = normalized.split(/\s+/);
+  const pages: string[] = [];
+  let currentPage = "";
+
+  for (const word of words) {
+    const candidate = currentPage ? `${currentPage} ${word}` : word;
+    if (candidate.length <= PAGE_CHAR_LIMIT || !currentPage) {
+      currentPage = candidate;
+      continue;
+    }
+    pages.push(currentPage);
+    currentPage = word;
+  }
+
+  if (currentPage) {
+    pages.push(currentPage);
+  }
+
+  return pages;
+}
 
 export interface StepPageNarrativeProps {
   step: Step;
@@ -19,160 +47,182 @@ export interface StepPageNarrativeProps {
 
 export function StepPageNarrative({
   step,
-  isSmallScreen,
-  isMediumScreen,
-  isDesktopSmall,
-  isDesktopMedium,
-  isRotated,
-  width,
-  height,
+  isSmallScreen: _isSmallScreen,
+  isMediumScreen: _isMediumScreen,
+  isDesktopSmall: _isDesktopSmall,
+  isDesktopMedium: _isDesktopMedium,
+  isRotated: _isRotated,
+  width: _width,
+  height: _height,
   onContinue,
 }: StepPageNarrativeProps) {
+  const fullText = step.narrative ?? "";
+  const pages = useMemo(() => paginateNarrative(fullText), [fullText]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const currentPageText = pages[pageIndex] ?? "";
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const charIndexRef = useRef(0);
+
+  useEffect(() => {
+    charIndexRef.current = 0;
+    setDisplayedText("");
+    setIsTyping(true);
+
+    function typeNextChar() {
+      if (charIndexRef.current < currentPageText.length) {
+        charIndexRef.current += 1;
+        setDisplayedText(currentPageText.slice(0, charIndexRef.current));
+        timeoutRef.current = setTimeout(typeNextChar, TYPING_SPEED_MS);
+      } else {
+        setIsTyping(false);
+      }
+    }
+
+    timeoutRef.current = setTimeout(typeNextChar, TYPING_SPEED_MS);
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [currentPageText]);
+
+  useEffect(() => {
+    setPageIndex(0);
+  }, [fullText]);
+
+  const handleNext = () => {
+    if (isTyping) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setDisplayedText(currentPageText);
+      setIsTyping(false);
+      return;
+    }
+    if (pageIndex < pages.length - 1) {
+      setPageIndex((prev) => prev + 1);
+      return;
+    }
+    onContinue();
+  };
+
   return (
     <div
-      className="fixed inset-0 overflow-y-auto overflow-x-hidden"
+      className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden"
       style={{
-        width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100dvh",
-        backgroundImage: "url(/ui/background_story_screen.webp)",
+        backgroundImage: "url(/intro/background_sensi_intro.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
       }}
     >
-      <div
-        role="region"
-        aria-labelledby="narrative-title"
-        aria-describedby="narrative-text"
-        className="absolute w-full"
-        style={{
-          left: isSmallScreen
-            ? "24px"
-            : isMediumScreen
-              ? "32px"
-              : isDesktopSmall
-                ? "48px"
-                : isDesktopMedium
-                  ? "64px"
-                  : "80px",
-          maxWidth: "50%",
-          top: isSmallScreen ? "10%" : "33.333%",
-          maxHeight: "min(80dvh, 920px)",
-          transform: isSmallScreen ? "none" : "translateY(-50%)",
-        }}
-      >
+      <div className="w-full h-dvh flex items-end" style={{ padding: "0 3% 0 0" }}>
         <div
-          className="relative rounded-3xl shadow-xl bg-cover bg-center bg-no-repeat"
+          className="relative shrink-0 self-end"
+          style={{ width: "42%", height: "95%" }}
+        >
+          <Image
+            src="/intro/yondel_crop.webp"
+            alt="Yondel, le personnage principal"
+            fill
+            style={{ objectFit: "contain", objectPosition: "bottom center" }}
+            priority
+          />
+        </div>
+
+        <div
+          role="region"
+          aria-labelledby="narrative-title"
+          aria-describedby="narrative-text"
+          className="self-center relative"
           style={{
-            backgroundImage: "url(/ui/popup_start_mission.webp)",
-            padding: isSmallScreen
-              ? "16px"
-              : isMediumScreen
-                ? "24px"
-                : "32px",
+            width: "65%",
+            height: "82%",
+            marginLeft: "-8%",
           }}
         >
-          <h2
-            id="narrative-title"
-            className="font-bold text-gray-800"
-            style={{
-              fontSize: isSmallScreen
-                ? "1.25rem"
-                : isMediumScreen
-                  ? "1.75rem"
-                  : isDesktopSmall
-                    ? "2rem"
-                    : "2.25rem",
-              marginBottom: isSmallScreen ? "16px" : "24px",
-              lineHeight: 1.3,
-            }}
-          >
-            {step.title}
-          </h2>
-          <div
-            id="narrative-text"
-            style={{
-              marginBottom: isSmallScreen ? "24px" : "32px",
-              maxHeight: "min(44dvh, 360px)",
-              overflowY: "auto",
-              paddingRight: isSmallScreen
-                ? "56px"
-                : isMediumScreen
-                  ? "64px"
-                  : "80px",
-            }}
-            className="scrollbar-hide"
-          >
-            <p
-              className="text-gray-800 italic leading-relaxed whitespace-pre-line font-display"
-              style={{
-                fontSize: isSmallScreen
-                  ? "1.125rem"
-                  : isMediumScreen
-                    ? "1.25rem"
-                    : "1.5rem",
-                lineHeight: 1.5,
-              }}
+          <div className="relative w-full h-full">
+            <Image
+              src="/intro/bullebd.webp"
+              alt=""
+              aria-hidden="true"
+              fill
+              style={{ objectFit: "fill" }}
+              priority
+            />
+
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ padding: "14% 10% 22% 28%" }}
             >
-              {step.narrative}
-            </p>
+              <div
+                id="narrative-text"
+                className="text-gray-900 text-center h-full overflow-hidden"
+                style={{ maxHeight: "100%" }}
+              >
+                <h2
+                  id="narrative-title"
+                  className="font-display"
+                  style={{
+                    fontSize: "clamp(1rem, 2vw, 1.5rem)",
+                    lineHeight: 1.35,
+                    marginBottom: "clamp(8px, 1.5vh, 16px)",
+                  }}
+                >
+                  {step.title}
+                </h2>
+                <p
+                  className="font-display whitespace-pre-line"
+                  style={{
+                    fontSize: "clamp(0.9rem, 1.7vw, 1.3rem)",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {displayedText}
+                  {isTyping && (
+                    <span className="inline-block animate-pulse" aria-hidden="true">
+                      ▍
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
           </div>
-          <div
-            className="absolute"
-            style={{
-              top: isSmallScreen ? "16px" : isMediumScreen ? "24px" : "32px",
-              right: isSmallScreen
-                ? "16px"
-                : isMediumScreen
-                  ? "24px"
-                  : "32px",
-            }}
-          >
+
+          <div className="absolute top-[12%] right-[8%] z-10">
             <ReadAloudButton
-              text={`${step.title}. ${step.narrative ?? ""}`.trim()}
+              text={`${step.title}. ${currentPageText}`.trim()}
               ariaLabel="Lire le texte"
             />
           </div>
-          <button
-            type="button"
-            onClick={onContinue}
-            className="absolute rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-            style={{
-              bottom: isSmallScreen
-                ? "16px"
-                : isMediumScreen
-                  ? "24px"
-                  : "32px",
-              right: isSmallScreen
-                ? "16px"
-                : isMediumScreen
-                  ? "24px"
-                  : "32px",
-              padding: "8px",
-            }}
-            aria-label="Continuer vers l’énigme"
-          >
-            <Image
-              src="/ui/icon_next.webp"
-              alt=""
-              width={64}
-              height={64}
-              style={{
-                width: isSmallScreen
-                  ? "48px"
-                  : isMediumScreen
-                    ? "56px"
-                    : "64px",
-                height: isSmallScreen
-                  ? "48px"
-                  : isMediumScreen
-                    ? "56px"
-                    : "64px",
-              }}
-            />
-          </button>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={handleNext}
+        className="absolute touch-manipulation hover:scale-110 transition-transform"
+        style={{
+          bottom: "clamp(12px, 3vh, 28px)",
+          right: "clamp(12px, 3vw, 28px)",
+          width: "clamp(56px, 8vw, 96px)",
+          height: "clamp(56px, 8vw, 96px)",
+        }}
+        aria-label={
+          isTyping
+            ? "Afficher tout le texte"
+            : pageIndex < pages.length - 1
+              ? "Afficher la suite du texte"
+              : "Continuer vers l’énigme"
+        }
+      >
+        <div className="relative w-full h-full">
+          <Image
+            src="/ui/icon_next.webp"
+            alt="Suivant"
+            fill
+            style={{ objectFit: "contain" }}
+          />
+        </div>
+      </button>
     </div>
   );
 }
