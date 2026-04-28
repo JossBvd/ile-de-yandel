@@ -30,7 +30,7 @@ export function StepPageNarrative({
 }: StepPageNarrativeProps) {
   return (
     <div
-      className="fixed inset-0 overflow-hidden"
+      className="fixed inset-0 overflow-y-auto overflow-x-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
@@ -44,7 +44,7 @@ export function StepPageNarrative({
         role="region"
         aria-labelledby="narrative-title"
         aria-describedby="narrative-text"
-        className="absolute w-full overflow-y-auto"
+        className="absolute w-full"
         style={{
           left: isSmallScreen
             ? "24px"
@@ -57,8 +57,7 @@ export function StepPageNarrative({
                   : "80px",
           maxWidth: "50%",
           top: isSmallScreen ? "10%" : "33.333%",
-          maxHeight: isSmallScreen ? "none" : "none",
-          overflow: isSmallScreen ? "visible" : "visible",
+          maxHeight: "min(80dvh, 920px)",
           transform: isSmallScreen ? "none" : "translateY(-50%)",
         }}
       >
@@ -94,12 +93,15 @@ export function StepPageNarrative({
             id="narrative-text"
             style={{
               marginBottom: isSmallScreen ? "24px" : "32px",
+              maxHeight: "min(44dvh, 360px)",
+              overflowY: "auto",
               paddingRight: isSmallScreen
                 ? "56px"
                 : isMediumScreen
                   ? "64px"
                   : "80px",
             }}
+            className="scrollbar-hide"
           >
             <p
               className="text-gray-800 italic leading-relaxed whitespace-pre-line font-display"

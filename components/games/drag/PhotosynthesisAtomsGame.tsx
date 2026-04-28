@@ -129,6 +129,7 @@ export function PhotosynthesisAtomsGame({
     isMobileOrTablet,
     height: windowHeight,
   } = useResponsive();
+  const isVeryShortViewport = isMobileOrTablet && windowHeight < 440;
 
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -171,11 +172,13 @@ export function PhotosynthesisAtomsGame({
         : "440px";
 
   const boardHeight = isMobileOrTablet
-    ? isSmallScreen
-      ? "62vh"
-      : isMediumScreen
-        ? "60vh"
-        : "58vh"
+    ? isVeryShortViewport
+      ? "50vh"
+      : isSmallScreen
+        ? "56vh"
+        : isMediumScreen
+          ? "54vh"
+          : "52vh"
     : isDesktopSmall
       ? "340px"
       : isDesktopMedium
@@ -195,19 +198,23 @@ export function PhotosynthesisAtomsGame({
         : "560px";
 
   const questionBarHeight = isMobileOrTablet
-    ? isSmallScreen
-      ? "18vh"
-      : "16vh"
+    ? isVeryShortViewport
+      ? "12vh"
+      : isSmallScreen
+        ? "14vh"
+        : "13vh"
     : isDesktopSmall
       ? "88px"
       : "96px";
 
   const atomGridSize = isMobileOrTablet
-    ? isSmallScreen
-      ? Math.round(windowHeight * 0.11)
-      : isMediumScreen
-        ? Math.round(windowHeight * 0.10)
-        : Math.round(windowHeight * 0.09)
+    ? isVeryShortViewport
+      ? Math.round(windowHeight * 0.09)
+      : isSmallScreen
+        ? Math.round(windowHeight * 0.1)
+        : isMediumScreen
+          ? Math.round(windowHeight * 0.095)
+          : Math.round(windowHeight * 0.088)
     : isDesktopSmall
       ? 76
       : isDesktopMedium
@@ -215,21 +222,23 @@ export function PhotosynthesisAtomsGame({
         : 92;
 
   const fusionSlotSize = isMobileOrTablet
-    ? isSmallScreen
-      ? Math.round(windowHeight * 0.13)
-      : isMediumScreen
-        ? Math.round(windowHeight * 0.12)
-        : Math.round(windowHeight * 0.11)
+    ? isVeryShortViewport
+      ? Math.round(windowHeight * 0.1)
+      : isSmallScreen
+        ? Math.round(windowHeight * 0.115)
+        : isMediumScreen
+          ? Math.round(windowHeight * 0.11)
+          : Math.round(windowHeight * 0.105)
     : isDesktopSmall
       ? 84
       : isDesktopMedium
         ? 92
         : 100;
 
-  const panelGap = isMobileOrTablet ? "4vw" : "48px";
-  const atomGridGap = isMobileOrTablet ? "2vh" : "1rem";
-  const fusionSlotGap = isMobileOrTablet ? "2vw" : "1rem";
-  const rightPanelGap = isMobileOrTablet ? "4vh" : "2.5rem";
+  const panelGap = isMobileOrTablet ? (isVeryShortViewport ? "2vw" : "3vw") : "48px";
+  const atomGridGap = isMobileOrTablet ? (isVeryShortViewport ? "1.2vh" : "1.6vh") : "1rem";
+  const fusionSlotGap = isMobileOrTablet ? (isVeryShortViewport ? "1.2vw" : "2vw") : "1rem";
+  const rightPanelGap = isMobileOrTablet ? (isVeryShortViewport ? "2.4vh" : "3.2vh") : "2.5rem";
 
   const [fusionSlots, setFusionSlots] = useState<(string | null)[]>([
     null,

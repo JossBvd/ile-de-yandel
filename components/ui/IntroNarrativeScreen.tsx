@@ -109,7 +109,7 @@ export function IntroNarrativeScreen({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-hidden"
+      className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden"
       style={{
         backgroundImage: "url(/intro/background_sensi_intro.webp)",
         backgroundSize: "cover",
@@ -117,7 +117,7 @@ export function IntroNarrativeScreen({
       }}
     >
       <div
-        className="w-full h-full flex items-end"
+        className="w-full min-h-[100dvh] flex items-end"
         style={{ padding: "0 3% 0 0" }}
       >
         {/* Personnage Yondel – côté gauche, collé en bas */}
@@ -185,10 +185,11 @@ export function IntroNarrativeScreen({
                 style={{ padding: "14% 10% 22% 28%" }}
               >
                 <p
-                  className="font-display text-gray-900 text-center"
+                  className="font-display text-gray-900 text-center overflow-y-auto scrollbar-hide"
                   style={{
                     fontSize: "clamp(0.85rem, 1.6vw, 1.25rem)",
                     lineHeight: 1.55,
+                    maxHeight: "100%",
                   }}
                 >
                   {displayedText}

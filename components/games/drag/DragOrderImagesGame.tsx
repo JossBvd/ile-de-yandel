@@ -224,6 +224,26 @@ export function DragOrderImagesGame({
       : isDesktopMedium
         ? 144
         : 160;
+  const hasDenseSourceGrid = game.sourceImages.length >= 5;
+  const hasManyAnswerSlots = game.slotsCount >= 5;
+  const shouldReduceSourceImageSize =
+    isMobileOrTablet &&
+    questionContainerVisible &&
+    (hasDenseSourceGrid || hasManyAnswerSlots);
+  const imageSizeReduction = shouldReduceSourceImageSize
+    ? hasManyAnswerSlots
+      ? isSmallScreen
+        ? 16
+        : isMediumScreen
+          ? 14
+          : 12
+      : isSmallScreen
+        ? 12
+        : isMediumScreen
+          ? 10
+          : 8
+    : 0;
+  const effectiveImageSize = Math.max(72, imageSize - imageSizeReduction);
   const slotSize = isMobileOrTablet
     ? isCompactSource
       ? isSmallScreen
@@ -455,7 +475,7 @@ export function DragOrderImagesGame({
                 image={image}
                 isInSlot={isImageInSlot(image.id)}
                 onInfoClick={setInfoModalImageUrl}
-                sizePx={imageSize}
+                sizePx={effectiveImageSize}
               />
             ))}
           </div>
@@ -569,7 +589,7 @@ export function DragOrderImagesGame({
                   <div
                     key={img.id}
                     className="rounded-lg border-2 border-white/40 bg-black/20 shrink-0"
-                    style={{ width: imageSize, height: imageSize }}
+                    style={{ width: effectiveImageSize, height: effectiveImageSize }}
                   />
                 ))}
               </div>
@@ -681,7 +701,7 @@ export function DragOrderImagesGame({
         {activeImage ? (
           <div
             className="relative rounded-lg overflow-hidden border-2 border-white/60 shadow-lg opacity-90"
-            style={{ width: imageSize, height: imageSize }}
+            style={{ width: effectiveImageSize, height: effectiveImageSize }}
           >
             <Image
               src={activeImage.src}
