@@ -67,7 +67,6 @@ function HomeContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
   const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
-  const mobileMenuExtraHeight = showParamsMenu ? (isSmallScreen ? 260 : 220) : 0;
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -214,13 +213,10 @@ function HomeContent() {
     <div
       id="main-content"
       role="main"
-      className={`relative overflow-x-hidden ${isMobileOrTablet ? "overflow-y-auto" : "overflow-hidden"}`}
+      className="relative overflow-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
-        minHeight: isMobileOrTablet
-          ? `calc(100dvh + ${mobileMenuExtraHeight}px)`
-          : undefined,
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -281,10 +277,10 @@ function HomeContent() {
         className="absolute z-10"
         style={{
           bottom: isMobileOrTablet 
-            ? (isSmallScreen ? '-8px' : isMediumScreen ? '6px' : '12px')
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
             : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
           right: isMobileOrTablet 
-            ? (isSmallScreen ? '4px' : isMediumScreen ? '10px' : '14px')
+            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
             : (isDesktopSmall ? '16px' : isDesktopMedium ? '24px' : '32px'),
         }}
       >

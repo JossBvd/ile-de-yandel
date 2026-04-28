@@ -354,7 +354,7 @@ function RadeauContent({
     const missionIndex = getMissionIndex(first);
     const expectedMissionIndex = fusedRaftPiecesCount + 1;
     if (missionIndex == null || missionIndex !== expectedMissionIndex) {
-      setFusionFeedback("Ce n'est pas le moment de placer cette pièce");
+      setFusionFeedback(null);
       setMergeSlots([null, null, null]);
       return;
     }
