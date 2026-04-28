@@ -200,8 +200,19 @@ export function QCMGame({
         }}
       >
         <div
-          className="w-full flex-1 flex flex-col pointer-events-auto justify-center min-h-0 overflow-y-auto"
-          style={{ gap: gapMain }}
+          className={`w-full flex-1 flex flex-col pointer-events-auto min-h-0 overflow-y-auto scrollbar-hide ${
+            isStep2 ? "justify-start" : "justify-center"
+          }`}
+          style={{
+            gap: gapMain,
+            paddingTop: isStep2
+              ? isMobileOrTablet
+                ? isSmallScreen
+                  ? "6px"
+                  : "8px"
+                : "10px"
+              : undefined,
+          }}
         >
           {questionContainerVisible && (
           <div

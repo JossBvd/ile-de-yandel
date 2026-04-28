@@ -304,7 +304,7 @@ function HomeContent() {
           {showParamsMenu && (
             <div
               role="menu"
-              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl overflow-hidden min-w-[200px] bg-[#e8dcc4] border border-amber-800/20"
+              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 overflow-x-hidden overflow-y-auto scrollbar-hide"
               style={{
                 padding: isMobileOrTablet ? '8px' : '12px',
               }}

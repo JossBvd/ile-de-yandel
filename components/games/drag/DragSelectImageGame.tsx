@@ -26,6 +26,9 @@ export function DragSelectImageGame({
 
   const maxSelections = game.maxSelections ?? game.correctImages.length;
   const canSubmit = selectedImages.length > 0;
+  const hasDenseImageGrid = game.images.length >= 8;
+  const shouldEnableVerticalScroll = isMobileOrTablet;
+  const shouldTopAlignContent = isMobileOrTablet && hasDenseImageGrid;
 
   const imageSize = isMobileOrTablet
     ? isSmallScreen
@@ -38,6 +41,16 @@ export function DragSelectImageGame({
       : isDesktopMedium
         ? 148
         : 164;
+  const imageSizeReduction = isMobileOrTablet
+    ? hasDenseImageGrid
+      ? isSmallScreen
+        ? 16
+        : isMediumScreen
+          ? 12
+          : 10
+      : 0
+    : 0;
+  const effectiveImageSize = Math.max(72, imageSize - imageSizeReduction);
 
   const containerPadding = isMobileOrTablet
     ? isSmallScreen
@@ -115,7 +128,12 @@ export function DragSelectImageGame({
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col justify-center" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
+        <div
+          className={`flex-1 min-h-0 flex flex-col ${
+            shouldTopAlignContent ? "justify-start" : "justify-center"
+          } ${shouldEnableVerticalScroll ? "overflow-y-auto scrollbar-hide" : ""}`}
+          style={{ gap: isMobileOrTablet ? 8 : 12, paddingBottom: shouldEnableVerticalScroll ? "8px" : undefined }}
+        >
           <div
             className="w-full flex items-center justify-center"
             style={{ gap: isMobileOrTablet ? 10 : 16 }}
@@ -124,7 +142,8 @@ export function DragSelectImageGame({
               className="grid grid-cols-4 justify-items-center items-center"
             style={{
               gap: isMobileOrTablet ? 8 : 12,
-              maxWidth: imageSize * 4 + (isMobileOrTablet ? 8 : 12) * 3,
+              maxWidth:
+                effectiveImageSize * 4 + (isMobileOrTablet ? 8 : 12) * 3,
             }}
           >
             {game.images.map((image) => {
@@ -148,7 +167,7 @@ export function DragSelectImageGame({
                     ? "border-yellow-300 shadow-[0_0_0_4px_rgba(250,204,21,0.55)]"
                     : "border-white/80"
                 }`}
-                style={{ width: imageSize, height: imageSize }}
+                style={{ width: effectiveImageSize, height: effectiveImageSize }}
                 role="button"
                 tabIndex={0}
                 aria-label={`Sélectionner ${image.alt}`}

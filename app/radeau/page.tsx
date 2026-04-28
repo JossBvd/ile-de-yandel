@@ -25,6 +25,21 @@ import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const INVENTORY_SLOTS_COUNT = 15;
+const RAFT_STAGE_IMAGES = [
+  "/raft/radeau_base.png",
+  "/raft/radeauM1.png",
+  "/raft/radeauM2.png",
+  "/raft/radeauM3.png",
+  "/raft/radeauM4.png",
+  "/raft/radeauM5.png",
+] as const;
+const MERGED_OBJECT_MODAL_IMAGES = [
+  "/raft/popup_merged_object-01.webp",
+  "/raft/popup_merged_object-02.webp",
+  "/raft/popup_merged_object-03.webp",
+  "/raft/popup_merged_object-04.webp",
+  "/raft/popup_merged_object-05.webp",
+] as const;
 
 interface DraggableItemProps {
   id: string;
@@ -32,6 +47,7 @@ interface DraggableItemProps {
   isInMergeSlot: boolean;
   isFused: boolean;
   canDrag: boolean;
+  isGuidedOut: boolean;
 }
 
 function DraggableItem({
@@ -40,6 +56,7 @@ function DraggableItem({
   isInMergeSlot,
   isFused,
   canDrag,
+  isGuidedOut,
 }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
@@ -48,12 +65,7 @@ function DraggableItem({
 
   if (isInMergeSlot) {
     return (
-      <div
-        className="w-full aspect-square min-w-0 min-h-0 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-0 pointer-events-none"
-        style={{
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-        }}
-      />
+      <div className="w-full h-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden opacity-0 pointer-events-none" />
     );
   }
 
@@ -62,14 +74,22 @@ function DraggableItem({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-full aspect-square min-w-0 min-h-0 rounded border-2 flex items-center justify-center overflow-hidden touch-none border-white bg-[#93c5fd]/80 ${
+      className={`w-full h-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden touch-none ${
+        piece?.image && !isFused
+          ? ""
+          : "rounded border-2 border-white bg-[#93c5fd]/80"
+      } ${
         !canDrag
           ? "opacity-50 cursor-not-allowed"
           : "cursor-grab active:cursor-grabbing"
-      } ${isDragging ? "opacity-50" : ""}`}
-      style={{
-        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-      }}
+      } ${isDragging ? "opacity-50" : ""} ${isGuidedOut ? "grayscale" : ""}`}
+      style={
+        piece?.image && !isFused
+          ? undefined
+          : {
+              boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
+            }
+      }
     >
       {isFused ? (
         <span
@@ -119,17 +139,20 @@ function DroppableSlot({
   });
 
   return (
-    <div className="w-full flex items-center justify-center" style={{ aspectRatio: "1/1" }}>
+    <div
+      className="w-full min-w-0 min-h-0 flex items-center justify-center"
+      style={{ aspectRatio: "1 / 1" }}
+    >
       <button
         type="button"
         ref={setNodeRef}
         onClick={onRemove}
-        className={`w-full h-full rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
+        className={`w-full h-full min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
           isOver ? "bg-gray-700/80" : ""
         }`}
-        style={{ 
+        style={{
           borderColor: "#d97706",
-          aspectRatio: "1/1",
+          minHeight: 0,
         }}
       >
         {hasPiece ? (
@@ -178,11 +201,30 @@ function RadeauContent({
     resetFusions,
     fusionHistory,
   } = useInventoryStore();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  const {
+    isSmallScreen,
+    isMediumScreen,
+    isDesktopSmall,
+    isDesktopMedium,
+    isDesktopLarge,
+    isMobileOrTablet,
+  } = useResponsive();
+  const [fusionFeedback, setFusionFeedback] = useState<string | null>(null);
+  const [mergedObjectModalImage, setMergedObjectModalImage] = useState<
+    string | null
+  >(null);
 
   const inMergeSlots = new Set(
     mergeSlots.filter((id): id is RaftPieceId => id !== null),
   );
+  const getMissionKey = (id: RaftPieceId) =>
+    id.split("-").slice(0, 2).join("-");
+  const firstMergePiece = mergeSlots.find(
+    (slot): slot is RaftPieceId => slot !== null,
+  );
+  const lockedMissionKey = firstMergePiece
+    ? getMissionKey(firstMergePiece)
+    : null;
 
   const getMissionIndex = (id: RaftPieceId) => {
     const parts = id.split("-");
@@ -205,13 +247,11 @@ function RadeauContent({
     }
   });
 
-  type InventoryItem =
-    | {
-        id: string;
-        type: "mission" | "fused";
-        isInMergeSlot?: boolean;
-      }
-    | null;
+  type InventoryItem = {
+    id: string;
+    type: "mission" | "fused";
+    isInMergeSlot?: boolean;
+  } | null;
 
   const inventoryItems: InventoryItem[] = [];
 
@@ -250,6 +290,40 @@ function RadeauContent({
   const canCancelFusion =
     mergeSlots.some((slot) => slot !== null) || fusedRaftPiecesCount > 0;
 
+  const raftVisualBaseWidth = isMobileOrTablet
+    ? isSmallScreen
+      ? 360
+      : isMediumScreen
+        ? 430
+        : 500
+    : isDesktopSmall
+      ? 560
+      : isDesktopMedium
+        ? 620
+        : 700;
+
+  const raftVisualBaseHeight = isMobileOrTablet
+    ? isSmallScreen
+      ? 250
+      : isMediumScreen
+        ? 300
+        : 340
+    : isDesktopSmall
+      ? 380
+      : isDesktopMedium
+        ? 420
+        : 460;
+
+  // Sur mobile/tablette on borne la hauteur du radeau à une part du viewport
+  // pour éviter un débordement vers le haut tout en gardant un rendu visuellement grand.
+  const raftVisualHeight = isMobileOrTablet
+    ? Math.min(raftVisualBaseHeight, Math.floor(height * 0.44))
+    : raftVisualBaseHeight;
+  const raftVisualWidth =
+    raftVisualBaseHeight > 0
+      ? Math.round((raftVisualBaseWidth * raftVisualHeight) / raftVisualBaseHeight)
+      : raftVisualBaseWidth;
+
   // handleDragStart et handleDragEnd sont maintenant dans RadeauWrapper
 
   const removeFromMergeSlot = (index: number) => {
@@ -265,8 +339,6 @@ function RadeauContent({
     const ids = mergeSlots as [RaftPieceId, RaftPieceId, RaftPieceId];
 
     const [first, second, third] = ids;
-    const getMissionKey = (id: RaftPieceId) =>
-      id.split("-").slice(0, 2).join("-");
     const missionKey = getMissionKey(first);
 
     const sameMission =
@@ -274,13 +346,27 @@ function RadeauContent({
       getMissionKey(third) === missionKey;
 
     if (!sameMission) {
+      setFusionFeedback("Les 3 pièces doivent venir de la même mission.");
+      setMergeSlots([null, null, null]);
+      return;
+    }
+
+    const missionIndex = getMissionIndex(first);
+    const expectedMissionIndex = fusedRaftPiecesCount + 1;
+    if (missionIndex == null || missionIndex !== expectedMissionIndex) {
+      setFusionFeedback(null);
       setMergeSlots([null, null, null]);
       return;
     }
 
     const ok = consumePiecesForFusion(ids);
     if (ok) {
+      setFusionFeedback(null);
       setMergeSlots([null, null, null]);
+      const modalImage = MERGED_OBJECT_MODAL_IMAGES[expectedMissionIndex - 1];
+      if (modalImage) {
+        setMergedObjectModalImage(modalImage);
+      }
     }
   };
 
@@ -293,6 +379,7 @@ function RadeauContent({
     if (!confirmed) return;
 
     resetFusions();
+    setFusionFeedback(null);
     setMergeSlots([null, null, null]);
   };
 
@@ -319,18 +406,44 @@ function RadeauContent({
 
       <div className="relative flex-1 min-w-0 flex flex-col z-10">
         {/* Titre */}
-        <div 
+        <div
           className="absolute z-10 flex items-start gap-2"
           style={{
-            top: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 8 : 12) : 24,
+            top: isMobileOrTablet
+              ? isSmallScreen
+                ? 4
+                : isMediumScreen
+                  ? 8
+                  : 12
+              : 24,
             left: 0,
           }}
         >
-          <div 
+          <div
             className="relative"
             style={{
-              width: isMobileOrTablet ? (isSmallScreen ? 192 : isMediumScreen ? 240 : 280) : (isDesktopSmall ? 320 : isDesktopMedium ? 360 : 400),
-              height: isMobileOrTablet ? (isSmallScreen ? 64 : isMediumScreen ? 80 : 96) : (isDesktopSmall ? 112 : isDesktopMedium ? 120 : 128),
+              width: isMobileOrTablet
+                ? isSmallScreen
+                  ? 192
+                  : isMediumScreen
+                    ? 240
+                    : 280
+                : isDesktopSmall
+                  ? 320
+                  : isDesktopMedium
+                    ? 360
+                    : 400,
+              height: isMobileOrTablet
+                ? isSmallScreen
+                  ? 64
+                  : isMediumScreen
+                    ? 80
+                    : 96
+                : isDesktopSmall
+                  ? 112
+                  : isDesktopMedium
+                    ? 120
+                    : 128,
             }}
           >
             <Image
@@ -340,20 +453,27 @@ function RadeauContent({
               className="object-contain object-top-left"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <h1 
+              <h1
                 className="font-bold text-gray-800 drop-shadow-sm"
                 style={{
-                  fontSize: isMobileOrTablet ? (isSmallScreen ? '0.875rem' : isMediumScreen ? '1rem' : '1.125rem') : (isDesktopSmall ? '1.25rem' : isDesktopMedium ? '1.375rem' : '1.5rem'),
+                  fontSize: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "0.875rem"
+                      : isMediumScreen
+                        ? "1rem"
+                        : "1.125rem"
+                    : isDesktopSmall
+                      ? "1.25rem"
+                      : isDesktopMedium
+                        ? "1.375rem"
+                        : "1.5rem",
                 }}
               >
                 Radeau
               </h1>
             </div>
           </div>
-          <ReadAloudButton
-            text="Radeau"
-            ariaLabel="Lire le titre"
-          />
+          <ReadAloudButton text="Radeau" ariaLabel="Lire le titre" />
         </div>
 
         {/* Progression */}
@@ -362,117 +482,190 @@ function RadeauContent({
           style={{
             left: "50%",
             transform: "translateX(-50%)",
-            bottom: isMobileOrTablet ? (isSmallScreen ? 48 : isMediumScreen ? 56 : 64) : (isDesktopSmall ? 72 : isDesktopMedium ? 80 : 88),
-            gap: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 6 : 8) : (isDesktopSmall ? 8 : 10),
-            marginLeft: isMobileOrTablet ? (isSmallScreen ? 40 : isMediumScreen ? 56 : 72) : (isDesktopSmall ? 80 : isDesktopMedium ? 96 : 112),
+            bottom: isMobileOrTablet
+              ? isSmallScreen
+                ? 24
+                : isMediumScreen
+                  ? 30
+                  : 36
+              : isDesktopSmall
+                ? 40
+                : isDesktopMedium
+                  ? 48
+                  : 56,
+            gap: isMobileOrTablet
+              ? isSmallScreen
+                ? 4
+                : isMediumScreen
+                  ? 6
+                  : 8
+              : isDesktopSmall
+                ? 8
+                : 10,
+            marginLeft: isMobileOrTablet
+              ? isSmallScreen
+                ? 20
+                : isMediumScreen
+                  ? 28
+                  : 36
+              : isDesktopSmall
+                ? 40
+                : isDesktopMedium
+                  ? 52
+                  : 64,
           }}
         >
           <div
             className="relative shrink-0"
             style={{
-              width: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 200 : 240) : (isDesktopSmall ? 280 : isDesktopMedium ? 320 : 360),
-              height: isMobileOrTablet ? (isSmallScreen ? 160 : isMediumScreen ? 200 : 240) : (isDesktopSmall ? 280 : isDesktopMedium ? 320 : 360),
-              opacity: 0.25,
+                width: raftVisualWidth,
+                height: raftVisualHeight,
             }}
           >
             <Image
-              src="/raft/picto-ile-grey.webp"
-              alt=""
+              src={
+                RAFT_STAGE_IMAGES[
+                  Math.min(fusedRaftPiecesCount, RAFT_STAGE_IMAGES.length - 1)
+                ]
+              }
+              alt="Progression visuelle du radeau"
               fill
               className="object-contain"
             />
           </div>
+          <div className="flex items-center justify-center w-full">
+            <span
+              className="font-semibold text-gray-800"
+              style={{
+                fontSize: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "0.875rem"
+                    : "1rem"
+                  : "1.125rem",
+                lineHeight: 1,
+              }}
+              aria-live="polite"
+            >
+              {fusedRaftPiecesCount}/{MAX_FUSED_RAFT_PIECES}
+            </span>
+          </div>
           <div
-            className="flex"
+            className="relative flex flex-col items-center"
             style={{
-              gap: isMobileOrTablet ? (isSmallScreen ? 4 : 6) : (isDesktopSmall ? 8 : 10),
+              width: "100%",
+              gap: isSmallScreen ? 6 : isMediumScreen ? 8 : 10,
+              maxWidth: isMobileOrTablet ? (isSmallScreen ? 184 : 212) : 236,
             }}
           >
-            {Array.from({ length: MAX_FUSED_RAFT_PIECES }).map((_, i) => (
-              <div
-                key={i}
-                className="relative shrink-0"
-                style={{
-                  width: isMobileOrTablet ? (isSmallScreen ? 32 : isMediumScreen ? 40 : 48) : (isDesktopSmall ? 52 : isDesktopMedium ? 58 : 64),
-                  height: isMobileOrTablet ? (isSmallScreen ? 32 : isMediumScreen ? 40 : 48) : (isDesktopSmall ? 52 : isDesktopMedium ? 58 : 64),
-                }}
-              >
-                <Image
-                  src={
-                    i < fusedRaftPiecesCount
-                      ? "/raft/icon_radeau_stepchecked.webp"
-                      : "/raft/icon_radeau_steplocked.webp"
-                  }
-                  alt={
-                    i < fusedRaftPiecesCount
-                      ? "Pièce obtenue"
-                      : "Pièce à obtenir"
-                  }
-                  fill
-                  className="object-contain"
+            <div
+              className="grid grid-cols-3 w-full"
+              style={{
+                gap: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "4px"
+                    : isMediumScreen
+                      ? "6px"
+                      : "8px"
+                  : "10px",
+              }}
+            >
+              {mergeSlots.map((pieceId, i) => (
+                <DroppableSlot
+                  key={i}
+                  index={i}
+                  pieceId={pieceId}
+                  onRemove={() => removeFromMergeSlot(i)}
                 />
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col items-center gap-2" style={{ width: "100%" }}>
-            <p
-              className="font-semibold text-gray-800 drop-shadow-sm text-center"
+              ))}
+            </div>
+
+            <div
+              className="flex items-center w-full"
               style={{
-                fontSize: isMobileOrTablet
-                  ? isSmallScreen
-                    ? "0.8125rem"
-                    : isMediumScreen
-                      ? "0.9375rem"
-                      : "1rem"
-                  : isDesktopSmall
-                    ? "1rem"
-                    : isDesktopMedium
-                      ? "1.0625rem"
-                      : "1.125rem",
+                gap: isSmallScreen ? 6 : 8,
+                flexWrap: "nowrap",
               }}
             >
-              Pièces de radeau collectées {fusedRaftPiecesCount}/
-              {MAX_FUSED_RAFT_PIECES}
-            </p>
-            <button
-              type="button"
-              onClick={handleAnnuler}
-              disabled={!canCancelFusion}
-              className="rounded-xl font-semibold text-gray-800 bg-gray-200 shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              <button
+                type="button"
+                onClick={handleFusionner}
+                disabled={!canFuse}
+                className="min-w-0 rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
+                style={{
+                  flex: "1 1 auto",
+                  padding: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "8px 10px"
+                      : "10px 12px"
+                    : "11px 14px",
+                  fontSize: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "0.75rem"
+                      : "0.875rem"
+                    : "0.9rem",
+                  minHeight: isMobileOrTablet ? 42 : 40,
+                }}
+                aria-label="Fusionner les pièces"
+              >
+                Fusionner !
+              </button>
+              <button
+                type="button"
+                onClick={handleAnnuler}
+                disabled={!canCancelFusion}
+                className="min-w-0 rounded-xl font-semibold text-gray-800 bg-gray-200 shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                style={{
+                  flex: "1 1 auto",
+                  padding: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "8px 10px"
+                      : "10px 12px"
+                    : "11px 14px",
+                  fontSize: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "0.6875rem"
+                      : "0.8125rem"
+                    : "0.875rem",
+                  minHeight: isMobileOrTablet ? 42 : 40,
+                }}
+                aria-label="Annuler toutes les fusions et remettre les pièces de base"
+              >
+                Annuler
+              </button>
+            </div>
+
+            {fusionFeedback ? (
+              <p
+                className="text-red-700 font-semibold text-center"
+                style={{
+                  fontSize: isMobileOrTablet
+                    ? isSmallScreen
+                      ? "0.6875rem"
+                      : "0.8125rem"
+                    : "0.875rem",
+                  minHeight: 20,
+                }}
+                aria-live="polite"
+              >
+                {fusionFeedback}
+              </p>
+            ) : null}
+            <div
+              className="absolute z-10"
               style={{
-                padding: isMobileOrTablet
+                top: 0,
+                right: isMobileOrTablet
                   ? isSmallScreen
-                    ? "8px 16px"
-                    : isMediumScreen
-                      ? "10px 18px"
-                      : "10px 20px"
-                  : isDesktopSmall
-                    ? "10px 20px"
-                    : isDesktopMedium
-                      ? "12px 22px"
-                      : "12px 24px",
-                fontSize: isMobileOrTablet
-                  ? isSmallScreen
-                    ? "0.9375rem"
-                    : isMediumScreen
-                      ? "1rem"
-                      : "1.0625rem"
-                  : isDesktopSmall
-                    ? "1rem"
-                    : isDesktopMedium
-                      ? "1.0625rem"
-                      : "1.125rem",
-                minHeight: 40,
-                minWidth: 140,
+                    ? -54
+                    : -58
+                  : -64,
               }}
-              aria-label="Annuler toutes les fusions et remettre les pièces de base"
             >
-              Annuler
-            </button>
-            <ReadAloudButton
-              text={`Pièces de radeau collectées ${fusedRaftPiecesCount} sur ${MAX_FUSED_RAFT_PIECES}. Bouton annuler pour remettre les pièces de base et réinitialiser les fusions.`}
-              ariaLabel="Lire la progression et le bouton annuler"
-            />
+              <ReadAloudButton
+                text={`Pièces de radeau collectées ${fusedRaftPiecesCount} sur ${MAX_FUSED_RAFT_PIECES}. Fusionne les objets collectés pour construire le radeau.`}
+                ariaLabel="Lire la progression et les actions de fusion"
+              />
+            </div>
           </div>
         </div>
 
@@ -480,8 +673,28 @@ function RadeauContent({
         <div
           className="absolute z-10 flex items-center gap-2"
           style={{
-            bottom: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
-            left: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 16 : isDesktopMedium ? 24 : 32),
+            bottom: isMobileOrTablet
+              ? isSmallScreen
+                ? 8
+                : isMediumScreen
+                  ? 12
+                  : 16
+              : isDesktopSmall
+                ? 16
+                : isDesktopMedium
+                  ? 24
+                  : 32,
+            left: isMobileOrTablet
+              ? isSmallScreen
+                ? 8
+                : isMediumScreen
+                  ? 12
+                  : 16
+              : isDesktopSmall
+                ? 16
+                : isDesktopMedium
+                  ? 24
+                  : 32,
           }}
         >
           <IconButton
@@ -502,13 +715,53 @@ function RadeauContent({
         className="relative shrink-0 flex flex-col overflow-hidden z-10"
         style={{
           height: "auto",
-          width: "auto",
+          width: isMobileOrTablet
+            ? isSmallScreen
+              ? 214
+              : isMediumScreen
+                ? 238
+                : 268
+            : isDesktopSmall
+              ? 318
+              : isDesktopMedium
+                ? 348
+                : 382,
           maxHeight: "96dvh",
-          maxWidth: isMobileOrTablet ? (isSmallScreen ? 240 : isMediumScreen ? 280 : 320) : (isDesktopSmall ? 320 : isDesktopMedium ? 360 : 400),
-          aspectRatio: "9/19",
-          margin: isMobileOrTablet ? (isSmallScreen ? 8 : isMediumScreen ? 12 : 16) : (isDesktopSmall ? 20 : isDesktopMedium ? 24 : 28),
-          padding: isMobileOrTablet ? (isSmallScreen ? 10 : isMediumScreen ? 12 : 14) : (isDesktopSmall ? 16 : isDesktopMedium ? 18 : 20),
-          paddingBottom: isMobileOrTablet ? (isSmallScreen ? 12 : isMediumScreen ? 16 : 20) : (isDesktopSmall ? 24 : isDesktopMedium ? 28 : 32),
+          maxWidth: "90vw",
+          aspectRatio: isMobileOrTablet ? "10.5/19" : "10/19",
+          margin: isMobileOrTablet
+            ? isSmallScreen
+              ? 6
+              : isMediumScreen
+                ? 8
+                : 10
+            : isDesktopSmall
+              ? 12
+              : isDesktopMedium
+                ? 14
+                : 16,
+          padding: isMobileOrTablet
+            ? isSmallScreen
+              ? 8
+              : isMediumScreen
+                ? 10
+                : 12
+            : isDesktopSmall
+              ? 14
+              : isDesktopMedium
+                ? 16
+                : 18,
+          paddingBottom: isMobileOrTablet
+            ? isSmallScreen
+              ? 10
+              : isMediumScreen
+                ? 12
+                : 14
+            : isDesktopSmall
+              ? 18
+              : isDesktopMedium
+                ? 20
+                : 22,
           boxSizing: "border-box",
           backgroundImage: "url(/raft/background_radeau_merge_slots.webp)",
           backgroundSize: "100% 100%",
@@ -516,108 +769,199 @@ function RadeauContent({
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Grille inventaire */}
-        <div className="flex-1 min-h-0 w-full min-w-0 flex items-center justify-center overflow-hidden">
-          <div
-            className="grid grid-cols-3 grid-rows-5 shrink-0"
-            style={{
-              width: "min(100%, 90cqw)",
-              aspectRatio: "3/5",
-              maxHeight: "100%",
-              maxWidth: "100%",
-              gap: isMobileOrTablet ? (isSmallScreen ? 4 : isMediumScreen ? 6 : 8) : (isDesktopSmall ? 8 : 10),
-            }}
-          >
-            {Array.from({ length: INVENTORY_SLOTS_COUNT }).map((_, i) => {
-              const item = inventoryItems[i];
-              const piece =
-                item?.type === "mission"
-                  ? getRaftPieceById(item.id as RaftPieceId)
-                  : null;
-              const isFused = item?.type === "fused";
-              const isMission = item?.type === "mission";
-              const isInMergeSlot = item?.isInMergeSlot ?? false;
-              const canDrag =
-                isMission &&
-                !isInMergeSlot &&
-                mergeSlots.some((s) => s === null) &&
-                piece != null;
-
-              if (item) {
-                return (
-                  <DraggableItem
-                    key={item.id + i}
-                    id={item.id}
-                    piece={piece}
-                    isInMergeSlot={isInMergeSlot}
-                    isFused={isFused}
-                    canDrag={canDrag}
-                  />
-                );
-              }
-
-              return (
-                <div
-                  key={i}
-                  className="w-full aspect-square min-w-0 min-h-0 rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden"
-                  style={{
-                    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-                  }}
-                />
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Zone fusion */}
         <div
-          className="shrink-0 w-full min-w-0 flex flex-col self-center"
+          className="w-full h-full min-h-0 min-w-0 grid"
           style={{
-            gap: isMobileOrTablet ? (isSmallScreen ? 4 : 6) : 8,
-            maxWidth: "90%",
-            paddingBottom: 2,
+            gridTemplateRows: "auto minmax(0, 1fr)",
+            gap: isSmallScreen ? 10 : isMediumScreen ? 12 : 14,
           }}
         >
-          <div 
-            className="grid grid-cols-3 w-full min-w-0 shrink-0 max-w-full"
+          <div
+            className="w-full rounded-lg border border-amber-700/60"
             style={{
-              gap: isMobileOrTablet ? (isSmallScreen ? "4px" : isMediumScreen ? "6px" : "8px") : "10px",
-              gridTemplateRows: "1fr",
+              gridColumn: "1 / -1",
+              padding: isSmallScreen ? 10 : isMediumScreen ? 12 : 14,
+              backgroundColor: "rgba(255, 245, 220, 0.82)",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.18)",
+              alignSelf: "stretch",
             }}
           >
-            {mergeSlots.map((pieceId, i) => (
-              <DroppableSlot
-                key={i}
-                index={i}
-                pieceId={pieceId}
-                onRemove={() => removeFromMergeSlot(i)}
-              />
-            ))}
+            <p
+              className="w-full font-semibold text-center"
+              style={{
+                color: "#1f2937",
+                fontSize: isMobileOrTablet
+                  ? isSmallScreen
+                    ? "0.75rem"
+                    : "0.875rem"
+                  : "1rem",
+                lineHeight: 1.4,
+                textShadow: "0 1px 0 rgba(255, 255, 255, 0.35)",
+                width: "100%",
+              }}
+            >
+              Fusionne les objets collectés pour construire le radeau.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 w-full">
-            <button
-              type="button"
-              onClick={handleFusionner}
-              disabled={!canFuse}
-              className="flex-1 min-w-0 rounded-xl font-semibold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation bg-orange-500"
+          <div
+            className="min-h-0 min-w-0 flex items-center justify-center overflow-hidden"
+            style={{ paddingLeft: isSmallScreen ? 4 : isMediumScreen ? 6 : 8 }}
+          >
+            <div
+              className="grid shrink-0"
               style={{
-                padding: isMobileOrTablet ? (isSmallScreen ? "12px 16px" : isMediumScreen ? "14px 18px" : "16px 20px") : (isDesktopSmall ? "14px 20px" : "18px 24px"),
-                fontSize: isMobileOrTablet ? (isSmallScreen ? "1rem" : isMediumScreen ? "1.0625rem" : "1.125rem") : (isDesktopSmall ? "1rem" : isDesktopMedium ? "1.0625rem" : "1.125rem"),
-                minHeight: isMobileOrTablet ? 48 : 44,
-                minWidth: 120,
+                width: "100%",
+                height: "100%",
+                minHeight: 0,
+                minWidth: 0,
+                maxHeight: "100%",
+                maxWidth: "100%",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gridTemplateRows: "repeat(5, minmax(0, 1fr))",
+                gap: isMobileOrTablet
+                  ? isSmallScreen
+                    ? 0
+                    : isMediumScreen
+                      ? 0
+                      : 0
+                  : isDesktopSmall
+                    ? 0
+                    : 0,
+                alignContent: "stretch",
               }}
-              aria-label="Fusionner les pièces"
             >
-              Fusionner !
-            </button>
-            <ReadAloudButton
-              text="Fusionner les pièces pour obtenir une pièce de radeau"
-              ariaLabel="Lire : Fusionner"
-            />
+              {Array.from({ length: INVENTORY_SLOTS_COUNT }).map((_, i) => {
+                const item = inventoryItems[i];
+                const piece =
+                  item?.type === "mission"
+                    ? getRaftPieceById(item.id as RaftPieceId)
+                    : null;
+                const isFused = item?.type === "fused";
+                const isMission = item?.type === "mission";
+                const isInMergeSlot = item?.isInMergeSlot ?? false;
+                const isSameLockedMission =
+                  lockedMissionKey == null || !isMission
+                    ? true
+                    : getMissionKey(item.id as RaftPieceId) ===
+                      lockedMissionKey;
+                const canDrag =
+                  isMission &&
+                  !isInMergeSlot &&
+                  mergeSlots.some((s) => s === null) &&
+                  isSameLockedMission &&
+                  piece != null;
+                const isGuidedOut =
+                  Boolean(lockedMissionKey) &&
+                  isMission &&
+                  !isSameLockedMission;
+
+                if (item) {
+                  return (
+                    <DraggableItem
+                      key={item.id + i}
+                      id={item.id}
+                      piece={piece}
+                      isInMergeSlot={isInMergeSlot}
+                      isFused={isFused}
+                      canDrag={canDrag}
+                      isGuidedOut={isGuidedOut}
+                    />
+                  );
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="w-full h-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden"
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
+
+      {mergedObjectModalImage ? (
+        <div
+          className="fixed z-50 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            width: isRotated ? `${width}px` : "100vw",
+            height: isRotated ? `${height}px` : "100dvh",
+            left: isRotated ? "50%" : "0",
+            top: isRotated ? "50%" : "0",
+            marginLeft: isRotated ? `-${width / 2}px` : "0",
+            marginTop: isRotated ? `-${height / 2}px` : "0",
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Objet fusionné"
+        >
+          <div
+            className="relative w-full max-w-lg"
+            style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
+          >
+            <Image
+              src={mergedObjectModalImage}
+              alt="Objet fusionné"
+              width={800}
+              height={600}
+              className="w-full h-auto object-contain pointer-events-none"
+              style={{ maxHeight: isRotated ? `${height * 0.9}px` : "90dvh" }}
+              sizes="(max-width: 640px) 100vw, 32rem"
+            />
+            <div className="absolute top-4 right-4 z-10">
+              <ReadAloudButton
+                text="Objet fusionné récupéré."
+                ariaLabel="Lire le message"
+              />
+            </div>
+            <div
+              className="absolute"
+              style={{
+                bottom: isSmallScreen
+                  ? "12px"
+                  : isMediumScreen
+                    ? "16px"
+                    : "16px",
+                right: isSmallScreen
+                  ? "32px"
+                  : isMediumScreen
+                    ? "48px"
+                    : "48px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setMergedObjectModalImage(null)}
+                className="rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                style={{ padding: "6px" }}
+                aria-label="Continuer"
+              >
+                <Image
+                  src="/ui/icon_next.webp"
+                  alt=""
+                  width={64}
+                  height={64}
+                  style={{
+                    width: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : "64px",
+                    height: isSmallScreen
+                      ? "48px"
+                      : isMediumScreen
+                        ? "56px"
+                        : "64px",
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -625,7 +969,13 @@ function RadeauContent({
 function RadeauWrapper() {
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
-  const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } = useResponsive();
+  const {
+    isSmallScreen,
+    isMediumScreen,
+    isDesktopSmall,
+    isDesktopMedium,
+    isMobileOrTablet,
+  } = useResponsive();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([
     null,
@@ -634,8 +984,16 @@ function RadeauWrapper() {
   ]);
 
   const dragOverlaySize = isMobileOrTablet
-    ? (isSmallScreen ? 56 : isMediumScreen ? 64 : 72)
-    : (isDesktopSmall ? 80 : isDesktopMedium ? 88 : 96);
+    ? isSmallScreen
+      ? 56
+      : isMediumScreen
+        ? 64
+        : 72
+    : isDesktopSmall
+      ? 80
+      : isDesktopMedium
+        ? 88
+        : 96;
 
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);

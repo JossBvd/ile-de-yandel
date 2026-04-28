@@ -5,7 +5,7 @@ export const mission3Step2: Step = {
   title: "Aide moi à trouver de quoi me nourrir",
   instruction:
     "Parmi ces baies, seulement quatre sont comestibles. Retrouve-les pour faire des réserves !",
-  narrative: "Yandel doit identifier les baies comestibles pour survivre.",
+  narrative: "Yondel doit identifier les baies comestibles pour survivre.",
   raftPiece: "piece-3-2",
   raftObject: {
     image: "/missions/mission-3/step-2/M3_S2_popup-baies.webp",
@@ -22,7 +22,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-01.webp",
         alt: "Laurier Cerise",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-01.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-01.webp",
         readAloudText: "Indice baie un.",
       },
       {
@@ -30,7 +31,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-02.webp",
         alt: "Gui",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-02.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-02.webp",
         readAloudText: "Indice baie deux.",
       },
       {
@@ -38,7 +40,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-03.webp",
         alt: "Sorbier",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-07.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-07.webp",
         readAloudText: "Indice baie sept.",
       },
       {
@@ -46,7 +49,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-04.webp",
         alt: "Belladone",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-10.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-10.webp",
         readAloudText: "Indice baie dix.",
       },
       {
@@ -54,7 +58,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-05.webp",
         alt: "Physalis",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-08.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-08.webp",
         readAloudText: "Indice baie huit.",
       },
       {
@@ -62,7 +67,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-06.webp",
         alt: "Douce Amère",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-03.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-03.webp",
         readAloudText: "Indice baie trois.",
       },
       {
@@ -70,7 +76,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-07.webp",
         alt: "Bryone Dioïque",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-05.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-05.webp",
         readAloudText: "Indice baie cinq.",
       },
       {
@@ -78,7 +85,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-08.webp",
         alt: "Baie d'Açaï",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-09.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-09.webp",
         readAloudText: "Indice baie neuf.",
       },
       {
@@ -86,7 +94,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-09.webp",
         alt: "Camu Camu",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-04.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-04.webp",
         readAloudText: "Indice baie quatre.",
       },
       {
@@ -94,7 +103,8 @@ export const mission3Step2: Step = {
         src: "/missions/mission-3/step-2/M3_S2_berries-10.webp",
         alt: "Sureau",
         info: "",
-        infoImage: "/missions/mission-3/step-2/M3_S2_popup-indice-baies-06.webp",
+        infoImage:
+          "/missions/mission-3/step-2/M3_S2_popup-indice-baies-06.webp",
         readAloudText: "Indice baie six.",
       },
     ],

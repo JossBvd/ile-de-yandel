@@ -60,16 +60,23 @@ export function PolitiqueConfidentialiteModal({
           className="text-gray-700 text-sm overflow-y-auto flex-1 min-h-0"
         >
           <p className="mb-3">
-            L’application « L’île de Yandel » ne collecte aucune donnée personnelle. Aucun compte utilisateur n’est requis.
+            L’application « L’île de Yondel » ne collecte aucune donnée
+            personnelle. Aucun compte utilisateur n’est requis.
           </p>
           <p className="mb-3">
-            <strong>Données stockées localement :</strong> la progression du jeu (étapes complétées, pièces du radeau, indices utilisés) est enregistrée uniquement sur votre appareil (localStorage / cookies), pour permettre de reprendre la partie après fermeture du navigateur.
+            <strong>Données stockées localement :</strong> la progression du jeu
+            (étapes complétées, pièces du radeau, indices utilisés) est
+            enregistrée uniquement sur votre appareil (localStorage / cookies),
+            pour permettre de reprendre la partie après fermeture du navigateur.
           </p>
           <p className="mb-3">
-            <strong>Audio description :</strong> si vous activez la lecture à voix haute, les préférences (activation, vitesse, lecture automatique) sont également stockées localement.
+            <strong>Audio description :</strong> si vous activez la lecture à
+            voix haute, les préférences (activation, vitesse, lecture
+            automatique) sont également stockées localement.
           </p>
           <p>
-            Aucune de ces données n’est envoyée à un serveur. L’application fonctionne entièrement côté navigateur.
+            Aucune de ces données n’est envoyée à un serveur. L’application
+            fonctionne entièrement côté navigateur.
           </p>
         </div>
         <div className="mt-6 flex justify-end">

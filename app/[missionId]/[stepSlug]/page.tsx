@@ -68,6 +68,7 @@ function StepPageContent() {
   const [showMissionCompleteModal, setShowMissionCompleteModal] =
     useState(false);
   const [showQuestionContainer, setShowQuestionContainer] = useState(true);
+  const [isBasketOverflowLocked, setIsBasketOverflowLocked] = useState(false);
 
   const step = stepId ? getStepById(stepId) : undefined;
   const mission = getMissionById(missionId);
@@ -133,6 +134,28 @@ function StepPageContent() {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [inlineHintZone]);
+
+  React.useEffect(() => {
+    const onBasketOverflowLock = (
+      event: Event,
+    ) => {
+      const customEvent = event as CustomEvent<{ locked?: boolean }>;
+      setIsBasketOverflowLocked(Boolean(customEvent.detail?.locked));
+    };
+
+    window.addEventListener(
+      "basket-weight-overflow-lock",
+      onBasketOverflowLock as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "basket-weight-overflow-lock",
+        onBasketOverflowLock as EventListener,
+      );
+      setIsBasketOverflowLocked(false);
+    };
+  }, [stepId]);
 
   if (!stepId) {
     return null;
@@ -321,31 +344,36 @@ function StepPageContent() {
       className="fixed inset-0 overflow-hidden bg-black flex w-full h-full"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100dvh",
+        height: isRotated ? `${height}px` : "var(--app-viewport-height)",
         maxWidth: "100vw",
-        maxHeight: "100dvh",
+        maxHeight: "var(--app-viewport-height)",
       }}
     >
-      <StepPageSidebar
-        step={step}
-        missionNumber={missionNumber}
-        stepNumber={stepNumber}
-        stepTextToRead={stepTextToRead}
-        showQuestionContainer={showQuestionContainer}
-        onToggleQuestionContainer={() =>
-          setShowQuestionContainer((v) => !v)
-        }
-        instructionPrimaryIcon={instructionPrimaryIcon}
-        onOpenHint={handleOpenHint}
-        audioEnabled={audioEnabled}
-        isMobileOrTablet={isMobileOrTablet}
-        isSmallScreen={isSmallScreen}
-        isMediumScreen={isMediumScreen}
-        isDesktopSmall={isDesktopSmall}
-        isDesktopMedium={isDesktopMedium}
-        isRotated={isRotated}
-        height={height}
-      />
+      <div className="relative">
+        <StepPageSidebar
+          step={step}
+          missionNumber={missionNumber}
+          stepNumber={stepNumber}
+          stepTextToRead={stepTextToRead}
+          showQuestionContainer={showQuestionContainer}
+          onToggleQuestionContainer={() =>
+            setShowQuestionContainer((v) => !v)
+          }
+          instructionPrimaryIcon={instructionPrimaryIcon}
+          onOpenHint={handleOpenHint}
+          audioEnabled={audioEnabled}
+          isMobileOrTablet={isMobileOrTablet}
+          isSmallScreen={isSmallScreen}
+          isMediumScreen={isMediumScreen}
+          isDesktopSmall={isDesktopSmall}
+          isDesktopMedium={isDesktopMedium}
+          isRotated={isRotated}
+          height={height}
+        />
+        {isBasketOverflowLocked && (
+          <div className="absolute inset-0 z-40 bg-black/55 pointer-events-auto" />
+        )}
+      </div>
 
       <div className="flex-1 relative overflow-hidden min-w-0">
         {step.backgroundHintZones && step.backgroundHintZones.length > 0 ? (
