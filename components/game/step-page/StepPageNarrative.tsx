@@ -6,16 +6,41 @@ import { Step } from "@/types/step";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const TYPING_SPEED_MS = 30;
-function paginateNarrative(text: string, maxLinesPerPage: number): string[] {
-  const normalized = text.trim();
+function paginateNarrative(
+  text: string,
+  maxLinesPerPage: number,
+  maxCharsPerLine: number,
+): string[] {
+  const normalized = text.replace(/\r\n/g, "\n").trim();
   if (!normalized) return [""];
 
-  const rawLines = normalized
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  const rawLines = normalized.split("\n").map((line) => line.trim());
+  const wrappedLines: string[] = [];
 
-  const lines = rawLines.length > 0 ? rawLines : [normalized];
+  for (const rawLine of rawLines) {
+    if (!rawLine) continue;
+
+    const words = rawLine.split(/\s+/).filter(Boolean);
+    if (words.length === 0) continue;
+
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i += 1) {
+      const nextWord = words[i];
+      const candidate = `${currentLine} ${nextWord}`;
+
+      if (candidate.length <= maxCharsPerLine) {
+        currentLine = candidate;
+      } else {
+        wrappedLines.push(currentLine);
+        currentLine = nextWord;
+      }
+    }
+
+    wrappedLines.push(currentLine);
+  }
+
+  const lines = wrappedLines.length > 0 ? wrappedLines : [normalized];
   const pages: string[] = [];
 
   for (let i = 0; i < lines.length; i += maxLinesPerPage) {
@@ -50,9 +75,10 @@ export function StepPageNarrative({
 }: StepPageNarrativeProps) {
   const fullText = step.narrative ?? "";
   const maxLinesPerPage = isSmallScreen ? 2 : isMediumScreen ? 3 : 4;
+  const maxCharsPerLine = isSmallScreen ? 26 : isMediumScreen ? 34 : 42;
   const pages = useMemo(
-    () => paginateNarrative(fullText, maxLinesPerPage),
-    [fullText, maxLinesPerPage],
+    () => paginateNarrative(fullText, maxLinesPerPage, maxCharsPerLine),
+    [fullText, maxLinesPerPage, maxCharsPerLine],
   );
   const [pageIndex, setPageIndex] = useState(0);
   const currentPageText = pages[pageIndex] ?? "";
