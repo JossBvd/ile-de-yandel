@@ -67,6 +67,7 @@ function HomeContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
   const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
+  const mobileMenuExtraHeight = showParamsMenu ? (isSmallScreen ? 260 : 220) : 0;
 
   const isMissionUnlocked = (missionId: string) => {
     if (completedMissions.includes(missionId)) return true;
@@ -213,11 +214,13 @@ function HomeContent() {
     <div
       id="main-content"
       role="main"
-      className="relative overflow-y-auto overflow-x-hidden"
+      className={`relative overflow-x-hidden ${isMobileOrTablet ? "overflow-y-auto" : "overflow-hidden"}`}
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
-        minHeight: isRotated ? `${height}px` : "100dvh",
+        minHeight: isMobileOrTablet
+          ? `calc(100dvh + ${mobileMenuExtraHeight}px)`
+          : undefined,
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -277,14 +280,11 @@ function HomeContent() {
         ref={paramsMenuRef}
         className="absolute z-10"
         style={{
-          top: isMobileOrTablet
-            ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
-            : undefined,
-          bottom: isMobileOrTablet
-            ? undefined
-            : (isDesktopSmall ? "24px" : isDesktopMedium ? "32px" : "40px"),
+          bottom: isMobileOrTablet 
+            ? (isSmallScreen ? '-8px' : isMediumScreen ? '6px' : '12px')
+            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
           right: isMobileOrTablet 
-            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
+            ? (isSmallScreen ? '4px' : isMediumScreen ? '10px' : '14px')
             : (isDesktopSmall ? '16px' : isDesktopMedium ? '24px' : '32px'),
         }}
       >
@@ -308,9 +308,7 @@ function HomeContent() {
           {showParamsMenu && (
             <div
               role="menu"
-              className={`absolute right-0 rounded-lg shadow-xl overflow-hidden min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 ${
-                isMobileOrTablet ? "top-full mt-2" : "bottom-full mb-2"
-              }`}
+              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl overflow-hidden min-w-[200px] bg-[#e8dcc4] border border-amber-800/20"
               style={{
                 padding: isMobileOrTablet ? '8px' : '12px',
               }}
