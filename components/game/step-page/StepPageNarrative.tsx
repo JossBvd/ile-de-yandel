@@ -6,26 +6,20 @@ import { Step } from "@/types/step";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const TYPING_SPEED_MS = 30;
-function paginateNarrative(text: string, pageCharLimit: number): string[] {
+function paginateNarrative(text: string, maxLinesPerPage: number): string[] {
   const normalized = text.trim();
   if (!normalized) return [""];
 
-  const chunks = normalized.match(/\S+\s*/g) ?? [normalized];
+  const rawLines = normalized
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const lines = rawLines.length > 0 ? rawLines : [normalized];
   const pages: string[] = [];
-  let currentPage = "";
 
-  for (const chunk of chunks) {
-    const candidate = `${currentPage}${chunk}`;
-    if (candidate.length <= pageCharLimit || !currentPage) {
-      currentPage = candidate;
-      continue;
-    }
-    pages.push(currentPage.trimEnd());
-    currentPage = chunk;
-  }
-
-  if (currentPage) {
-    pages.push(currentPage.trimEnd());
+  for (let i = 0; i < lines.length; i += maxLinesPerPage) {
+    pages.push(lines.slice(i, i + maxLinesPerPage).join("\n"));
   }
 
   return pages;
@@ -55,10 +49,10 @@ export function StepPageNarrative({
   onContinue,
 }: StepPageNarrativeProps) {
   const fullText = step.narrative ?? "";
-  const pageCharLimit = isSmallScreen ? 90 : isMediumScreen ? 140 : 220;
+  const maxLinesPerPage = isSmallScreen ? 2 : isMediumScreen ? 3 : 4;
   const pages = useMemo(
-    () => paginateNarrative(fullText, pageCharLimit),
-    [fullText, pageCharLimit],
+    () => paginateNarrative(fullText, maxLinesPerPage),
+    [fullText, maxLinesPerPage],
   );
   const [pageIndex, setPageIndex] = useState(0);
   const currentPageText = pages[pageIndex] ?? "";
