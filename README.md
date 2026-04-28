@@ -1,12 +1,13 @@
-# L'île de Yandel - Escape Game Éducatif
+# L'île de Yondel - Escape Game Éducatif
 
 Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ, développé avec Next.js.
 
 ## 🎯 Description
 
-Yandel, un jeune adolescent, s'est écrasé sur une île déserte. Pour en repartir, il devra franchir 5 étapes correspondant à des lieux de l'île, afin de collecter les éléments nécessaires à la construction de son radeau.
+Yondel, un jeune adolescent, s'est écrasé sur une île déserte. Pour en repartir, il devra franchir 5 étapes correspondant à des lieux de l'île, afin de collecter les éléments nécessaires à la construction de son radeau.
 
-À chaque étape, Yandel devra répondre correctement à des questions liées aux matières scolaires :
+À chaque étape, Yondel devra répondre correctement à des questions liées aux matières scolaires :
+
 - Français
 - Mathématiques
 - Histoire-Géographie
@@ -39,7 +40,7 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 │      ├── page.tsx             # Intro narrative
 │      ├── mission/[missionId]/ # Pages des missions
 │      └── step/[stepId]/       # Pages des steps
-│   
+│
 │
 ├── components/                   # Composants React
 │   ├── ui/                      # Composants UI génériques
@@ -99,6 +100,7 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 ## 💾 Persistance
 
 Les données sont stockées dans le **LocalStorage** :
+
 - Mission en cours
 - Step en cours
 - Steps validés

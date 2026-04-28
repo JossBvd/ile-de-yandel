@@ -344,9 +344,9 @@ function StepPageContent() {
       className="fixed inset-0 overflow-hidden bg-black flex w-full h-full"
       style={{
         width: isRotated ? `${width}px` : "100vw",
-        height: isRotated ? `${height}px` : "100dvh",
+        height: isRotated ? `${height}px` : "var(--app-viewport-height)",
         maxWidth: "100vw",
-        maxHeight: "100dvh",
+        maxHeight: "var(--app-viewport-height)",
       }}
     >
       <div className="relative">

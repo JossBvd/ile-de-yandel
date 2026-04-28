@@ -3,6 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --app-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --app-viewport-height: 100dvh;
+  }
 }
 
 @theme inline {
@@ -64,27 +71,8 @@ html.reading-aid-enabled body {
   word-spacing: 0.1em;
 }
 
-/* Prévention du scroll sur mobile - uniquement sur les pages de jeu */
-@media (max-width: 1024px) {
-  html {
-    overflow: hidden;
-    height: 100%;
-    height: -webkit-fill-available;
-    touch-action: pan-x pan-y;
-  }
-
-  body {
-    overflow: hidden;
-    height: 100%;
-    height: -webkit-fill-available;
-    position: fixed;
-    width: 100%;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
+/* Le verrou global du scroll mobile est volontairement évité :
+   les pages de jeu gèrent déjà leur propre overflow localement. */
 
 /* Pour les pages qui doivent être scrollables */
 .scrollable {

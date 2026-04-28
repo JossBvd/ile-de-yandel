@@ -11,16 +11,21 @@ import { useReadingAidStore } from "@/store/readingAidStore";
 function sanitizePseudo(input: string): string {
   return input
     .trim()
-    .replace(/[<>"']/g, '')
+    .replace(/[<>"']/g, "")
     .substring(0, 20);
 }
 
-function WelcomeContent({ onNarrativeStart }: { onNarrativeStart: () => void }) {
+function WelcomeContent({
+  onNarrativeStart,
+}: {
+  onNarrativeStart: () => void;
+}) {
   const router = useRouter();
   const [pseudo, setPseudo] = useState("");
   const [showAudioChoice, setShowAudioChoice] = useState(false);
   const [showReadingAidChoice, setShowReadingAidChoice] = useState(false);
-  const { setFirstVisitChoice: setAudioFirstVisitChoice } = useAudioDescriptionStore();
+  const { setFirstVisitChoice: setAudioFirstVisitChoice } =
+    useAudioDescriptionStore();
   const {
     introWorkflowDone,
     setFirstVisitChoice: setReadingAidFirstVisitChoice,
@@ -71,13 +76,11 @@ function WelcomeContent({ onNarrativeStart }: { onNarrativeStart: () => void }) 
           className="font-bold text-gray-800 text-center mb-4 md:mb-6"
           style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
         >
-          Île de Yandel
+          Île de Yondel
         </h1>
       </div>
 
-      <div
-        className="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-3 sm:gap-4 px-[clamp(0.75rem,4vw,2rem)] pb-[max(env(safe-area-inset-bottom),clamp(1rem,5vh,2rem))] max-w-[672px] mx-auto shrink-0"
-      >
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-3 sm:gap-4 px-[clamp(0.75rem,4vw,2rem)] pb-[max(env(safe-area-inset-bottom),clamp(1rem,5vh,2rem))] max-w-[672px] mx-auto shrink-0">
         <input
           type="text"
           value={pseudo}
@@ -145,7 +148,9 @@ export default function WelcomePage() {
   if (showIntroNarrative) {
     return (
       <OrientationGuard>
-        <IntroNarrativeScreen onComplete={() => router.push("/carte-de-l-ile")} />
+        <IntroNarrativeScreen
+          onComplete={() => router.push("/carte-de-l-ile")}
+        />
       </OrientationGuard>
     );
   }

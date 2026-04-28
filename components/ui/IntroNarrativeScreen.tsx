@@ -15,13 +15,15 @@ const INTRO_SLIDES = [
 const TYPING_SPEED_MS = 30;
 
 const MAP_READ_ALOUD_TEXT =
-  "Voici la carte de l'île ! C'est ici que va se dérouler ton aventure. Explore chaque zone pour aider Yandel à construire son radeau.";
+  "Voici la carte de l'île ! C'est ici que va se dérouler ton aventure. Explore chaque zone pour aider Yondel à construire son radeau.";
 
 interface IntroNarrativeScreenProps {
   onComplete: () => void;
 }
 
-export function IntroNarrativeScreen({ onComplete }: IntroNarrativeScreenProps) {
+export function IntroNarrativeScreen({
+  onComplete,
+}: IntroNarrativeScreenProps) {
   const { read, cancel, enabled: adEnabled } = useAudioDescription();
   const { audioDescriptionAutoPlay } = useAudioDescriptionStore();
 
@@ -62,7 +64,7 @@ export function IntroNarrativeScreen({ onComplete }: IntroNarrativeScreenProps) 
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       cancel();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slideIndex, showMap]);
 
   // Auto-play carte
@@ -71,14 +73,18 @@ export function IntroNarrativeScreen({ onComplete }: IntroNarrativeScreenProps) 
     if (adEnabled && audioDescriptionAutoPlay) {
       read(MAP_READ_ALOUD_TEXT);
     }
-    return () => { cancel(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMap]);
 
   // Annuler l'audio au démontage
   useEffect(() => {
-    return () => { cancel(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNext = () => {
@@ -114,14 +120,14 @@ export function IntroNarrativeScreen({ onComplete }: IntroNarrativeScreenProps) 
         className="w-full h-full flex items-end"
         style={{ padding: "0 3% 0 0" }}
       >
-        {/* Personnage Yandel – côté gauche, collé en bas */}
+        {/* Personnage Yondel – côté gauche, collé en bas */}
         <div
           className="relative shrink-0 self-end"
           style={{ width: "42%", height: "95%" }}
         >
           <Image
-            src="/intro/yandel_crop.webp"
-            alt="Yandel, le personnage principal"
+            src="/intro/Yondel_crop.webp"
+            alt="Yondel, le personnage principal"
             fill
             style={{ objectFit: "contain", objectPosition: "bottom center" }}
             priority
@@ -141,7 +147,7 @@ export function IntroNarrativeScreen({ onComplete }: IntroNarrativeScreenProps) 
             <div className="relative w-full h-full">
               <Image
                 src="/intro/INTRO_popup_carte.webp"
-                alt="La carte de l'île de Yandel"
+                alt="La carte de l'île de Yondel"
                 fill
                 style={{ objectFit: "contain" }}
                 priority

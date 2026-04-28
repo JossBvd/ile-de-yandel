@@ -30,6 +30,7 @@ export function EnigmaGame({
   const [answer, setAnswer] = useState("");
   const [hasError, setHasError] = useState(false);
   const [showRedFlash, setShowRedFlash] = useState(false);
+  const viewportHeight = "var(--app-viewport-height)";
   const decodeLetterImages = game.decodeLetterImages ?? [];
   const isLetterDecode =
     game.layout === "letter-decode" && decodeLetterImages.length > 0;
@@ -428,7 +429,7 @@ export function EnigmaGame({
                       : isDesktopMedium
                         ? "34px"
                         : "40px",
-                  maxHeight: "60dvh",
+                  maxHeight: `calc(${viewportHeight} * 0.6)`,
                 }}
                 role="region"
                 aria-label="Énoncé de l'énigme"
@@ -651,7 +652,7 @@ export function EnigmaGame({
                   ? "24%"
                   : hasBackgroundHintZones
                     ? "33.333%"
-                    : "33vh",
+                    : `calc(${viewportHeight} * 0.33)`,
             }}
           >
             <div

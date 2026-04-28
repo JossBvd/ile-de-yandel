@@ -1,19 +1,19 @@
 # Architecture et découpage des composants
 
-Documentation du projet **L’île de Yandel** (escape game web, Next.js App Router, frontend uniquement).
+Documentation du projet **L’île de Yondel** (escape game web, Next.js App Router, frontend uniquement).
 
 ---
 
 ## 1. Vue d’ensemble technique
 
-| Couche | Rôle |
-|--------|------|
-| **Next.js 16 (App Router)** | Routage par fichiers, layouts, métadonnées PWA, polices (`next/font`). |
-| **React 19** | UI client (`"use client"` sur les écrans interactifs). |
-| **TypeScript** | Modèles de données (`types/`), unions discriminées pour les mini-jeux (`GameData`). |
-| **Zustand + persist** | État global (progression, inventaire, préférences) avec persistance `localStorage`. |
-| **Tailwind CSS 4** | Styles utilitaires et thème (`app/globals.css`). |
-| **@dnd-kit** | Drag & drop (sensors partagés, collision `pointerWithin`). |
+| Couche                      | Rôle                                                                                |
+| --------------------------- | ----------------------------------------------------------------------------------- |
+| **Next.js 16 (App Router)** | Routage par fichiers, layouts, métadonnées PWA, polices (`next/font`).              |
+| **React 19**                | UI client (`"use client"` sur les écrans interactifs).                              |
+| **TypeScript**              | Modèles de données (`types/`), unions discriminées pour les mini-jeux (`GameData`). |
+| **Zustand + persist**       | État global (progression, inventaire, préférences) avec persistance `localStorage`. |
+| **Tailwind CSS 4**          | Styles utilitaires et thème (`app/globals.css`).                                    |
+| **@dnd-kit**                | Drag & drop (sensors partagés, collision `pointerWithin`).                          |
 
 Aucune API serveur métier : la progression et l’inventaire sont **locaux au navigateur**.
 
@@ -45,13 +45,13 @@ public/                 # Assets statiques (missions, ui, backgrounds, raft…)
 
 ## 3. Routage (`app/`)
 
-| Route | Rôle |
-|-------|------|
-| `/` | Accueil / pseudo joueur + **workflow intro accessibilité** (voir ci-dessous). |
-| `/carte-de-l-ile` | Carte des missions. |
+| Route                     | Rôle                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                       | Accueil / pseudo joueur + **workflow intro accessibilité** (voir ci-dessous).                                                     |
+| `/carte-de-l-ile`         | Carte des missions.                                                                                                               |
 | `/[missionId]/[stepSlug]` | **Écran principal d’un step** (mini-jeu + barre latérale + modales). Slug dérivé de l’id du step (`mission-x-step-y` → `step-y`). |
-| `/journal-de-bord` | Journal narrative. |
-| `/radeau` | Assemblage / fusion des pièces. |
+| `/journal-de-bord`        | Journal narrative.                                                                                                                |
+| `/radeau`                 | Assemblage / fusion des pièces.                                                                                                   |
 
 La navigation canonique des steps passe par `lib/navigation.ts` (`getStepPath`, validation des slugs par rapport aux données `MISSIONS`).
 
@@ -59,9 +59,9 @@ La navigation canonique des steps passe par `lib/navigation.ts` (`getStepPath`, 
 
 Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflowDone === false` :
 
-1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — *"Veux-tu activer l'audiodescription ?"* → choix enregistré dans `audioDescriptionStore`.
-2. **Écran DYS** : même composant (acronym="DYS") — *"Veux-tu activer l'aide à la lecture ?"* → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
-3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yandel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
+1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — _"Veux-tu activer l'audiodescription ?"_ → choix enregistré dans `audioDescriptionStore`.
+2. **Écran DYS** : même composant (acronym="DYS") — _"Veux-tu activer l'aide à la lecture ?"_ → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
+3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yondel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
 
 Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
 
@@ -102,6 +102,15 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 
 - `data/raft.ts` définit les entrées `RaftPiece` (id, libellés, image, `stepId`).
 - En environnement non production, une **validation** croise `RAFT_PIECES` avec `ALL_STEPS` (`raftPiece` sur chaque step) pour éviter les divergences.
+- La page `app/radeau/page.tsx` implémente l’assemblage avec `@dnd-kit` (`DndContext`, `useDraggable`, `useDroppable`, `DragOverlay`) et les hooks partagés `useDndSensors` + `useDndCollisionDetection`.
+- L’inventaire affiche une grille fixe de **15 emplacements** (5 missions × 3 pièces), organisée par lignes de mission.
+- Les visuels de pièces (`/raft/radeau_photo-01.webp` à `-15.webp`) sont rendus **sans déformation** (`object-contain`) pour respecter leur ratio d’origine.
+- La grille d’inventaire est affichée sans espacement entre cases (`gap: 0`) et sans habillage de carte autour des pièces image pour garder un rendu “photo tel quel”.
+- Les **3 slots de fusion** restent carrés (ratio 1:1), sont affichés dans un bloc de fusion compact, et acceptent les drops uniquement sur slot valide ; un clic sur un slot occupé retire la pièce.
+- La progression textuelle affichée est le compteur dynamique **`x/5`** (`fusedRaftPiecesCount/MAX_FUSED_RAFT_PIECES`) ; les pastilles visuelles de progression ne sont plus rendues.
+- Après chaque fusion réussie, une modal “objet fusionné” est affichée avec les visuels `public/raft/popup_merged_object-01.webp` à `-05.webp` dans l’ordre des missions.
+- Quand l’audio description est activée, le bouton mégaphone de la zone de fusion est positionné à droite en absolu pour ne pas modifier la hauteur du conteneur gauche.
+- Règles de fusion : les 3 pièces doivent venir de la même mission, dans l’ordre des missions ; sinon feedback d’erreur et réinitialisation des slots.
 
 ---
 
@@ -119,14 +128,14 @@ Les stores et les pages appellent ces fonctions plutôt que de dupliquer la logi
 
 ## 6. État global (`store/`)
 
-| Store | Contenu principal |
-|-------|-------------------|
-| `gameStore` | Steps complétés, mission courante, missions terminées (clé `lib/constants.ts`). |
-| `inventoryStore` | Pièces du radeau collectées. |
-| `hintStore` | Indices utilisés (si applicable). |
+| Store                   | Contenu principal                                                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `gameStore`             | Steps complétés, mission courante, missions terminées (clé `lib/constants.ts`).                                                     |
+| `inventoryStore`        | Pièces du radeau collectées.                                                                                                        |
+| `hintStore`             | Indices utilisés (si applicable).                                                                                                   |
 | `audioDescriptionStore` | Préférences description audio (`audioDescriptionEnabled`, `audioDescriptionFirstVisitDone`, `autoPlay`, `speed`). Expose `reset()`. |
-| `readingAidStore` | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`. |
-| `uiStore` | État UI transverse. |
+| `readingAidStore`       | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`.                     |
+| `uiStore`               | État UI transverse.                                                                                                                 |
 
 Persistance via middleware `persist` ; les noms de clés `localStorage` sont centralisés dans `lib/constants.ts`.
 
@@ -138,24 +147,24 @@ Persistance via middleware `persist` ; les noms de clés `localStorage` sont cen
 
 ### 7.1 `components/game/` — coquille autour du step
 
-| Composant | Responsabilité |
-|-----------|----------------|
-| **`GameRenderer`** | Seul endroit qui connaît la carte **type de jeu → composant**. Reçoit `Step` + callbacks `onComplete` / `onDefeat`. |
-| **`StepBackground`** | Fond d’écran statique avec image, contenu enfant centré (zone de jeu). |
-| **`ClickableBackground`** | Fond + zones cliquables (indices sur le décor) ; enrobe souvent le `GameRenderer`. |
-| **`OrientationGuard`** | Contexte dimensions / orientation ; overlay paysage via `LandscapeEnforcer` sauf `allowPortrait`. |
-| **`LandscapeEnforcer`** | Message bloquant si portrait (contrainte produit). |
-| **`OrientationProvider`** | Variante provider si utilisée ailleurs. |
+| Composant                 | Responsabilité                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **`GameRenderer`**        | Seul endroit qui connaît la carte **type de jeu → composant**. Reçoit `Step` + callbacks `onComplete` / `onDefeat`. |
+| **`StepBackground`**      | Fond d’écran statique avec image, contenu enfant centré (zone de jeu).                                              |
+| **`ClickableBackground`** | Fond + zones cliquables (indices sur le décor) ; enrobe souvent le `GameRenderer`.                                  |
+| **`OrientationGuard`**    | Contexte dimensions / orientation ; overlay paysage via `LandscapeEnforcer` sauf `allowPortrait`.                   |
+| **`LandscapeEnforcer`**   | Message bloquant si portrait (contrainte produit).                                                                  |
+| **`OrientationProvider`** | Variante provider si utilisée ailleurs.                                                                             |
 
 ### 7.2 `components/game/step-page/` — page `/[missionId]/[stepSlug]`
 
 Découpage de l’**écran step** pour limiter la taille de la page :
 
-| Composant | Responsabilité |
-|-----------|----------------|
-| **`StepPageNarrative`** | Premier écran narration (mission) si `step.narrative` et premier step. |
-| **`StepPageSidebar`** | Bandeau gauche : titre mission/étape, description audio, bascule instruction/inspecter, indice, radeau, retour carte. |
-| **`StepPageModals`** | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal`). |
+| Composant               | Responsabilité                                                                                                        |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **`StepPageNarrative`** | Premier écran narration (mission) si `step.narrative` et premier step.                                                |
+| **`StepPageSidebar`**   | Bandeau gauche : titre mission/étape, description audio, bascule instruction/inspecter, indice, radeau, retour carte. |
+| **`StepPageModals`**    | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal`).                  |
 
 La page `app/[missionId]/[stepSlug]/page.tsx` orchestre : chargement du step, progression (`useGameProgress`, `useInventory`), effets (audio auto), et branchement **ClickableBackground** vs **StepBackground** selon `backgroundHintZones`.
 
@@ -163,12 +172,12 @@ La page `app/[missionId]/[stepSlug]/page.tsx` orchestre : chargement du step, pr
 
 Organisation par **famille** de mécanique :
 
-| Dossier | Exemples |
-|---------|----------|
-| **`games/qcm/`** | `QCMGame`, `QCMOption` |
-| **`games/drag/`** | Tri, sélection d’images, paniers, bouteille, ordre d’images, **photosynthèse** (`PhotosynthesisAtomsGame`), etc. |
-| **`games/enigma/`** | Saisie / décodage (`EnigmaGame`), cibles point-clic multi-énigmes (`PointClickMultiEnigmaGame`) |
-| **`games/image-click/`** | Clic sur zones dans une image (`ImageClickGame`) |
+| Dossier                  | Exemples                                                                                                         |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **`games/qcm/`**         | `QCMGame`, `QCMOption`                                                                                           |
+| **`games/drag/`**        | Tri, sélection d’images, paniers, bouteille, ordre d’images, **photosynthèse** (`PhotosynthesisAtomsGame`), etc. |
+| **`games/enigma/`**      | Saisie / décodage (`EnigmaGame`), cibles point-clic multi-énigmes (`PointClickMultiEnigmaGame`)                  |
+| **`games/image-click/`** | Clic sur zones dans une image (`ImageClickGame`)                                                                 |
 
 Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndCollisionDetection` avec `DndContext`.
 
@@ -178,11 +187,11 @@ Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `Defea
 
 Composants d'accessibilité intro :
 
-| Composant | Responsabilité |
-|-----------|----------------|
-| **`IntroAccessibilityChoiceModal`** | Modal générique Oui/Non utilisée pour les 2 écrans du workflow intro (AD puis DYS). Props : `acronym` ("AD" \| "DYS"), `question`, `onYes`, `onNo`. Fond parchemin, titre grand, boutons orange. |
-| **`IntroNarrativeScreen`** | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yandel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
-| **`ReadingAidEffect`** | Composant sans rendu (`null`) monté dans le layout. Ajoute/retire la classe `reading-aid-enabled` sur `<html>` selon `readingAidStore.readingAidEnabled`. |
+| Composant                           | Responsabilité                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`IntroAccessibilityChoiceModal`** | Modal générique Oui/Non utilisée pour les 2 écrans du workflow intro (AD puis DYS). Props : `acronym` ("AD" \| "DYS"), `question`, `onYes`, `onNo`. Fond parchemin, titre grand, boutons orange.                                                                                                                       |
+| **`IntroNarrativeScreen`**          | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yondel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
+| **`ReadingAidEffect`**              | Composant sans rendu (`null`) monté dans le layout. Ajoute/retire la classe `reading-aid-enabled` sur `<html>` selon `readingAidStore.readingAidEnabled`.                                                                                                                                                              |
 
 ---
 

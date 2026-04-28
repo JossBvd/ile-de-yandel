@@ -5,7 +5,7 @@ export const mission2Step2: Step = {
   title: "Aide moi à trouver de quoi assembler ma hache",
   instruction:
     "Classe ces matériaux par densité, du moins dense au plus dense.",
-  narrative: `Yandel a trouvé un bâton. Il doit maintenant trouver de quoi assembler sa hache.`,
+  narrative: `Yondel a trouvé un bâton. Il doit maintenant trouver de quoi assembler sa hache.`,
   location: "Dans la jungle",
   raftPiece: "piece-2-2",
   raftObject: {
@@ -23,7 +23,8 @@ export const mission2Step2: Step = {
         src: "/missions/mission-2/step-2/M2_S2_photo-01.webp",
         alt: "Lianes et feuillages",
         info: "",
-        infoImage: "/missions/mission-2/step-2/m2_S2_popup_indice_photos-01.webp",
+        infoImage:
+          "/missions/mission-2/step-2/m2_S2_popup_indice_photos-01.webp",
         readAloudText: "Indice: lianes et feuillages, peu denses",
       },
       {
@@ -31,7 +32,8 @@ export const mission2Step2: Step = {
         src: "/missions/mission-2/step-2/M2_S2_photo-02.webp",
         alt: "Pierre couverte de mousse",
         info: "",
-        infoImage: "/missions/mission-2/step-2/m2_S2_popup_indice_photos-02.webp",
+        infoImage:
+          "/missions/mission-2/step-2/m2_S2_popup_indice_photos-02.webp",
         readAloudText: "Indice: pierre couverte de mousse",
       },
       {
@@ -39,7 +41,8 @@ export const mission2Step2: Step = {
         src: "/missions/mission-2/step-2/M2_S2_photo-03.webp",
         alt: "Coquillages sur le sable",
         info: "",
-        infoImage: "/missions/mission-2/step-2/m2_S2_popup_indice_photos-03.webp",
+        infoImage:
+          "/missions/mission-2/step-2/m2_S2_popup_indice_photos-03.webp",
         readAloudText: "Indice: coquillages sur le sable",
       },
       {
@@ -47,7 +50,8 @@ export const mission2Step2: Step = {
         src: "/missions/mission-2/step-2/M2_S2_photo-04.webp",
         alt: "Feuilles mortes et écorces",
         info: "",
-        infoImage: "/missions/mission-2/step-2/m2_S2_popup_indice_photos-04.webp",
+        infoImage:
+          "/missions/mission-2/step-2/m2_S2_popup_indice_photos-04.webp",
         readAloudText: "Indice: feuilles mortes et écorces",
       },
       {
@@ -55,7 +59,8 @@ export const mission2Step2: Step = {
         src: "/missions/mission-2/step-2/M2_S2_photo-05.webp",
         alt: "Terre ou paille",
         info: "",
-        infoImage: "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp",
+        infoImage:
+          "/missions/mission-2/step-2/m2_S2_popup_indice_photos-05.webp",
         readAloudText: "Indice: terre ou paille, plus dense",
       },
     ],

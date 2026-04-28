@@ -60,28 +60,40 @@ export function MentionsLegalesModal({
           className="text-gray-700 text-sm overflow-y-auto flex-1 min-h-0"
         >
           <p className="mb-3">
-            <strong>Application :</strong> L’île de Yandel – escape game éducatif en ligne.
+            <strong>Application :</strong> L’île de Yondel – escape game
+            éducatif en ligne.
           </p>
           <p className="mb-3">
-            <strong>Éditeur et responsable de la publication :</strong><br />
-            MK Team building<br />
-            5, boulevard Aristide Briand<br />
-            91450 Soisy-sur-Seine<br />
-            France<br />
-            SIRET : 849 862 933 00025<br />
+            <strong>Éditeur et responsable de la publication :</strong>
+            <br />
+            MK Team building
+            <br />
+            5, boulevard Aristide Briand
+            <br />
+            91450 Soisy-sur-Seine
+            <br />
+            France
+            <br />
+            SIRET : 849 862 933 00025
+            <br />
             Site : mk-teambuilding.com
           </p>
           <p className="mb-3">
-            <strong>Hébergement :</strong><br />
-            Vercel Inc.<br />
-            440 N Barranca Ave #4133, Covina, CA 91723<br />
+            <strong>Hébergement :</strong>
+            <br />
+            Vercel Inc.
+            <br />
+            440 N Barranca Ave #4133, Covina, CA 91723
+            <br />
             États-Unis
           </p>
           <p className="mb-3">
-            <strong>Public cible :</strong> élèves de 6ᵉ et 5ᵉ (usage scolaire et familial).
+            <strong>Public cible :</strong> élèves de 6ᵉ et 5ᵉ (usage scolaire
+            et familial).
           </p>
           <p>
-            Pour toute question concernant les mentions légales ou le jeu, contactez MK Team building via le site mk-teambuilding.com.
+            Pour toute question concernant les mentions légales ou le jeu,
+            contactez MK Team building via le site mk-teambuilding.com.
           </p>
         </div>
         <div className="mt-6 flex justify-end">
