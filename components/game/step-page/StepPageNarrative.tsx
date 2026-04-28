@@ -10,22 +10,22 @@ function paginateNarrative(text: string, pageCharLimit: number): string[] {
   const normalized = text.trim();
   if (!normalized) return [""];
 
-  const words = normalized.split(/\s+/);
+  const chunks = normalized.match(/\S+\s*/g) ?? [normalized];
   const pages: string[] = [];
   let currentPage = "";
 
-  for (const word of words) {
-    const candidate = currentPage ? `${currentPage} ${word}` : word;
+  for (const chunk of chunks) {
+    const candidate = `${currentPage}${chunk}`;
     if (candidate.length <= pageCharLimit || !currentPage) {
       currentPage = candidate;
       continue;
     }
-    pages.push(currentPage);
-    currentPage = word;
+    pages.push(currentPage.trimEnd());
+    currentPage = chunk;
   }
 
   if (currentPage) {
-    pages.push(currentPage);
+    pages.push(currentPage.trimEnd());
   }
 
   return pages;
@@ -55,7 +55,7 @@ export function StepPageNarrative({
   onContinue,
 }: StepPageNarrativeProps) {
   const fullText = step.narrative ?? "";
-  const pageCharLimit = isSmallScreen ? 120 : isMediumScreen ? 180 : 260;
+  const pageCharLimit = isSmallScreen ? 90 : isMediumScreen ? 140 : 220;
   const pages = useMemo(
     () => paginateNarrative(fullText, pageCharLimit),
     [fullText, pageCharLimit],
@@ -152,12 +152,12 @@ export function StepPageNarrative({
             />
 
             <div
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-start justify-center"
               style={{ padding: "14% 10% 22% 28%" }}
             >
               <div
                 id="narrative-text"
-                className="text-gray-900 text-center h-full overflow-hidden"
+                className="text-gray-900 text-center w-full overflow-hidden"
                 style={{ maxHeight: "100%" }}
               >
                 <h2
