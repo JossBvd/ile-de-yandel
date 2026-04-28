@@ -226,6 +226,8 @@ export function DragOrderImagesGame({
         : 160;
   const hasDenseSourceGrid = game.sourceImages.length >= 5;
   const hasManyAnswerSlots = game.slotsCount >= 5;
+  const shouldEnableVerticalScroll = isMobileOrTablet && questionContainerVisible;
+  const shouldTopAlignContent = shouldEnableVerticalScroll && (hasDenseSourceGrid || hasManyAnswerSlots);
   const shouldReduceSourceImageSize =
     isMobileOrTablet &&
     questionContainerVisible &&
@@ -454,8 +456,13 @@ export function DragOrderImagesGame({
         )}
 
         <div
-          className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto"
-          style={{ gap: isMobileOrTablet ? 8 : 12 }}
+          className={`flex-1 min-h-0 flex flex-col pointer-events-auto ${
+            shouldTopAlignContent ? "justify-start" : "justify-center"
+          } ${shouldEnableVerticalScroll ? "overflow-y-auto scrollbar-hide" : ""}`}
+          style={{
+            gap: isMobileOrTablet ? 8 : 12,
+            paddingBottom: shouldEnableVerticalScroll ? "8px" : undefined,
+          }}
         >
           <div
             className={
