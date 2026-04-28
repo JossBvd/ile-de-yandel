@@ -213,10 +213,11 @@ function HomeContent() {
     <div
       id="main-content"
       role="main"
-      className="relative overflow-hidden"
+      className="relative overflow-y-auto overflow-x-hidden"
       style={{
         width: isRotated ? `${width}px` : "100vw",
         height: isRotated ? `${height}px` : "100dvh",
+        minHeight: isRotated ? `${height}px` : "100dvh",
         backgroundImage: "url(/backgrounds/background_menu_screen.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -276,9 +277,12 @@ function HomeContent() {
         ref={paramsMenuRef}
         className="absolute z-10"
         style={{
-          bottom: isMobileOrTablet 
-            ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
-            : (isDesktopSmall ? '24px' : isDesktopMedium ? '32px' : '40px'),
+          top: isMobileOrTablet
+            ? (isSmallScreen ? "8px" : isMediumScreen ? "12px" : "16px")
+            : undefined,
+          bottom: isMobileOrTablet
+            ? undefined
+            : (isDesktopSmall ? "24px" : isDesktopMedium ? "32px" : "40px"),
           right: isMobileOrTablet 
             ? (isSmallScreen ? '8px' : isMediumScreen ? '12px' : '16px')
             : (isDesktopSmall ? '16px' : isDesktopMedium ? '24px' : '32px'),
@@ -304,7 +308,9 @@ function HomeContent() {
           {showParamsMenu && (
             <div
               role="menu"
-              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl overflow-hidden min-w-[200px] bg-[#e8dcc4] border border-amber-800/20"
+              className={`absolute right-0 rounded-lg shadow-xl overflow-hidden min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 ${
+                isMobileOrTablet ? "top-full mt-2" : "bottom-full mb-2"
+              }`}
               style={{
                 padding: isMobileOrTablet ? '8px' : '12px',
               }}
