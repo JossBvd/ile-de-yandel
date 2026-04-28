@@ -6,9 +6,7 @@ import { Step } from "@/types/step";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const TYPING_SPEED_MS = 30;
-const PAGE_CHAR_LIMIT = 260;
-
-function paginateNarrative(text: string): string[] {
+function paginateNarrative(text: string, pageCharLimit: number): string[] {
   const normalized = text.trim();
   if (!normalized) return [""];
 
@@ -18,7 +16,7 @@ function paginateNarrative(text: string): string[] {
 
   for (const word of words) {
     const candidate = currentPage ? `${currentPage} ${word}` : word;
-    if (candidate.length <= PAGE_CHAR_LIMIT || !currentPage) {
+    if (candidate.length <= pageCharLimit || !currentPage) {
       currentPage = candidate;
       continue;
     }
@@ -47,8 +45,8 @@ export interface StepPageNarrativeProps {
 
 export function StepPageNarrative({
   step,
-  isSmallScreen: _isSmallScreen,
-  isMediumScreen: _isMediumScreen,
+  isSmallScreen,
+  isMediumScreen,
   isDesktopSmall: _isDesktopSmall,
   isDesktopMedium: _isDesktopMedium,
   isRotated: _isRotated,
@@ -57,7 +55,11 @@ export function StepPageNarrative({
   onContinue,
 }: StepPageNarrativeProps) {
   const fullText = step.narrative ?? "";
-  const pages = useMemo(() => paginateNarrative(fullText), [fullText]);
+  const pageCharLimit = isSmallScreen ? 120 : isMediumScreen ? 180 : 260;
+  const pages = useMemo(
+    () => paginateNarrative(fullText, pageCharLimit),
+    [fullText, pageCharLimit],
+  );
   const [pageIndex, setPageIndex] = useState(0);
   const currentPageText = pages[pageIndex] ?? "";
   const [displayedText, setDisplayedText] = useState("");
@@ -162,7 +164,9 @@ export function StepPageNarrative({
                   id="narrative-title"
                   className="font-display"
                   style={{
-                    fontSize: "clamp(1rem, 2vw, 1.5rem)",
+                    fontSize: isSmallScreen
+                      ? "clamp(0.9rem, 1.8vw, 1.2rem)"
+                      : "clamp(1rem, 2vw, 1.5rem)",
                     lineHeight: 1.35,
                     marginBottom: "clamp(8px, 1.5vh, 16px)",
                   }}
@@ -172,7 +176,9 @@ export function StepPageNarrative({
                 <p
                   className="font-display whitespace-pre-line"
                   style={{
-                    fontSize: "clamp(0.9rem, 1.7vw, 1.3rem)",
+                    fontSize: isSmallScreen
+                      ? "clamp(0.8rem, 1.5vw, 1.05rem)"
+                      : "clamp(0.9rem, 1.7vw, 1.3rem)",
                     lineHeight: 1.55,
                   }}
                 >
