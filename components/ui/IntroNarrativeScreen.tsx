@@ -182,10 +182,11 @@ export function IntroNarrativeScreen({
                 style={{ padding: "14% 10% 22% 28%" }}
               >
                 <p
-                  className="font-display text-gray-900 text-center overflow-y-auto scrollbar-hide"
+                  lang="fr"
+                  className="font-display text-gray-900 text-center overflow-y-auto scrollbar-hide text-pretty"
                   style={{
-                    fontSize: "clamp(0.85rem, 1.6vw, 1.25rem)",
-                    lineHeight: 1.55,
+                    fontSize: "clamp(0.9rem, 1.8vw, 1.4rem)",
+                    lineHeight: 1.35,
                     maxHeight: "100%",
                   }}
                 >

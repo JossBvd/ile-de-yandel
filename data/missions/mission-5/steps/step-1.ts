@@ -4,10 +4,9 @@ export const mission5Step1: Step = {
   id: "mission-5-step-1",
   title: "Trop salée",
   instruction: "Réponds à cette question",
-  narrative: `Avant de pouvoir rentrer chez moi,
-j’ai besoin de rassembler des vivres !
-Aide moi à explorer les environs pour
-trouver de la nourriture !`,
+  narrative: `Avant de pouvoir rentrer chez moi, j'ai besoin de rassembler des vivres !
+
+Aide moi à explorer les environs pour trouver de la nourriture !`,
   raftPiece: "piece-5-1",
   raftObject: {
     image: "/missions/mission-5/step-1/M5_S1_popup-gourde.webp",

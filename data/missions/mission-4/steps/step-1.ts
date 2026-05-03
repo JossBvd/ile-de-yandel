@@ -4,11 +4,9 @@ export const mission4Step1: Step = {
   id: "mission-4-step-1",
   title: "La bonne liane",
   instruction: "Réponds à cette question",
-  narrative: `« Mon radeau n'est pas assez résistant !
-Cette fois-ci il me faut des lianes, mais elles
-sont trop hautes.
-Aide-moi à fabriquer le lance-grappin
-et je pourrais aller chercher les plus solides ! »`,
+  narrative: `« Mon radeau n'est pas assez résistant ! Cette fois-ci il me faut des lianes, mais elles sont trop hautes.
+
+Aide-moi à fabriquer le lance-grappin et je pourrais aller chercher les plus solides ! »`,
   location: "Sur la plage",
   raftPiece: "piece-4-1",
   raftObject: {

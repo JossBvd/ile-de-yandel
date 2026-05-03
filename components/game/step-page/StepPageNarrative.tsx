@@ -1,53 +1,32 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Step } from "@/types/step";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 
 const TYPING_SPEED_MS = 30;
-function paginateNarrative(
-  text: string,
-  maxLinesPerPage: number,
-  maxCharsPerLine: number,
-): string[] {
-  const normalized = text.replace(/\r\n/g, "\n").trim();
+
+/** Même découpage que l’historique données : doubles sauts → blocs distincts ; retours à la ligne simple → espaces */
+function normalizeNarrativeParagraphs(raw: string): string[] {
+  const normalized = raw.replace(/\r\n/g, "\n").trim();
   if (!normalized) return [""];
 
-  const rawLines = normalized.split("\n").map((line) => line.trim());
-  const wrappedLines: string[] = [];
+  return normalized.split(/\n\n+/).map((block) =>
+    block
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .join(" ")
+      .replace(/\s+/g, " "),
+  );
+}
 
-  for (const rawLine of rawLines) {
-    if (!rawLine) continue;
-
-    const words = rawLine.split(/\s+/).filter(Boolean);
-    if (words.length === 0) continue;
-
-    let currentLine = words[0];
-
-    for (let i = 1; i < words.length; i += 1) {
-      const nextWord = words[i];
-      const candidate = `${currentLine} ${nextWord}`;
-
-      if (candidate.length <= maxCharsPerLine) {
-        currentLine = candidate;
-      } else {
-        wrappedLines.push(currentLine);
-        currentLine = nextWord;
-      }
-    }
-
-    wrappedLines.push(currentLine);
-  }
-
-  const lines = wrappedLines.length > 0 ? wrappedLines : [normalized];
-  const pages: string[] = [];
-
-  for (let i = 0; i < lines.length; i += maxLinesPerPage) {
-    pages.push(lines.slice(i, i + maxLinesPerPage).join("\n"));
-  }
-
-  return pages;
+function slidesFromNarrative(raw: string): string[] {
+  const parts = normalizeNarrativeParagraphs(raw);
+  if (parts.length === 1 && parts[0] === "") return [""];
+  const nonEmpty = parts.map((p) => p.trim()).filter(Boolean);
+  return nonEmpty.length > 0 ? nonEmpty : [""];
 }
 
 export interface StepPageNarrativeProps {
@@ -65,27 +44,22 @@ export interface StepPageNarrativeProps {
 export function StepPageNarrative({
   step,
   isSmallScreen,
-  isMediumScreen,
-  isDesktopSmall: _isDesktopSmall,
-  isDesktopMedium: _isDesktopMedium,
-  isRotated: _isRotated,
-  width: _width,
-  height: _height,
   onContinue,
 }: StepPageNarrativeProps) {
   const fullText = step.narrative ?? "";
-  const maxLinesPerPage = isSmallScreen ? 2 : isMediumScreen ? 3 : 4;
-  const maxCharsPerLine = isSmallScreen ? 26 : isMediumScreen ? 34 : 42;
-  const pages = useMemo(
-    () => paginateNarrative(fullText, maxLinesPerPage, maxCharsPerLine),
-    [fullText, maxLinesPerPage, maxCharsPerLine],
-  );
-  const [pageIndex, setPageIndex] = useState(0);
-  const currentPageText = pages[pageIndex] ?? "";
+  const slides = useMemo(() => slidesFromNarrative(fullText), [fullText]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const currentSlideText = slides[slideIndex] ?? "";
+  const isLastSlide = slideIndex >= slides.length - 1;
+
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const charIndexRef = useRef(0);
+
+  useEffect(() => {
+    setSlideIndex(0);
+  }, [fullText]);
 
   useEffect(() => {
     charIndexRef.current = 0;
@@ -93,9 +67,9 @@ export function StepPageNarrative({
     setIsTyping(true);
 
     function typeNextChar() {
-      if (charIndexRef.current < currentPageText.length) {
+      if (charIndexRef.current < currentSlideText.length) {
         charIndexRef.current += 1;
-        setDisplayedText(currentPageText.slice(0, charIndexRef.current));
+        setDisplayedText(currentSlideText.slice(0, charIndexRef.current));
         timeoutRef.current = setTimeout(typeNextChar, TYPING_SPEED_MS);
       } else {
         setIsTyping(false);
@@ -107,21 +81,17 @@ export function StepPageNarrative({
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [currentPageText]);
-
-  useEffect(() => {
-    setPageIndex(0);
-  }, [fullText]);
+  }, [currentSlideText]);
 
   const handleNext = () => {
     if (isTyping) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      setDisplayedText(currentPageText);
+      setDisplayedText(currentSlideText);
       setIsTyping(false);
       return;
     }
-    if (pageIndex < pages.length - 1) {
-      setPageIndex((prev) => prev + 1);
+    if (!isLastSlide) {
+      setSlideIndex((prev) => prev + 1);
       return;
     }
     onContinue();
@@ -153,7 +123,7 @@ export function StepPageNarrative({
         <div
           role="region"
           aria-labelledby="narrative-title"
-          aria-describedby="narrative-text"
+          aria-describedby="narrative-text-body"
           className="self-center relative"
           style={{
             width: "65%",
@@ -172,34 +142,32 @@ export function StepPageNarrative({
             />
 
             <div
-              className="absolute inset-0 flex items-start justify-center"
+              className="absolute inset-0 flex items-center justify-center"
               style={{ padding: "14% 10% 22% 28%" }}
             >
               <div
                 id="narrative-text"
-                className="text-gray-900 text-center w-full overflow-hidden"
-                style={{ maxHeight: "100%" }}
+                className="flex w-full max-h-full min-h-0 flex-col items-center gap-[clamp(6px,1.5vh,14px)] overflow-y-auto scrollbar-hide text-gray-900"
               >
                 <h2
                   id="narrative-title"
-                  className="font-display"
+                  className="font-display shrink-0 text-center"
                   style={{
                     fontSize: isSmallScreen
                       ? "clamp(0.9rem, 1.8vw, 1.2rem)"
                       : "clamp(1rem, 2vw, 1.5rem)",
                     lineHeight: 1.35,
-                    marginBottom: "clamp(8px, 1.5vh, 16px)",
                   }}
                 >
                   {step.title}
                 </h2>
                 <p
-                  className="font-display whitespace-pre-line"
+                  id="narrative-text-body"
+                  lang="fr"
+                  className="font-display w-full shrink-0 text-center text-pretty hyphens-none"
                   style={{
-                    fontSize: isSmallScreen
-                      ? "clamp(0.8rem, 1.5vw, 1.05rem)"
-                      : "clamp(0.9rem, 1.7vw, 1.3rem)",
-                    lineHeight: 1.55,
+                    fontSize: "clamp(0.9rem, 1.8vw, 1.4rem)",
+                    lineHeight: 1.35,
                   }}
                 >
                   {displayedText}
@@ -215,7 +183,7 @@ export function StepPageNarrative({
 
           <div className="absolute top-[12%] right-[8%] z-10">
             <ReadAloudButton
-              text={`${step.title}. ${currentPageText}`.trim()}
+              text={`${step.title}. ${currentSlideText}`.trim()}
               ariaLabel="Lire le texte"
             />
           </div>
@@ -235,7 +203,7 @@ export function StepPageNarrative({
         aria-label={
           isTyping
             ? "Afficher tout le texte"
-            : pageIndex < pages.length - 1
+            : !isLastSlide
               ? "Afficher la suite du texte"
               : "Continuer vers l’énigme"
         }
