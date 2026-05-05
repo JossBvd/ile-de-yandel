@@ -5,7 +5,7 @@ export const mission3Step2: Step = {
   title: "Aide moi à trouver de quoi me nourrir",
   instruction:
     "Parmi ces baies, seulement quatre sont comestibles. Retrouve-les pour faire des réserves !",
-  narrative: "Yondel doit identifier les baies comestibles pour survivre.",
+  narrative: "Yandel doit identifier les baies comestibles pour survivre.",
   raftPiece: "piece-3-2",
   raftObject: {
     image: "/missions/mission-3/step-2/M3_S2_popup-baies.webp",

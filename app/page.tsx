@@ -76,7 +76,7 @@ function WelcomeContent({
           className="font-bold text-gray-800 text-center mb-4 md:mb-6"
           style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
         >
-          Île de Yondel
+          Le crash de Yandel
         </h1>
       </div>
 

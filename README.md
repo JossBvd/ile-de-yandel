@@ -1,12 +1,12 @@
-# L'île de Yondel - Escape Game Éducatif
+# Le crash de Yandel
 
 Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ, développé avec Next.js.
 
 ## 🎯 Description
 
-Yondel, un jeune adolescent, s'est écrasé sur une île déserte. Pour en repartir, il devra franchir 5 étapes correspondant à des lieux de l'île, afin de collecter les éléments nécessaires à la construction de son radeau.
+Yandel, un jeune adolescent, s'est écrasé sur une île déserte. Pour en repartir, il devra franchir 5 étapes correspondant à des lieux de l'île, afin de collecter les éléments nécessaires à la construction de son radeau.
 
-À chaque étape, Yondel devra répondre correctement à des questions liées aux matières scolaires :
+À chaque étape, Yandel devra répondre correctement à des questions liées aux matières scolaires :
 
 - Français
 - Mathématiques

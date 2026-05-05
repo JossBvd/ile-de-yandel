@@ -9,10 +9,11 @@ import {
 } from "@/components/game/OrientationGuard";
 import { useResponsive } from "@/hooks/useResponsive";
 import { getStepById, getMissionById } from "@/data/missions";
-import { getNextStep } from "@/lib/engine/missionEngine";
+import { getNextStep, canAccessMissionStep } from "@/lib/engine/missionEngine";
 import { getStepPath, validateStepIdFromSlug } from "@/lib/navigation";
 import { logDebug } from "@/lib/utils/logger";
 import { useGameProgress } from "@/hooks/useGameProgress";
+import { useGameStoreHydrated } from "@/hooks/useGameStoreHydrated";
 import { useInventory } from "@/hooks/useInventory";
 import { GameRenderer } from "@/components/game/GameRenderer";
 import { ClickableBackground } from "@/components/game/ClickableBackground";
@@ -36,12 +37,19 @@ function StepPageContent() {
 
   React.useEffect(() => {
     if (!stepId) {
-      router.push("/carte-de-l-ile");
+      router.replace("/carte-de-l-ile");
     }
   }, [stepId, router]);
 
-  const { completedSteps, setCurrentStepId, completeStep, completeMission } =
-    useGameProgress();
+  const progressHydrated = useGameStoreHydrated();
+  const {
+    completedSteps,
+    completedMissions,
+    setCurrentStepId,
+    completeStep,
+    completeMission,
+  } = useGameProgress();
+
   const { addPiece } = useInventory();
   const { isRotated, width, height } = useOrientationContext();
   const {
@@ -72,6 +80,31 @@ function StepPageContent() {
 
   const step = stepId ? getStepById(stepId) : undefined;
   const mission = getMissionById(missionId);
+
+  React.useEffect(() => {
+    if (!progressHydrated || !stepId) return;
+    if (!mission) {
+      router.replace("/carte-de-l-ile");
+      return;
+    }
+    if (
+      !canAccessMissionStep(
+        mission,
+        stepId,
+        completedMissions,
+        completedSteps,
+      )
+    ) {
+      router.replace("/carte-de-l-ile");
+    }
+  }, [
+    progressHydrated,
+    stepId,
+    mission,
+    completedMissions,
+    completedSteps,
+    router,
+  ]);
 
   const missionNumber = missionId?.replace("mission-", "") ?? "1";
   const stepIndex =
@@ -157,7 +190,20 @@ function StepPageContent() {
     };
   }, [stepId]);
 
-  if (!stepId) {
+  if (!stepId || !progressHydrated) {
+    return null;
+  }
+
+  const accessDenied =
+    !mission ||
+    !canAccessMissionStep(
+      mission,
+      stepId,
+      completedMissions,
+      completedSteps,
+    );
+
+  if (accessDenied) {
     return null;
   }
 

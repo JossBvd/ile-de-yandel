@@ -21,7 +21,10 @@ import { AudioDescriptionButton } from "@/components/ui/AudioDescriptionButton";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { useInventory } from "@/hooks/useInventory";
-import { isMissionCompleted, getNextStep } from "@/lib/engine/missionEngine";
+import {
+  getNextStep,
+  isMissionAccessible,
+} from "@/lib/engine/missionEngine";
 import { useUIStore } from "@/store/uiStore";
 import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
 import { useReadingAidStore } from "@/store/readingAidStore";
@@ -68,14 +71,6 @@ function HomeContent() {
   const { isPWAFullscreen } = usePWAMode();
   const { isSmallScreen, isMediumScreen, isLargeScreen, isDesktopSmall, isDesktopMedium, isDesktopLarge, isMobileOrTablet } = useResponsive();
 
-  const isMissionUnlocked = (missionId: string) => {
-    if (completedMissions.includes(missionId)) return true;
-    const prevMission = getMissionById(missionId);
-    return prevMission
-      ? isMissionCompleted(prevMission, completedSteps)
-      : false;
-  };
-
   const isMissionNew = (missionId: string, available: boolean) =>
     available &&
     !completedSteps.some((id) => id.startsWith(`${missionId}-`)) &&
@@ -109,7 +104,11 @@ function HomeContent() {
     },
     {
       id: "mission-2",
-      available: isMissionUnlocked("mission-1"),
+      available: isMissionAccessible(
+        "mission-2",
+        completedMissions,
+        completedSteps,
+      ),
       positionMobile: {
         top: "78%",
         left: "35%",
@@ -123,7 +122,11 @@ function HomeContent() {
     },
     {
       id: "mission-3",
-      available: isMissionUnlocked("mission-2"),
+      available: isMissionAccessible(
+        "mission-3",
+        completedMissions,
+        completedSteps,
+      ),
       positionMobile: {
         top: "22%",
         left: "40%",
@@ -137,7 +140,11 @@ function HomeContent() {
     },
     {
       id: "mission-4",
-      available: isMissionUnlocked("mission-3"),
+      available: isMissionAccessible(
+        "mission-4",
+        completedMissions,
+        completedSteps,
+      ),
       positionMobile: {
         top: "22%",
         left: "72%",
@@ -151,7 +158,11 @@ function HomeContent() {
     },
     {
       id: "mission-5",
-      available: isMissionUnlocked("mission-4"),
+      available: isMissionAccessible(
+        "mission-5",
+        completedMissions,
+        completedSteps,
+      ),
       positionMobile: {
         top: "78%",
         left: "72%",

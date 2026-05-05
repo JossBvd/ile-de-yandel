@@ -1,13 +1,18 @@
 import {
+  isMissionAccessible,
+  canAccessMissionStep,
   isMissionCompleted,
   getNextStep,
   getCurrentStepIndex,
   getMissionProgress,
-} from '../missionEngine'
-import { Mission } from '@/types/mission'
-import { StepId } from '@/types/step'
+} from "../missionEngine";
+import { MISSIONS } from "@/data/missions";
+import { Mission, MissionId } from "@/types/mission";
+import { StepId } from "@/types/step";
 
-describe('missionEngine', () => {
+describe("missionEngine", () => {
+  const [dataMission1, dataMission2] = MISSIONS;
+
   const mockMission: Mission = {
     id: 'mission-1',
     title: 'Mission Test',
@@ -136,6 +141,77 @@ describe('missionEngine', () => {
       const completedSteps: StepId[] = ['other-step-1']
       const result = getMissionProgress(mockMission, completedSteps)
       expect(result).toBe(0)
+    })
+  })
+
+  describe('isMissionAccessible', () => {
+    it('devrait toujours autoriser mission-1', () => {
+      expect(
+        isMissionAccessible(
+          'mission-1',
+          [] as MissionId[],
+          [],
+        ),
+      ).toBe(true)
+    })
+
+    it('devrait refuser mission-2 tant que mission-1 est incomplète', () => {
+      expect(
+        isMissionAccessible('mission-2', [], ['other' as StepId]),
+      ).toBe(false)
+    })
+
+    it('devrait autoriser mission-2 quand tous les steps de mission-1 sont complétés', () => {
+      const done: StepId[] = [...dataMission1.steps]
+      expect(isMissionAccessible('mission-2', [], done)).toBe(true)
+    })
+  })
+
+  describe('canAccessMissionStep', () => {
+    it('devrait refuser un step suivant tant que les précédents ne sont pas faits', () => {
+      const mission: Mission = {
+        id: 'mission-1',
+        title: 'M',
+        steps: ['mission-1-a', 'mission-1-b', 'mission-1-c'] as StepId[],
+      }
+      expect(
+        canAccessMissionStep(
+          mission,
+          'mission-1-b',
+          [],
+          [],
+        ),
+      ).toBe(false)
+    })
+
+    it('devrait autoriser uniquement le prochain step', () => {
+      const mission: Mission = {
+        id: 'mission-1',
+        title: 'M',
+        steps: ['mission-1-a', 'mission-1-b'] as StepId[],
+      }
+      expect(
+        canAccessMissionStep(
+          mission,
+          'mission-1-a',
+          [],
+          [],
+        ),
+      ).toBe(true)
+      expect(
+        canAccessMissionStep(
+          mission,
+          'mission-1-b',
+          [],
+          ['mission-1-a'],
+        ),
+      ).toBe(true)
+    })
+
+    it('devrait autoriser une mission suivante après complétion de la précédente', () => {
+      const done: StepId[] = [...dataMission1.steps]
+      const firstM2 = dataMission2.steps[0]
+      expect(canAccessMissionStep(dataMission2, firstM2, [], done)).toBe(true)
     })
   })
 })

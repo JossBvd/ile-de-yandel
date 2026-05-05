@@ -113,7 +113,7 @@ export function StepPageNarrative({
         >
           <Image
             src="/intro/yondel_crop.webp"
-            alt="Yondel, le personnage principal"
+            alt="Yandel, le personnage principal"
             fill
             style={{ objectFit: "contain", objectPosition: "bottom center" }}
             priority

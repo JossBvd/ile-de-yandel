@@ -1,6 +1,6 @@
 # Architecture et découpage des composants
 
-Documentation du projet **L’île de Yondel** (escape game web, Next.js App Router, frontend uniquement).
+Documentation du projet **Le crash de Yandel** (escape game web, Next.js App Router, frontend uniquement).
 
 ---
 
@@ -30,7 +30,7 @@ components/
 data/
   missions/             # Missions et steps (données TS)
   raft.ts               # Pièces de radeau et lien step ↔ pièce
-hooks/                  # Logique réutilisable (progression, DnD, responsive…)
+hooks/                  # Logique réutilisable (progression, DnD, responsive, hydratation persist `gameStore`…)
 lib/
   engine/               # Règles pures (missions, steps, inventaire)
   storage/              # Abstractions localStorage / cookies
@@ -55,13 +55,22 @@ public/                 # Assets statiques (missions, ui, backgrounds, raft…)
 
 La navigation canonique des steps passe par `lib/navigation.ts` (`getStepPath`, validation des slugs par rapport aux données `MISSIONS`).
 
+### Accès direct par URL (saisie manuelle dans la barre d’adresse)
+
+La validation du **slug seul** ne suffit pas : il faut aussi respecter la **progression persistée** (`gameStore`). Sinon un joueur pourrait ouvrir une mission ou un step non débloqués en tapant `/{missionId}/{stepSlug}`.
+
+- **Mission** : règle alignée sur la carte (`app/carte-de-l-ile/page.tsx`) via `lib/engine/missionEngine.ts` → **`isMissionAccessible`** (mission 1 toujours ; mission _N_ si la mission précédente est entièrement complétée dans `completedSteps`, ou bien si l’identifiant de la mission précédente figure dans `completedMissions`).
+- **Step dans une mission** : **`canAccessMissionStep`** — autorisés le **premier step non complété** (`getNextStep`), tout step **déjà dans `completedSteps`** (rejouabilité depuis l’URL), et tout step d’une mission **dont tous les steps sont complétés** (mission terminée mais pas encore relancée depuis la carte comme un « reset » uniquement carte).
+- **Page** `app/[missionId]/[stepSlug]/page.tsx` : après **réhydratation** du persist Zustand (`hooks/useGameStoreHydrated.ts`), si l’accès est refusé → `router.replace("/carte-de-l-ile")` et aucun rendu du mini-jeu. Tant que le store n’est pas réhydraté depuis `localStorage`, la page ne rend pas le contenu (évite un renvoi erroné avec `completedSteps` vide au premier frame).
+- **Limite** : sans API serveur, la contrainte est **côté client uniquement** ; une modification manuelle du `localStorage` ou des outils dev peut contourner cette logique. C’est cohérent avec un escape game scolaire sans backend métier.
+
 ### Workflow intro accessibilité + narration
 
 Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflowDone === false` :
 
 1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — _"Veux-tu activer l'audiodescription ?"_ → choix enregistré dans `audioDescriptionStore`.
 2. **Écran DYS** : même composant (acronym="DYS") — _"Veux-tu activer l'aide à la lecture ?"_ → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
-3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yondel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
+3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yandel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
 
 Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
 
@@ -107,10 +116,13 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 - Les visuels de pièces (`/raft/radeau_photo-01.webp` à `-15.webp`) sont rendus **sans déformation** (`object-contain`) pour respecter leur ratio d’origine.
 - La grille d’inventaire est affichée sans espacement entre cases (`gap: 0`) et sans habillage de carte autour des pièces image pour garder un rendu “photo tel quel”.
 - Les **3 slots de fusion** restent carrés (ratio 1:1), sont affichés dans un bloc de fusion compact, et acceptent les drops uniquement sur slot valide ; un clic sur un slot occupé retire la pièce.
-- La progression textuelle affichée est le compteur dynamique **`x/5`** (`fusedRaftPiecesCount/MAX_FUSED_RAFT_PIECES`) ; les pastilles visuelles de progression ne sont plus rendues.
+- Une fusion réussie affiche un **objet fusionné dans l’inventaire** avec les visuels `public/raft/merged_photo-01.webp` à `-05.webp` (ordre par mission).
+- L’ordre de fusion est **libre** (toute mission peut être fusionnée dès que ses 3 pièces sont disponibles), mais le dépôt sur le radeau est **ordonné visuellement** (mission 1 puis 2 puis 3 puis 4 puis 5).
+- Le visuel du radeau n’évolue qu’après **drag & drop de l’objet fusionné vers la zone du radeau** ; une fusion seule ne met pas à jour le radeau.
+- La progression textuelle affichée est le compteur dynamique **`x/5`** basé sur les objets fusionnés réellement déposés sur le radeau.
 - Après chaque fusion réussie, une modal “objet fusionné” est affichée avec les visuels `public/raft/popup_merged_object-01.webp` à `-05.webp` dans l’ordre des missions.
 - Quand l’audio description est activée, le bouton mégaphone de la zone de fusion est positionné à droite en absolu pour ne pas modifier la hauteur du conteneur gauche.
-- Règles de fusion : les 3 pièces doivent venir de la même mission, dans l’ordre des missions ; sinon feedback d’erreur et réinitialisation des slots.
+- Règles de fusion : les 3 pièces doivent venir de la même mission ; sinon feedback d’erreur et réinitialisation des slots.
 
 ---
 
@@ -118,7 +130,7 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 
 Fonctions **pures** (sans React), testables unitairement :
 
-- **missionEngine** : mission complète, step suivant, index, pourcentage de progression.
+- **missionEngine** : mission complète, step suivant, index, pourcentage de progression ; **`isMissionAccessible`** et **`canAccessMissionStep`** pour le contrôle d’accès aux routes step (voir §3).
 - **stepEngine** : règles liées au déroulé d’un step (selon le besoin métier).
 - **inventoryEngine** : complétude inventaire, progression, pièce associée à un `stepId`.
 
@@ -166,7 +178,7 @@ Découpage de l’**écran step** pour limiter la taille de la page :
 | **`StepPageSidebar`**   | Bandeau gauche : titre mission/étape, description audio, bascule instruction/inspecter, indice, radeau, retour carte. |
 | **`StepPageModals`**    | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal`).                  |
 
-La page `app/[missionId]/[stepSlug]/page.tsx` orchestre : chargement du step, progression (`useGameProgress`, `useInventory`), effets (audio auto), et branchement **ClickableBackground** vs **StepBackground** selon `backgroundHintZones`.
+La page `app/[missionId]/[stepSlug]/page.tsx` orchestre : chargement du step, progression (`useGameProgress`, `useInventory`), garde d’accès (`useGameStoreHydrated`, `canAccessMissionStep` — voir §3), effets (audio auto), et branchement **ClickableBackground** vs **StepBackground** selon `backgroundHintZones`.
 
 ### 7.3 `components/games/` — mini-jeux par domaine
 
@@ -190,7 +202,7 @@ Composants d'accessibilité intro :
 | Composant                           | Responsabilité                                                                                                                                                                                                                                                                                                         |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`IntroAccessibilityChoiceModal`** | Modal générique Oui/Non utilisée pour les 2 écrans du workflow intro (AD puis DYS). Props : `acronym` ("AD" \| "DYS"), `question`, `onYes`, `onNo`. Fond parchemin, titre grand, boutons orange.                                                                                                                       |
-| **`IntroNarrativeScreen`**          | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yondel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
+| **`IntroNarrativeScreen`**          | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yandel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
 | **`ReadingAidEffect`**              | Composant sans rendu (`null`) monté dans le layout. Ajoute/retire la classe `reading-aid-enabled` sur `<html>` selon `readingAidStore.readingAidEnabled`.                                                                                                                                                              |
 
 ---

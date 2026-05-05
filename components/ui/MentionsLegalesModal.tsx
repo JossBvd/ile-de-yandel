@@ -60,7 +60,7 @@ export function MentionsLegalesModal({
           className="text-gray-700 text-sm overflow-y-auto flex-1 min-h-0"
         >
           <p className="mb-3">
-            <strong>Application :</strong> L’île de Yondel – escape game
+            <strong>Application :</strong> Le crash de Yandel – escape game
             éducatif en ligne.
           </p>
           <p className="mb-3">

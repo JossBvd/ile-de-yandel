@@ -15,7 +15,7 @@ Aide moi à explorer les environs pour trouver de la nourriture !`,
   backgroundImage: "/missions/mission-5/step-1/M5_background_beach-02.webp",
   game: {
     type: "qcm",
-    question: `Yondel suit la rivière qui descend de la montagne jusqu’à la mer.
+    question: `Yandel suit la rivière qui descend de la montagne jusqu’à la mer.
 Il veut remplir sa gourde près de la mer, mais l’eau y est légèrement salée.
 alors que celle de la montagne ne l’était pas. Pourquoi ?`,
     options: [

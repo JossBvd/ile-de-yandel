@@ -15,7 +15,7 @@ const INTRO_SLIDES = [
 const TYPING_SPEED_MS = 30;
 
 const MAP_READ_ALOUD_TEXT =
-  "Voici la carte de l'île ! C'est ici que va se dérouler ton aventure. Explore chaque zone pour aider Yondel à construire son radeau.";
+  "Voici la carte de l'île ! C'est ici que va se dérouler ton aventure. Explore chaque zone pour aider Yandel à construire son radeau.";
 
 interface IntroNarrativeScreenProps {
   onComplete: () => void;
@@ -117,14 +117,14 @@ export function IntroNarrativeScreen({
       }}
     >
       <div className="w-full h-dvh flex items-end" style={{ padding: "0 3% 0 0" }}>
-        {/* Personnage Yondel – côté gauche, collé en bas */}
+        {/* Personnage Yandel – côté gauche, collé en bas */}
         <div
           className="relative shrink-0 self-end"
           style={{ width: "42%", height: "95%" }}
         >
           <Image
             src="/intro/yondel_crop.webp"
-            alt="Yondel, le personnage principal"
+            alt="Yandel, le personnage principal"
             fill
             style={{ objectFit: "contain", objectPosition: "bottom center" }}
             priority
@@ -144,7 +144,7 @@ export function IntroNarrativeScreen({
             <div className="relative w-full h-full">
               <Image
                 src="/intro/INTRO_popup_carte.webp"
-                alt="La carte de l'île de Yondel"
+                alt="Carte de l’île"
                 fill
                 style={{ objectFit: "contain" }}
                 priority
