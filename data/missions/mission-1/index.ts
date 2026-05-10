@@ -12,8 +12,8 @@ export const mission1Steps: Step[] = [
 
 export const mission1: Mission = {
   id: "mission-1",
-  title: "L'île de Yandel",
-  description: "Aide Yandel à construire son radeau pour quitter l'île",
+  title: "L'île de Yondel",
+  description: "Aide Yondel à construire son radeau pour quitter l'île",
   completionText:
     "Grâce à tout ce que j'ai collecté près de l'épave, je vais pouvoir fabriquer une voile pour mon radeau !",
   steps: mission1Steps.map((step) => step.id),

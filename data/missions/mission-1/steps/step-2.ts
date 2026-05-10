@@ -4,7 +4,7 @@ export const mission1Step2: Step = {
   id: "mission-1-step-2",
   title: "Synthétique",
   instruction: "Réponds à cette question",
-  narrative: `Yandel se retrouve sur une magnifique plage. 
+  narrative: `Yondel se retrouve sur une magnifique plage. 
 Le soleil brille et les vagues viennent caresser le sable doré. 
 Il doit résoudre un quiz pour obtenir la deuxième pièce de son radeau.`,
   location: "Sur la plage",

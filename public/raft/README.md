@@ -1,6 +1,6 @@
 # Images des pièces du radeau
 
-Ce dossier contient les images des pièces du radeau que Yandel collecte tout au long de son aventure.
+Ce dossier contient les images des pièces du radeau que Yondel collecte tout au long de son aventure.
 
 ## Structure attendue
 
