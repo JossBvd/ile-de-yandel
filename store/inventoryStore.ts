@@ -12,9 +12,15 @@ interface InventoryState {
   fusedRaftPiecesCount: number;
   fusedPieces: FusedPieceId[];
   fusionHistory: [RaftPieceId, RaftPieceId, RaftPieceId][];
+  /** Indices de missions (1–5) dont l'objet fusionné a été déposé sur le radeau */
+  placedOnRaft: number[];
   addPiece: (pieceId: RaftPieceId) => void;
   hasPiece: (pieceId: RaftPieceId) => boolean;
-  consumePiecesForFusion: (pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId]) => boolean;
+  consumePiecesForFusion: (
+    pieceIds: [RaftPieceId, RaftPieceId, RaftPieceId],
+  ) => boolean;
+  /** Dépose l'objet fusionné d'une mission sur le radeau (ordre 1→5 obligatoire). */
+  placeOnRaft: (missionIndex: number) => boolean;
   getProgress: () => number;
   isRaftComplete: () => boolean;
   reset: () => void;
@@ -26,6 +32,7 @@ const initialState = {
   fusedRaftPiecesCount: 0,
   fusedPieces: [],
   fusionHistory: [],
+  placedOnRaft: [] as number[],
 };
 
 export const useInventoryStore = create<InventoryState>()(
@@ -57,7 +64,8 @@ export const useInventoryStore = create<InventoryState>()(
         if (state.fusedRaftPiecesCount >= MAX_FUSED_RAFT_PIECES) return false;
 
         const [first, second, third] = pieceIds;
-        const getMissionKey = (id: RaftPieceId) => id.split("-").slice(0, 2).join("-");
+        const getMissionKey = (id: RaftPieceId) =>
+          id.split("-").slice(0, 2).join("-");
         const missionKey = getMissionKey(first);
         if (
           getMissionKey(second) !== missionKey ||
@@ -71,11 +79,23 @@ export const useInventoryStore = create<InventoryState>()(
         if (stillHas.length !== 3) return false;
         const nextFusedId = `fused-${state.fusedRaftPiecesCount + 1}`;
         set({
-          collectedPieces: state.collectedPieces.filter((id) => !setIds.has(id)),
+          collectedPieces: state.collectedPieces.filter(
+            (id) => !setIds.has(id),
+          ),
           fusedRaftPiecesCount: state.fusedRaftPiecesCount + 1,
           fusedPieces: [...state.fusedPieces, nextFusedId],
           fusionHistory: [...state.fusionHistory, pieceIds],
         });
+        return true;
+      },
+
+      /** Dépose l'objet fusionné d'une mission sur le radeau (ordre 1→5 obligatoire). */
+      placeOnRaft: (missionIndex: number): boolean => {
+        const state = get();
+        const nextExpected = state.placedOnRaft.length + 1;
+        if (missionIndex !== nextExpected) return false;
+        if (state.placedOnRaft.includes(missionIndex)) return false;
+        set({ placedOnRaft: [...state.placedOnRaft, missionIndex] });
         return true;
       },
 
@@ -109,6 +129,7 @@ export const useInventoryStore = create<InventoryState>()(
             fusedRaftPiecesCount: 0,
             fusedPieces: [],
             fusionHistory: [],
+            placedOnRaft: [],
           };
         }),
     }),
@@ -119,6 +140,7 @@ export const useInventoryStore = create<InventoryState>()(
         fusedRaftPiecesCount: state.fusedRaftPiecesCount,
         fusedPieces: state.fusedPieces,
         fusionHistory: state.fusionHistory,
+        placedOnRaft: state.placedOnRaft,
       }),
     },
   ),

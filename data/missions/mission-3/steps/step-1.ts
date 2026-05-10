@@ -5,8 +5,9 @@ export const mission3Step1: Step = {
   title: "Exploration",
   instruction:
     "Sélectionne les explorateurs qui appartiennent à la Renaissance",
-  narrative:
-    "« Avant de pouvoir rentrer chez moi,\nj’ai besoin de rassembler des vivres !\nAide moi à explorer les environs pour\ntrouver de la nourriture ! »",
+  narrative: `« Avant de pouvoir rentrer chez moi, j'ai besoin de rassembler des vivres !
+
+Aide moi à explorer les environs pour trouver de la nourriture ! »`,
   raftPiece: "piece-3-1",
   raftObject: {
     image: "/missions/mission-3/step-1/M3_S1_popup-noix.webp",

@@ -4,10 +4,9 @@ export const mission1Step1: Step = {
   id: "mission-1-step-1",
   title: "L'épave de l'avion",
   instruction: "Résous l'énigme pour trouver la première pièce du radeau.",
-  narrative: `« Pour mon radeau, je vais avoir besoin d'une
-voile. Aide-moi à fouiller près de l'épave de l'avion
-pour trouver les matériaux nécessaires à la
-fabrication ! Bonne chance ! »`,
+  narrative: `« Pour mon radeau, je vais avoir besoin d'une voile.
+
+Aide-moi à fouiller près de l'épave de l'avion pour trouver les matériaux nécessaires à la fabrication ! Bonne chance ! »`,
   location: "Etape 1",
   raftPiece: "piece-1-1",
   raftObject: {

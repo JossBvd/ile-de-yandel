@@ -60,7 +60,7 @@ export function PolitiqueConfidentialiteModal({
           className="text-gray-700 text-sm overflow-y-auto flex-1 min-h-0"
         >
           <p className="mb-3">
-            L’application « L’île de Yondel » ne collecte aucune donnée
+            L’application « Le crash de Yandel » ne collecte aucune donnée
             personnelle. Aucun compte utilisateur n’est requis.
           </p>
           <p className="mb-3">
