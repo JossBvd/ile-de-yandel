@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { STORAGE_KEY_READING_AID } from "@/lib/constants";
 
 interface ReadingAidState {
@@ -39,6 +39,7 @@ export const useReadingAidStore = create<ReadingAidState>()(
     }),
     {
       name: STORAGE_KEY_READING_AID,
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         readingAidEnabled: state.readingAidEnabled,
         readingAidFirstVisitDone: state.readingAidFirstVisitDone,

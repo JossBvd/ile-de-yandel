@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { MissionId } from "@/types/mission";
 
 interface UIState {
@@ -46,6 +46,7 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: "escape_game_ui",
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         viewedMissions: Array.from(state.viewedMissions),
         raftViewed: state.raftViewed,

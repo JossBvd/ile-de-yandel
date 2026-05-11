@@ -5,7 +5,7 @@ export const mission2Step2: Step = {
   title: "Aide moi à trouver de quoi assembler ma hache",
   instruction:
     "Classe ces matériaux par densité, du moins dense au plus dense.",
-  narrative: `Yondel a trouvé un bâton. Il doit maintenant trouver de quoi assembler sa hache.`,
+  narrative: `Yandel a trouvé un bâton. Il doit maintenant trouver de quoi assembler sa hache.`,
   location: "Dans la jungle",
   raftPiece: "piece-2-2",
   raftObject: {

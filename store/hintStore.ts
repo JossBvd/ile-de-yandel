@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { StepId } from "@/types/step";
 import { STORAGE_KEY_HINTS } from "@/lib/constants";
 
@@ -33,6 +33,7 @@ export const useHintStore = create<HintState>()(
     }),
     {
       name: STORAGE_KEY_HINTS,
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
 );

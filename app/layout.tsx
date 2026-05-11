@@ -5,6 +5,7 @@ import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { ReadingAidEffect } from "@/components/ui/ReadingAidEffect";
+import { BeforeUnloadWarning } from "@/components/ui/BeforeUnloadWarning";
 
 const baloo = Baloo_2({
   variable: "--font-baloo",
@@ -19,13 +20,13 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "Le crash de Yandel",
+  title: "L'île de Yandel",
   description: "Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Le crash de Yandel",
+    title: "L'île de Yandel",
   },
   formatDetection: {
     telephone: false,
@@ -67,6 +68,7 @@ export default function RootLayout({
       >
         <AudioDescriptionProvider>
           <ReadingAidEffect />
+          <BeforeUnloadWarning />
           <SkipLink />
           {children}
           <PWAInstallPrompt />

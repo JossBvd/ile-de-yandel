@@ -4,7 +4,7 @@ export const mission1Step3: Step = {
   id: "mission-1-step-3",
   title: "Fais glisser les bonnes images dans les cases",
   instruction: "Fais glisser les bonnes images dans les cases",
-  narrative: `Yondel découvre une grotte mystérieuse. 
+  narrative: `Yandel découvre une grotte mystérieuse. 
 Les parois sont couvertes de dessins anciens. 
 Il doit trouver la troisième pièce de son radeau.`,
   location: "Dans la grotte",

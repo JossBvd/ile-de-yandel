@@ -1,6 +1,6 @@
 # Architecture et découpage des composants
 
-Documentation du projet **Le crash de Yandel** (escape game web, Next.js App Router, frontend uniquement).
+Documentation du projet **L'île de Yandel** (escape game web, Next.js App Router, frontend uniquement).
 
 ---
 
@@ -11,11 +11,11 @@ Documentation du projet **Le crash de Yandel** (escape game web, Next.js App Rou
 | **Next.js 16 (App Router)** | Routage par fichiers, layouts, métadonnées PWA, polices (`next/font`).              |
 | **React 19**                | UI client (`"use client"` sur les écrans interactifs).                              |
 | **TypeScript**              | Modèles de données (`types/`), unions discriminées pour les mini-jeux (`GameData`). |
-| **Zustand + persist**       | État global (progression, inventaire, préférences) avec persistance `localStorage`. |
+| **Zustand + persist**       | État global (progression, inventaire, préférences) avec persistance `sessionStorage` (toute la progression et les préférences ; réinitialisés à la fermeture du navigateur). |
 | **Tailwind CSS 4**          | Styles utilitaires et thème (`app/globals.css`).                                    |
 | **@dnd-kit**                | Drag & drop (sensors partagés, collision `pointerWithin`).                          |
 
-Aucune API serveur métier : la progression et l’inventaire sont **locaux au navigateur**.
+Aucune API serveur métier : la progression et l’inventaire sont **locaux au navigateur** (session en cours uniquement).
 
 ---
 
@@ -33,7 +33,7 @@ data/
 hooks/                  # Logique réutilisable (progression, DnD, responsive, hydratation persist `gameStore`…)
 lib/
   engine/               # Règles pures (missions, steps, inventaire)
-  storage/              # Abstractions localStorage / cookies
+  storage/              # Abstractions sessionStorage / cookies
   accessibility/        # Annonces, description audio
   constants.ts          # Clés de stockage, assets UI par défaut
 store/                  # Stores Zustand
@@ -61,8 +61,8 @@ La validation du **slug seul** ne suffit pas : il faut aussi respecter la **prog
 
 - **Mission** : règle alignée sur la carte (`app/carte-de-l-ile/page.tsx`) via `lib/engine/missionEngine.ts` → **`isMissionAccessible`** (mission 1 toujours ; mission _N_ si la mission précédente est entièrement complétée dans `completedSteps`, ou bien si l’identifiant de la mission précédente figure dans `completedMissions`).
 - **Step dans une mission** : **`canAccessMissionStep`** — autorisés le **premier step non complété** (`getNextStep`), tout step **déjà dans `completedSteps`** (rejouabilité depuis l’URL), et tout step d’une mission **dont tous les steps sont complétés** (mission terminée mais pas encore relancée depuis la carte comme un « reset » uniquement carte).
-- **Page** `app/[missionId]/[stepSlug]/page.tsx` : après **réhydratation** du persist Zustand (`hooks/useGameStoreHydrated.ts`), si l’accès est refusé → `router.replace("/carte-de-l-ile")` et aucun rendu du mini-jeu. Tant que le store n’est pas réhydraté depuis `localStorage`, la page ne rend pas le contenu (évite un renvoi erroné avec `completedSteps` vide au premier frame).
-- **Limite** : sans API serveur, la contrainte est **côté client uniquement** ; une modification manuelle du `localStorage` ou des outils dev peut contourner cette logique. C’est cohérent avec un escape game scolaire sans backend métier.
+- **Page** `app/[missionId]/[stepSlug]/page.tsx` : après **réhydratation** du persist Zustand (`hooks/useGameStoreHydrated.ts`), si l’accès est refusé → `router.replace("/carte-de-l-ile")` et aucun rendu du mini-jeu. Tant que le store n’est pas réhydraté depuis `sessionStorage`, la page ne rend pas le contenu (évite un renvoi erroné avec `completedSteps` vide au premier frame).
+- **Limite** : sans API serveur, la contrainte est **côté client uniquement** ; une modification manuelle du `sessionStorage` ou des outils dev peut contourner cette logique. C’est cohérent avec un escape game scolaire sans backend métier.
 
 ### Workflow intro accessibilité + narration
 
@@ -149,7 +149,7 @@ Les stores et les pages appellent ces fonctions plutôt que de dupliquer la logi
 | `readingAidStore`       | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`.                     |
 | `uiStore`               | État UI transverse.                                                                                                                 |
 
-Persistance via middleware `persist` ; les noms de clés `localStorage` sont centralisés dans `lib/constants.ts`.
+Persistance via middleware `persist` ; les noms de clés de stockage sont centralisés dans `lib/constants.ts`.
 
 **Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
 

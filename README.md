@@ -1,4 +1,4 @@
-# Le crash de Yandel
+# L'île de Yandel
 
 Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ, développé avec Next.js.
 
@@ -99,7 +99,7 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
 ## 💾 Persistance
 
-Les données sont stockées dans le **LocalStorage** :
+Les données sont stockées dans le **SessionStorage** (réinitialisé à la fermeture du navigateur) :
 
 - Mission en cours
 - Step en cours
@@ -112,7 +112,7 @@ Les données sont stockées dans le **LocalStorage** :
 - **Next.js 16** (App Router)
 - **React 19**
 - **TypeScript**
-- **Zustand** (state management avec persistance)
+- **Zustand** (state management avec persistance `sessionStorage`)
 - **@dnd-kit** (drag & drop)
 - **Tailwind CSS**
 
@@ -120,5 +120,5 @@ Les données sont stockées dans le **LocalStorage** :
 
 - Frontend uniquement (pas de backend)
 - Aucun compte utilisateur
-- Aucune donnée personnelle collectée
+- Pseudonyme et progression stockés localement (`sessionStorage`), sans envoi vers un serveur applicatif
 - Conforme usage scolaire

@@ -33,7 +33,7 @@ function WelcomeContent({
   } = useReadingAidStore();
 
   useEffect(() => {
-    const savedPseudo = localStorage.getItem("playerPseudo");
+    const savedPseudo = sessionStorage.getItem("playerPseudo");
     if (savedPseudo) {
       setPseudo(savedPseudo);
     }
@@ -42,7 +42,7 @@ function WelcomeContent({
   const handlePlayClick = () => {
     const sanitized = sanitizePseudo(pseudo);
     if (!sanitized || sanitized.length < 1) return;
-    localStorage.setItem("playerPseudo", sanitized);
+    sessionStorage.setItem("playerPseudo", sanitized);
     if (!introWorkflowDone) {
       setShowAudioChoice(true);
       return;
@@ -76,7 +76,7 @@ function WelcomeContent({
           className="font-bold text-gray-800 text-center mb-4 md:mb-6"
           style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
         >
-          Le crash de Yandel
+          L&apos;île de Yandel
         </h1>
       </div>
 

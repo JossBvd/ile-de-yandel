@@ -123,7 +123,7 @@ export function IntroNarrativeScreen({
           style={{ width: "42%", height: "95%" }}
         >
           <Image
-            src="/intro/yondel_crop.webp"
+            src="/intro/yandel_crop.webp"
             alt="Yandel, le personnage principal"
             fill
             style={{ objectFit: "contain", objectPosition: "bottom center" }}
