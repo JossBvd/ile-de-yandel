@@ -87,6 +87,7 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
   - Sélection d'images (drag-select-image)
   - Remplir un panier (basket-fill)
   - Vider une bouteille (bottle-empty)
+  - Photosynthèse — fusion d'atomes (`photosynthesis-atoms`, mission 2 step 3)
 - **Image Click** : Cliquer sur une zone précise d'une image
 
 ## 📱 Contraintes
@@ -106,6 +107,10 @@ Les données sont stockées dans le **SessionStorage** (réinitialisé à la fer
 - Steps validés
 - Indices utilisés
 - Pièces du radeau obtenues
+- Préférences d'accessibilité (audiodescription, aide à la lecture DYS)
+- État UI (badges « Nouveau », outro radeau vue)
+
+Un avertissement navigateur peut s'afficher à la fermeture d'onglet si une partie est en cours (sans bloquer la navigation interne entre les pages du jeu).
 
 ## 🛠️ Technologies
 
@@ -118,8 +123,9 @@ Les données sont stockées dans le **SessionStorage** (réinitialisé à la fer
 
 ## 📚 Documentation
 
-- [Architecture et composants](docs/architecture.md) — routage, missions, **page radeau** (fusion, drag & drop, responsive tactile)
-- [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire
+- [Architecture et composants](docs/architecture.md) — routage, missions, **radeau** (fusion, outro, tactile), **photosynthèse** (M2 S3), menu Paramètres, `beforeunload`
+- [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire, état UI (`raftOutroCompleted`)
+- [Assets radeau](public/raft/README.md) — pièces, fusion, lien vers l'outro
 
 ## 📝 Notes
 

@@ -12,9 +12,9 @@ import { useNarrativeTypewriter } from "@/components/ui/narrative/useNarrativeTy
 import { useResponsive } from "@/hooks/useResponsive";
 
 const INTRO_SLIDES = [
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis.",
-  "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint.",
+  "Salut à toi jeune aventurier, Je m'appelle Yandel et je vais avoir besoin de ton aide.",
+  "Mon avion s'est écrasé sur une île inconnue sans carte et sans moyen de partir. Pour m'aider, tu devras répondre aux questions qui te seront posées.",
+  "Bonne chance, aventurier !",
 ];
 
 const MAP_READ_ALOUD_TEXT =

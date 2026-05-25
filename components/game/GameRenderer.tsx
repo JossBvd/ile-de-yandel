@@ -52,6 +52,7 @@ export function GameRenderer({
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
         />
       );
     case "drag-order-images":
@@ -77,6 +78,7 @@ export function GameRenderer({
           step={step}
           onComplete={onComplete}
           onDefeat={onDefeat}
+          questionContainerVisible={questionContainerVisible}
         />
       );
     case "bottle-empty":

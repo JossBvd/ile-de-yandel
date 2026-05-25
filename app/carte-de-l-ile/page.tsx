@@ -321,9 +321,16 @@ function HomeContent() {
           {showParamsMenu && (
             <div
               role="menu"
-              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 overflow-x-hidden overflow-y-auto scrollbar-hide"
+              className="absolute bottom-full right-0 mb-2 z-50 rounded-lg shadow-xl min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 overflow-x-hidden overflow-y-auto scrollbar-hide"
               style={{
                 padding: isMobileOrTablet ? '8px' : '12px',
+                maxHeight: isMobileOrTablet
+                  ? isSmallScreen
+                    ? 'calc(100dvh - 5.5rem)'
+                    : isMediumScreen
+                      ? 'calc(100dvh - 6.5rem)'
+                      : 'calc(100dvh - 7.5rem)'
+                  : 'calc(100dvh - 10rem)',
               }}
             >
               <div className="flex items-center gap-2 w-full">

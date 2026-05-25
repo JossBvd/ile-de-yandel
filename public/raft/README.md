@@ -59,6 +59,15 @@ Où `XX` va de `01` à `15` (ordre mission puis step).
 - Visuels d’étapes du radeau : `radeau_base.png`, `radeauM1.png` … `radeauM5.png` ; objets fusionnés : `merged_photo-*.webp`, modales : `popup_merged_object-*.webp`
 - Documentation technique : `docs/architecture.md` (section **Radeau**, responsive et cibles tactiles)
 
+## Outro (radeau terminé)
+
+Quand les **5 objets fusionnés** sont déposés sur le radeau :
+
+1. **`RaftCompleteModal`** — félicitations (fond `backgrounds/background_journal.webp`, visuel `radeauM5.png`).
+2. **`OutroNarrativeScreen`** — 5 slides de narration finale (fond `public/outro/background_end.jpeg`).
+
+L’état `raftOutroCompleted` (`uiStore`, clé `escape_game_ui`) évite de rejouer cette séquence tant que l’élève ne lance pas une **Nouvelle partie**. Voir `docs/architecture.md` (§ Outro).
+
 ## Note importante
 
 Ces 15 images correspondent aux assets fournis par le client et sont déjà intégrées dans `data/raft.ts`.

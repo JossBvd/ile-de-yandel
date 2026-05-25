@@ -71,7 +71,7 @@ Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflow
 
 1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — _"Veux-tu activer l'audiodescription ?"_ → choix enregistré dans `audioDescriptionStore`.
 2. **Écran DYS** : même composant (acronym="DYS") — _"Veux-tu activer l'aide à la lecture ?"_ → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
-3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (`NarrativeDialogueLayout`, titre hors bulle) puis carte de l'île → `/carte-de-l-ile`.
+3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (`NarrativeDialogueLayout`, titre hors bulle) : présentation de Yandel, crash sur l’île, consigne de jeu ; puis carte de l’île → `/carte-de-l-ile`. Textes dans `components/ui/IntroNarrativeScreen.tsx` (`INTRO_SLIDES`).
 
 Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
 
@@ -165,7 +165,7 @@ Les stores et les pages appellent ces fonctions plutôt que de dupliquer la logi
 | `hintStore`             | Indices utilisés (si applicable).                                                                                                   |
 | `audioDescriptionStore` | Préférences description audio (`audioDescriptionEnabled`, `audioDescriptionFirstVisitDone`, `autoPlay`, `speed`). Expose `reset()`. |
 | `readingAidStore`       | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`.                     |
-| `uiStore`               | Badges « Nouveau » sur la carte : `viewedMissions`, `viewedRaftMissions`, `lastViewedCompletedMission` (clé `escape_game_ui`). |
+| `uiStore`               | Badges « Nouveau » sur la carte : `viewedMissions`, `viewedRaftMissions`, `lastViewedCompletedMission`, `raftOutroCompleted` (clé `escape_game_ui`). |
 
 Persistance via middleware `persist` ; les noms de clés de stockage sont centralisés dans `lib/constants.ts`.
 
@@ -180,6 +180,11 @@ Indicateurs visuels (`public/ui/icon_new.webp`) sur la carte de l’île. Les é
 | **Journal** | Au moins une mission terminée dont le contenu n’a pas encore été consulté depuis la complétion | Clic sur l’icône Journal (`setLastViewedCompletedMission` avec la dernière mission complétée) |
 
 Le suivi radeau et journal est **par mission complétée** : une nouvelle mission terminée réactive le badge correspondant même si l’utilisateur l’avait déjà consulté pour une mission précédente.
+
+### Menu Paramètres (`app/carte-de-l-ile/page.tsx`)
+
+- Bouton **Paramètres** (bas droite) : menu déroulant vers le haut avec Audio description, Aide à la lecture (toggle), Mentions légales, Politique de confidentialité, Nouvelle partie.
+- **DYS actif** : `globals.css` applique une interligne compacte sur `[role="menu"]` pour éviter que le menu dépasse l’écran ; `maxHeight` + scroll sur le menu pour garder **Audio description** visible en haut.
 
 **Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
 
@@ -223,9 +228,24 @@ Organisation par **famille** de mécanique :
 
 Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndCollisionDetection` avec `DndContext`. La page **`/radeau`** suit la même stack et applique en plus `getRaftDndTouchSizes()` pour dimensionner inventaire, slots de fusion et `DragOverlay` (voir § 4 — Radeau).
 
+#### Photosynthèse — mission 2 step 3 (`PhotosynthesisAtomsGame`)
+
+- Type de jeu : `photosynthesis-atoms` (`data/missions/mission-2/steps/step-3.ts`).
+- Deux panneaux : grille d’**atomes** draggables (gauche) + liste des **recettes** (droite) ; 3 slots de fusion + bouton « Fusionner ».
+- **Cibles tactiles mobile** : plancher **48 px** (`MIN_TOUCH_PX`) ; tailles atomes ~**12 %** de `windowHeight` (min. 48 px) ; slots de fusion ~**110 %** de la taille atome.
+- **Mobile paysage** : hauteur de jeu limitée à `playAreaMaxHeight` (viewport − barre de consigne − padding) pour tenir compte de la **barre du navigateur** ; barre de question en **`dvh`** + `safe-area-inset-bottom`.
+- **Panneau droit (recettes)** : `overflow-y: auto` sur mobile si le contenu dépasse ; panneau gauche (atomes) scrollable si besoin.
+- Mode **inspecter** : zones cliquables sur le fond (`inspectTargets`) + modal d’indice.
+
 ### 7.4 `components/ui/` — transverse
 
-Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `DefeatModal`, `MissionCompleteModal`, légales…), **accessibilité** (`ReadAloudButton`, `AudioDescriptionProvider`, `SkipLink`, `AudioDescriptionButton`), **PWA** (`PWAInstallPrompt`), barre de progression, etc.
+Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `DefeatModal`, `MissionCompleteModal`, `RaftCompleteModal`, légales…), **accessibilité** (`ReadAloudButton`, `AudioDescriptionProvider`, `SkipLink`, `AudioDescriptionButton`), **PWA** (`PWAInstallPrompt`), **`BeforeUnloadWarning`**, barre de progression, etc.
+
+| Composant | Responsabilité |
+| --------- | -------------- |
+| **`BeforeUnloadWarning`** | Avertissement navigateur (`beforeunload`) si une partie est en cours (`gameStore`). Délégation à `lib/navigation/unloadWarning.ts` : **pas d’alerte** en navigation interne (router, liens même origine, barre d’URL vers le site), rechargement, ni quand les données `sessionStorage` persistent ; alerte conservée à la **fermeture d’onglet** / sortie hors site. |
+| **`RaftCompleteModal`** | Popup félicitations après radeau terminé (fond `background_journal.webp`, `radeauM5.png`). |
+| **`OutroNarrativeScreen`** | Narration finale (5 slides, fond `outro/background_end.jpeg`). |
 
 Composants d'accessibilité intro :
 
@@ -240,7 +260,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 
 | Composant / module | Responsabilité |
 | ------------------ | -------------- |
-| **`NarrativeDialogueLayout`** | Fond intro, Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
+| **`NarrativeDialogueLayout`** | Fond configurable (`backgroundImageUrl`, défaut intro ; outro : `outro/background_end.jpeg`), Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
 | **`useNarrativeTypewriter`** | Effet typewriter (30 ms/caractère) ; `revealAll()` si Suivant pendant l'écriture. |
 | **`narrativeTypography.ts`** | Tailles basées sur la hauteur (`useResponsive`) ; pas de césure auto. |
 | **`slidesFromNarrative.ts`** | Découpe `step.narrative` : double saut de ligne → slide ; saut simple → espace. |
@@ -254,7 +274,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 
 | Composant | Responsabilité |
 | --------- | -------------- |
-| **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides via layout partagé (sans titre), puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
+| **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides (présentation Yandel, île / questions, bonne chance) via layout partagé (sans titre), puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
 
 ---
 
@@ -264,7 +284,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 - **Responsive** : `useResponsive`, `useMediaQuery`, `useOrientation` (contexte depuis `OrientationGuard`).
 - **DnD** : `useDndSensors`, `useDndCollisionDetection` (collision stable, adaptée au paysage forcé).
 - **Accessibilité** : `useAudioDescription`, `useFocusTrap`, `useFullscreen`.
-- **Utilitaires** : `lib/utils/logger`, stockage typé, `lib/navigation.ts`.
+- **Utilitaires** : `lib/utils/logger`, stockage typé, `lib/navigation.ts`, **`lib/navigation/unloadWarning.ts`** (garde `beforeunload`).
 
 ---
 
@@ -272,7 +292,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 
 - **`/missions/mission-N/step-M/`** : images et médias **spécifiques** à un step (données qui référencent ces chemins).
 - **`/ui/`** : icônes et éléments d’interface **réutilisables** (dont constantes par défaut dans `lib/constants.ts` le cas échéant).
-- **`/backgrounds/`**, **`/raft/`** : fonds communs et visuels des pièces de radeau.
+- **`/backgrounds/`**, **`/raft/`**, **`/outro/`** : fonds communs, pièces de radeau, fin de parcours (`background_end.jpeg`).
 
 ---
 

@@ -17,6 +17,9 @@ import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 
 const emptySubscribe = () => () => {};
 
+/** Cible tactile minimale (WCAG 2.5.5 / ~48dp) */
+const MIN_TOUCH_PX = 48;
+
 interface PhotosynthesisAtomsGameProps {
   step: Step;
   onComplete: () => void;
@@ -52,6 +55,8 @@ function DraggableAtom({ atom, size }: DraggableAtomProps) {
       style={{
         width: size,
         height: size,
+        minWidth: MIN_TOUCH_PX,
+        minHeight: MIN_TOUCH_PX,
       }}
       aria-label={atom.alt}
     >
@@ -96,7 +101,12 @@ function DroppableFusionSlot({
     <div
       ref={setNodeRef}
       className={`rounded-md border-2 ${borderColor} ${backgroundColor} shadow-inner flex items-center justify-center touch-none shrink-0`}
-      style={{ width: size, height: size }}
+      style={{
+        width: size,
+        height: size,
+        minWidth: MIN_TOUCH_PX,
+        minHeight: MIN_TOUCH_PX,
+      }}
     >
       {atom && (
         <Image
@@ -171,20 +181,6 @@ export function PhotosynthesisAtomsGame({
         ? "400px"
         : "440px";
 
-  const boardHeight = isMobileOrTablet
-    ? isVeryShortViewport
-      ? "50vh"
-      : isSmallScreen
-        ? "56vh"
-        : isMediumScreen
-          ? "54vh"
-          : "52vh"
-    : isDesktopSmall
-      ? "340px"
-      : isDesktopMedium
-        ? "360px"
-        : "380px";
-
   const rightPanelWidth = isMobileOrTablet
     ? isSmallScreen
       ? "34vw"
@@ -199,22 +195,51 @@ export function PhotosynthesisAtomsGame({
 
   const questionBarHeight = isMobileOrTablet
     ? isVeryShortViewport
-      ? "12vh"
+      ? "12dvh"
       : isSmallScreen
-        ? "14vh"
-        : "13vh"
+        ? "14dvh"
+        : "13dvh"
     : isDesktopSmall
       ? "88px"
       : "96px";
 
-  const atomGridSize = isMobileOrTablet
+  const questionBarHeightPx = isMobileOrTablet
     ? isVeryShortViewport
-      ? Math.round(windowHeight * 0.09)
+      ? Math.round(windowHeight * 0.12)
       : isSmallScreen
-        ? Math.round(windowHeight * 0.1)
+        ? Math.round(windowHeight * 0.14)
         : isMediumScreen
-          ? Math.round(windowHeight * 0.095)
-          : Math.round(windowHeight * 0.088)
+          ? Math.round(windowHeight * 0.13)
+          : Math.round(windowHeight * 0.13)
+    : isDesktopSmall
+      ? 88
+      : isDesktopMedium
+        ? 96
+        : 104;
+
+  const paddingVerticalPx = isMobileOrTablet
+    ? Math.round(windowHeight * (isSmallScreen ? 0.04 : 0.05))
+    : 40;
+
+  /** Hauteur utile sous la barre de question (barre navigateur mobile incluse via windowHeight) */
+  const playAreaMaxHeight = isMobileOrTablet
+    ? Math.max(
+        MIN_TOUCH_PX * 5,
+        windowHeight - questionBarHeightPx - paddingVerticalPx - 20,
+      )
+    : undefined;
+
+  const atomGridSize = isMobileOrTablet
+    ? Math.max(
+        MIN_TOUCH_PX,
+        isVeryShortViewport
+          ? Math.round(windowHeight * 0.11)
+          : isSmallScreen
+            ? Math.round(windowHeight * 0.12)
+            : isMediumScreen
+              ? Math.round(windowHeight * 0.115)
+              : Math.round(windowHeight * 0.11),
+      )
     : isDesktopSmall
       ? 76
       : isDesktopMedium
@@ -222,18 +247,31 @@ export function PhotosynthesisAtomsGame({
         : 92;
 
   const fusionSlotSize = isMobileOrTablet
-    ? isVeryShortViewport
-      ? Math.round(windowHeight * 0.1)
-      : isSmallScreen
-        ? Math.round(windowHeight * 0.115)
-        : isMediumScreen
-          ? Math.round(windowHeight * 0.11)
-          : Math.round(windowHeight * 0.105)
+    ? Math.max(MIN_TOUCH_PX, Math.round(atomGridSize * 1.1))
     : isDesktopSmall
       ? 84
       : isDesktopMedium
         ? 92
         : 100;
+
+  const boardHeightPx = isMobileOrTablet
+    ? Math.min(
+        isVeryShortViewport
+          ? Math.round(windowHeight * 0.48)
+          : isSmallScreen
+            ? Math.round(windowHeight * 0.5)
+            : isMediumScreen
+              ? Math.round(windowHeight * 0.48)
+              : Math.round(windowHeight * 0.46),
+        playAreaMaxHeight ?? Math.round(windowHeight * 0.52),
+      )
+    : isDesktopSmall
+      ? 340
+      : isDesktopMedium
+        ? 360
+        : 380;
+
+  const rightPanelScrollable = isMobileOrTablet;
 
   const panelGap = isMobileOrTablet ? (isVeryShortViewport ? "2vw" : "3vw") : "48px";
   const atomGridGap = isMobileOrTablet ? (isVeryShortViewport ? "1.2vh" : "1.6vh") : "1rem";
@@ -360,15 +398,20 @@ export function PhotosynthesisAtomsGame({
         className="absolute inset-0 flex flex-col overflow-hidden pointer-events-none"
         style={{ padding: paddingEdge }}
       >
-        <div className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto">
-          <div className="flex w-full items-center justify-center"
-            style={{ gap: panelGap }}
+        <div className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto overflow-y-auto overflow-x-hidden scrollbar-hide">
+          <div
+            className="flex w-full items-stretch justify-center min-h-0 mx-auto"
+            style={{
+              gap: panelGap,
+              maxHeight: playAreaMaxHeight,
+            }}
           >
             <div
-              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden"
+              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col min-h-0"
               style={{
                 width: boardWidth,
-                minHeight: boardHeight,
+                maxHeight: boardHeightPx,
+                minHeight: isMobileOrTablet ? undefined : boardHeightPx,
                 backgroundImage: "url(/backgrounds/paper_texture.webp)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -449,23 +492,28 @@ export function PhotosynthesisAtomsGame({
             </div>
 
             <div
-              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col justify-center"
+              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col min-h-0"
               style={{
                 width: rightPanelWidth,
-                minHeight: boardHeight,
+                maxHeight: boardHeightPx,
+                minHeight: isMobileOrTablet ? undefined : boardHeightPx,
                 backgroundImage: "url(/backgrounds/paper_texture.webp)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             >
               <div
-                className="flex flex-col pl-6 pr-10 md:pl-8 md:pr-12"
+                className={`flex flex-col pl-6 pr-10 md:pl-8 md:pr-12 min-h-0 ${
+                  rightPanelScrollable
+                    ? "flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide py-3"
+                    : "justify-center"
+                }`}
                 style={{
                   gap: rightPanelGap,
                 }}
               >
                 {game.recipes.map((item) => (
-                  <div key={item.key} className="flex items-center"
+                  <div key={item.key} className="flex items-center shrink-0"
                     style={{
                       gap: isMobileOrTablet ? "2vw" : "1rem",
                     }}
@@ -559,24 +607,35 @@ export function PhotosynthesisAtomsGame({
         className="absolute inset-0 flex flex-col overflow-hidden pointer-events-none"
         style={{ padding: paddingEdge }}
       >
-        <div className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto">
+        <div className="flex-1 min-h-0 flex flex-col justify-center pointer-events-auto overflow-y-auto overflow-x-hidden scrollbar-hide">
           {!inspectMode && (
-            <div className="flex w-full items-center justify-center"
-              style={{ gap: panelGap }}
+            <div
+              className="flex w-full items-stretch justify-center min-h-0 mx-auto"
+              style={{
+                gap: panelGap,
+                maxHeight: playAreaMaxHeight,
+              }}
             >
               {/* Panneau atomes (gauche de la partie droite) */}
             <div
-              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden"
+              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col min-h-0"
               style={{
                 width: boardWidth,
-                minHeight: boardHeight,
+                maxHeight: boardHeightPx,
+                minHeight: isMobileOrTablet ? undefined : boardHeightPx,
                 backgroundImage: "url(/backgrounds/paper_texture.webp)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             >
-              <div className="relative min-h-full flex flex-col">
-                <div className="flex-1 flex items-center justify-center py-4">
+              <div className="relative min-h-0 flex flex-col flex-1">
+                <div
+                  className={`flex-1 min-h-0 flex items-center justify-center py-4 ${
+                    isMobileOrTablet
+                      ? "overflow-y-auto overflow-x-hidden scrollbar-hide"
+                      : ""
+                  }`}
+                >
                   <div className="flex flex-col px-6"
                     style={{ gap: atomGridGap }}
                   >
@@ -645,17 +704,22 @@ export function PhotosynthesisAtomsGame({
 
               {/* Panneau éléments chimiques (droite) */}
             <div
-              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col justify-center"
+              className="relative rounded-3xl shadow-xl border-2 border-amber-900/40 overflow-hidden flex flex-col min-h-0"
               style={{
                 width: rightPanelWidth,
-                minHeight: boardHeight,
+                maxHeight: boardHeightPx,
+                minHeight: isMobileOrTablet ? undefined : boardHeightPx,
                 backgroundImage: "url(/backgrounds/paper_texture.webp)",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
             >
               <div
-                className="flex flex-col pl-6 pr-10 md:pl-8 md:pr-12"
+                className={`flex flex-col pl-6 pr-10 md:pl-8 md:pr-12 min-h-0 ${
+                  rightPanelScrollable
+                    ? "flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide py-3"
+                    : "justify-center"
+                }`}
                 style={{
                   gap: rightPanelGap,
                 }}
@@ -663,7 +727,7 @@ export function PhotosynthesisAtomsGame({
                 {game.recipes.map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center"
+                    className="flex items-center shrink-0"
                     style={{
                       gap: isMobileOrTablet ? "2vw" : "1rem",
                     }}
@@ -754,7 +818,7 @@ export function PhotosynthesisAtomsGame({
 
         {/* Bandeau question en bas — toujours visible, texte selon mode */}
         <div
-          className="w-full shrink-0 mt-3 md:mt-4 flex items-center justify-center pointer-events-auto"
+          className="w-full shrink-0 mt-3 md:mt-4 flex items-center justify-center pointer-events-auto pb-[max(env(safe-area-inset-bottom),0px)]"
           style={{ minHeight: questionBarHeight }}
         >
           <div

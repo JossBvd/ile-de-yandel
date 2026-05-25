@@ -139,8 +139,8 @@ Il n'existe **aucune finalité secondaire** (analyse comportementale, marketing,
 | **Lieu de stockage** | `sessionStorage` du navigateur |
 | **Durée** | Jusqu'à fermeture de l'onglet ou du navigateur |
 | **Transmission** | Aucune |
-| **Champs stockés** | `viewedMissions[]` (missions cliquées sur la carte), `viewedRaftMissions[]` (missions dont les pièces à fusionner ont été consultées au radeau), `lastViewedCompletedMission` (dernière mission terminée dont le journal a été ouvert), `journalViewed` (booléen legacy, non utilisé pour l’affichage des badges) |
-| **Finalité** | Afficher ou masquer les indicateurs « Nouveau » sur la carte de l’île (missions, radeau, journal de bord) |
+| **Champs stockés** | `viewedMissions[]` (missions cliquées sur la carte), `viewedRaftMissions[]` (missions dont les pièces à fusionner ont été consultées au radeau), `lastViewedCompletedMission` (dernière mission terminée dont le journal a été ouvert), `raftOutroCompleted` (booléen : narration de fin après radeau terminé déjà vue), `journalViewed` (booléen legacy, non utilisé pour l’affichage des badges) |
+| **Finalité** | Afficher ou masquer les indicateurs « Nouveau » sur la carte de l’île (missions, radeau, journal de bord) ; éviter de rejouer l’outro narrative après construction complète du radeau |
 
 ---
 
@@ -161,7 +161,7 @@ Il n'existe **aucune finalité secondaire** (analyse comportementale, marketing,
 
 | Mécanisme | Données stockées | Durée de vie |
 |---|---|---|
-| `sessionStorage` | Pseudonyme, progression, inventaire, indices, préférences d'accessibilité, état UI, marqueur de refus PWA | Effacé à la fermeture de l'onglet ou du navigateur |
+| `sessionStorage` | Pseudonyme, progression, inventaire, indices, préférences d'accessibilité, état UI (dont `raftOutroCompleted`), marqueur de refus PWA | Effacé à la fermeture de l'onglet ou du navigateur |
 | `localStorage` | Aucune | — |
 | Cookies | Aucun cookie applicatif | — |
 | Serveur / base de données | Aucune | — |

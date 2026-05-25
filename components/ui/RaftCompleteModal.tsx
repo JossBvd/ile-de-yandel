@@ -20,9 +20,13 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
 
   const nextIconSize = isSmallScreen ? 48 : isMediumScreen ? 56 : 64;
 
+  const modalMaxHeight = isRotated
+    ? `${height * 0.9}px`
+    : "min(90dvh, calc(var(--app-viewport-height, 100dvh) * 0.9))";
+
   return (
     <div
-      className="fixed z-[60] flex items-center justify-center p-4"
+      className="fixed z-[60] flex items-center justify-center p-4 safe-area-inset overflow-y-auto"
       style={{
         backgroundColor: "rgba(0, 0, 0, 0.65)",
         width: isRotated ? `${width}px` : "100vw",
@@ -37,11 +41,13 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
       aria-labelledby="raft-complete-title"
     >
       <div
-        className="relative flex flex-col items-center w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl"
+        className="relative flex flex-col items-center w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl min-h-0 overflow-y-auto scrollbar-hide"
         style={{
           maxWidth: isSmallScreen ? "min(92vw, 420px)" : "min(90vw, 520px)",
-          maxHeight: isRotated ? `${height * 0.9}px` : "90dvh",
-          padding: isSmallScreen ? "20px 16px 16px" : "28px 24px 20px",
+          maxHeight: modalMaxHeight,
+          padding: isSmallScreen
+            ? "16px 14px max(12px, env(safe-area-inset-bottom))"
+            : "28px 24px max(20px, env(safe-area-inset-bottom))",
           backgroundImage: `url(${POPUP_BACKGROUND})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -69,18 +75,23 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
         </h2>
 
         <div
-          className="relative w-full flex-1 min-h-0 flex items-center justify-center"
+          className="relative w-full flex-1 min-h-0 flex items-center justify-center shrink"
           style={{
-            minHeight: isSmallScreen ? 160 : 200,
-            maxHeight: isRotated ? `${height * 0.5}px` : "50dvh",
+            minHeight: isSmallScreen ? 100 : 140,
+            maxHeight: isRotated
+              ? `${height * 0.42}px`
+              : isSmallScreen
+                ? "min(38dvh, calc(var(--app-viewport-height, 100dvh) * 0.38))"
+                : "min(45dvh, calc(var(--app-viewport-height, 100dvh) * 0.45))",
           }}
         >
           <div
-            className="relative w-full h-full"
+            className="relative w-full"
             style={{
-              maxWidth: isSmallScreen ? 280 : 360,
+              maxWidth: isSmallScreen ? 240 : 360,
               aspectRatio: "4 / 3",
               margin: "0 auto",
+              maxHeight: "100%",
             }}
           >
             <Image
@@ -95,8 +106,11 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
         </div>
 
         <div
-          className="w-full flex justify-end shrink-0"
-          style={{ marginTop: isSmallScreen ? 12 : 16 }}
+          className="w-full flex justify-end shrink-0 sticky bottom-0"
+          style={{
+            marginTop: isSmallScreen ? 10 : 16,
+            paddingBottom: "max(4px, env(safe-area-inset-bottom))",
+          }}
         >
           <button
             type="button"
