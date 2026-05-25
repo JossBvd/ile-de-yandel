@@ -1,6 +1,6 @@
 # Architecture et découpage des composants
 
-Documentation du projet **L'île de Yandel** (escape game web, Next.js App Router, frontend uniquement).
+Documentation du projet **Le crash de Yandel** (escape game web, Next.js App Router, frontend uniquement).
 
 ---
 
@@ -27,6 +27,7 @@ components/
   game/                 # Coquille du jeu : step, orientation, fond, dispatch mini-jeux
   games/                # Implémentations des mini-jeux (par famille)
   ui/                   # Composants transverses (boutons, modales, accessibilité)
+  ui/narrative/         # Layout bulle BD, typewriter, typo et découpage slides narratifs
 data/
   missions/             # Missions et steps (données TS)
   raft.ts               # Pièces de radeau et lien step ↔ pièce
@@ -70,7 +71,7 @@ Après saisie du pseudo et clic sur **JOUER**, si `readingAidStore.introWorkflow
 
 1. **Écran AD** : `IntroAccessibilityChoiceModal` (acronym="AD") — _"Veux-tu activer l'audiodescription ?"_ → choix enregistré dans `audioDescriptionStore`.
 2. **Écran DYS** : même composant (acronym="DYS") — _"Veux-tu activer l'aide à la lecture ?"_ → choix enregistré dans `readingAidStore`, `introWorkflowDone = true`, appel de `onNarrativeStart()`.
-3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (personnage Yandel + bulle de dialogue) puis affichage de la carte de l'île → navigation vers `/carte-de-l-ile`.
+3. **Écran narratif** : `IntroNarrativeScreen` — 3 slides typewriter (`NarrativeDialogueLayout`, titre hors bulle) puis carte de l'île → `/carte-de-l-ile`.
 
 Si `introWorkflowDone === true` : navigation directe vers la carte (pas d'écran narratif). **Nouvelle partie** remet `introWorkflowDone` à `false` (redéclenche le workflow complet).
 
@@ -147,9 +148,21 @@ Les stores et les pages appellent ces fonctions plutôt que de dupliquer la logi
 | `hintStore`             | Indices utilisés (si applicable).                                                                                                   |
 | `audioDescriptionStore` | Préférences description audio (`audioDescriptionEnabled`, `audioDescriptionFirstVisitDone`, `autoPlay`, `speed`). Expose `reset()`. |
 | `readingAidStore`       | Aide à la lecture DYS (`readingAidEnabled`, `readingAidFirstVisitDone`, `introWorkflowDone`). Expose `reset()`.                     |
-| `uiStore`               | État UI transverse.                                                                                                                 |
+| `uiStore`               | Badges « Nouveau » sur la carte : `viewedMissions`, `viewedRaftMissions`, `lastViewedCompletedMission` (clé `escape_game_ui`). |
 
 Persistance via middleware `persist` ; les noms de clés de stockage sont centralisés dans `lib/constants.ts`.
+
+### Badges « Nouveau » (`app/carte-de-l-ile/page.tsx` + `uiStore`)
+
+Indicateurs visuels (`public/ui/icon_new.webp`) sur la carte de l’île. Les états « vus » sont persistés dans `sessionStorage` via `uiStore`.
+
+| Emplacement | Condition d’affichage | Disparition |
+| ----------- | --------------------- | ----------- |
+| **Mission** | Mission débloquée, aucun step complété, pas encore cliquée | Clic sur la mission (`markMissionAsViewed`) |
+| **Radeau** | Mission terminée dont les 3 pièces sont en inventaire (non fusionnées) et pas encore « vue » au radeau | Clic sur l’icône Radeau (`markRaftMissionAsViewed` pour chaque mission concernée) |
+| **Journal** | Au moins une mission terminée dont le contenu n’a pas encore été consulté depuis la complétion | Clic sur l’icône Journal (`setLastViewedCompletedMission` avec la dernière mission complétée) |
+
+Le suivi radeau et journal est **par mission complétée** : une nouvelle mission terminée réactive le badge correspondant même si l’utilisateur l’avait déjà consulté pour une mission précédente.
 
 **Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
 
@@ -174,7 +187,7 @@ Découpage de l’**écran step** pour limiter la taille de la page :
 
 | Composant               | Responsabilité                                                                                                        |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **`StepPageNarrative`** | Premier écran narration (mission) si `step.narrative` et premier step.                                                |
+| **`StepPageNarrative`** | Écran narration avant le mini-jeu (premier step non complété avec `step.narrative`). Orchestre slides, typewriter et navigation ; délègue le rendu à `NarrativeDialogueLayout`. |
 | **`StepPageSidebar`**   | Bandeau gauche : titre mission/étape, description audio, bascule instruction/inspecter, indice, radeau, retour carte. |
 | **`StepPageModals`**    | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal`).                  |
 
@@ -202,8 +215,29 @@ Composants d'accessibilité intro :
 | Composant                           | Responsabilité                                                                                                                                                                                                                                                                                                         |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`IntroAccessibilityChoiceModal`** | Modal générique Oui/Non utilisée pour les 2 écrans du workflow intro (AD puis DYS). Props : `acronym` ("AD" \| "DYS"), `question`, `onYes`, `onNo`. Fond parchemin, titre grand, boutons orange.                                                                                                                       |
-| **`IntroNarrativeScreen`**          | Écran narratif affiché après le workflow AD/DYS. Fond `background_sensi_intro.webp`, Yandel ancré en bas à gauche, bulle typewriter à droite (3 slides), puis carte de l’île. Bouton `icon_next.webp` bas droite. `ReadAloudButton` sur bulle et carte ; auto-play si `audioDescriptionAutoPlay`. Prop : `onComplete`. |
 | **`ReadingAidEffect`**              | Composant sans rendu (`null`) monté dans le layout. Ajoute/retire la classe `reading-aid-enabled` sur `<html>` selon `readingAidStore.readingAidEnabled`.                                                                                                                                                              |
+
+### 7.5 `components/ui/narrative/` — écrans narratifs (intro + missions)
+
+Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
+
+| Composant / module | Responsabilité |
+| ------------------ | -------------- |
+| **`NarrativeDialogueLayout`** | Fond intro, Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
+| **`useNarrativeTypewriter`** | Effet typewriter (30 ms/caractère) ; `revealAll()` si Suivant pendant l'écriture. |
+| **`narrativeTypography.ts`** | Tailles basées sur la hauteur (`useResponsive`) ; pas de césure auto. |
+| **`slidesFromNarrative.ts`** | Découpe `step.narrative` : double saut de ligne → slide ; saut simple → espace. |
+
+**Règles d'affichage et rédaction (`step.narrative`) :**
+
+- Affiché au **premier step** d'une mission si `step.narrative` est défini et le step non complété.
+- Intro courte (~250–300 caractères) : **un seul slide** (accroche + consigne dans le même bloc).
+- Double saut de ligne dans les données : nouveau slide uniquement pour un **vrai changement de beat** (texte long), jamais au milieu d'une citation.
+- Pas de pagination automatique selon le viewport ; scroll invisible en secours si un bloc dépasse.
+
+| Composant | Responsabilité |
+| --------- | -------------- |
+| **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides via layout partagé (sans titre), puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
 
 ---
 

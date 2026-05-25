@@ -1,6 +1,6 @@
-# Fiche de traitement des données — L'île de Yandel
+# Fiche de traitement des données — Le crash de Yandel
 
-**Application :** L'île de Yandel — escape game éducatif web  
+**Application :** Le crash de Yandel — escape game éducatif web  
 **Public visé :** Élèves de 6ᵉ et 5ᵉ  
 **Nature :** Application web progressive (PWA), frontend uniquement, sans backend métier  
 **Date de rédaction :** Mai 2026
@@ -139,7 +139,8 @@ Il n'existe **aucune finalité secondaire** (analyse comportementale, marketing,
 | **Lieu de stockage** | `sessionStorage` du navigateur |
 | **Durée** | Jusqu'à fermeture de l'onglet ou du navigateur |
 | **Transmission** | Aucune |
-| **Champs stockés** | `viewedMissions[]`, `raftViewed` (booléen), `journalViewed` (booléen), `lastViewedCompletedMission` |
+| **Champs stockés** | `viewedMissions[]` (missions cliquées sur la carte), `viewedRaftMissions[]` (missions dont les pièces à fusionner ont été consultées au radeau), `lastViewedCompletedMission` (dernière mission terminée dont le journal a été ouvert), `journalViewed` (booléen legacy, non utilisé pour l’affichage des badges) |
+| **Finalité** | Afficher ou masquer les indicateurs « Nouveau » sur la carte de l’île (missions, radeau, journal de bord) |
 
 ---
 
@@ -202,7 +203,7 @@ L'application est hébergée sur un **VPS** dont l'opérateur est le **responsab
 | Mesure | Détail |
 |---|---|
 | **Anonymisation des IPs** | Le dernier octet de chaque adresse IPv4 est remplacé par `0` avant écriture dans les logs (ex. `192.168.1.42` → `192.168.1.0`). Le traitement équivalent est appliqué aux adresses IPv6. L'IP n'est jamais écrite en clair. Config : `deploy/nginx/nginx.conf`. |
-| **Rétention limitée** | Les fichiers de logs sont supprimés après **7 jours** via `logrotate`. Config : `deploy/logrotate/ile-de-yandel`. |
+| **Rétention limitée** | Les fichiers de logs sont supprimés après **7 jours** via `logrotate`. Config : `deploy/logrotate/le-crash-de-yandel`. |
 | **Base légale** | Intérêt légitime (art. 6.1.f RGPD) — nécessaire à la sécurité et à la disponibilité du service. |
 | **Responsable** | L'opérateur du VPS (à compléter en section 2), pas un tiers hébergeur. |
 

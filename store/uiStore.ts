@@ -6,11 +6,11 @@ import { MissionId } from "@/types/mission";
 
 interface UIState {
   viewedMissions: Set<MissionId>;
-  raftViewed: boolean;
+  viewedRaftMissions: Set<MissionId>;
   journalViewed: boolean;
   lastViewedCompletedMission: MissionId | null;
   markMissionAsViewed: (missionId: MissionId) => void;
-  markRaftAsViewed: () => void;
+  markRaftMissionAsViewed: (missionId: MissionId) => void;
   markJournalAsViewed: () => void;
   setLastViewedCompletedMission: (missionId: MissionId | null) => void;
   reset: () => void;
@@ -18,7 +18,7 @@ interface UIState {
 
 const initialState = {
   viewedMissions: new Set<MissionId>(),
-  raftViewed: false,
+  viewedRaftMissions: new Set<MissionId>(),
   journalViewed: false,
   lastViewedCompletedMission: null as MissionId | null,
 };
@@ -35,7 +35,12 @@ export const useUIStore = create<UIState>()(
           return { viewedMissions: newSet };
         }),
 
-      markRaftAsViewed: () => set({ raftViewed: true }),
+      markRaftMissionAsViewed: (missionId) =>
+        set((state) => {
+          const newSet = new Set(state.viewedRaftMissions);
+          newSet.add(missionId);
+          return { viewedRaftMissions: newSet };
+        }),
 
       markJournalAsViewed: () => set({ journalViewed: true }),
 
@@ -49,13 +54,19 @@ export const useUIStore = create<UIState>()(
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         viewedMissions: Array.from(state.viewedMissions),
-        raftViewed: state.raftViewed,
+        viewedRaftMissions: Array.from(state.viewedRaftMissions),
         journalViewed: state.journalViewed,
         lastViewedCompletedMission: state.lastViewedCompletedMission,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state && Array.isArray(state.viewedMissions)) {
+        if (!state) return;
+        if (Array.isArray(state.viewedMissions)) {
           state.viewedMissions = new Set(state.viewedMissions);
+        }
+        if (Array.isArray(state.viewedRaftMissions)) {
+          state.viewedRaftMissions = new Set(state.viewedRaftMissions);
+        } else {
+          state.viewedRaftMissions = new Set();
         }
       },
     },

@@ -12,7 +12,7 @@ describe('uiStore', () => {
     const { result } = renderHook(() => useUIStore())
     
     expect(result.current.viewedMissions.size).toBe(0)
-    expect(result.current.raftViewed).toBe(false)
+    expect(result.current.viewedRaftMissions.size).toBe(0)
     expect(result.current.journalViewed).toBe(false)
     expect(result.current.lastViewedCompletedMission).toBeNull()
   })
@@ -43,14 +43,28 @@ describe('uiStore', () => {
     })
   })
 
-  it('devrait marquer le radeau comme vu', () => {
+  it('devrait marquer une mission radeau comme vue', () => {
+    const { result } = renderHook(() => useUIStore())
+    const missionId = 'mission-1' as MissionId
+    
+    act(() => {
+      result.current.markRaftMissionAsViewed(missionId)
+    })
+
+    expect(result.current.viewedRaftMissions.has(missionId)).toBe(true)
+  })
+
+  it('ne devrait pas réafficher la notif radeau pour une mission déjà vue', () => {
     const { result } = renderHook(() => useUIStore())
     
     act(() => {
-      result.current.markRaftAsViewed()
+      result.current.markRaftMissionAsViewed('mission-1' as MissionId)
+      result.current.markRaftMissionAsViewed('mission-2' as MissionId)
     })
 
-    expect(result.current.raftViewed).toBe(true)
+    expect(result.current.viewedRaftMissions.has('mission-1' as MissionId)).toBe(true)
+    expect(result.current.viewedRaftMissions.has('mission-2' as MissionId)).toBe(true)
+    expect(result.current.viewedRaftMissions.size).toBe(2)
   })
 
   it('devrait marquer le journal comme vu', () => {
@@ -90,7 +104,7 @@ describe('uiStore', () => {
     
     act(() => {
       result.current.markMissionAsViewed('mission-1' as MissionId)
-      result.current.markRaftAsViewed()
+      result.current.markRaftMissionAsViewed('mission-1' as MissionId)
       result.current.markJournalAsViewed()
       result.current.setLastViewedCompletedMission('mission-1' as MissionId)
     })
@@ -100,7 +114,7 @@ describe('uiStore', () => {
     })
 
     expect(result.current.viewedMissions.size).toBe(0)
-    expect(result.current.raftViewed).toBe(false)
+    expect(result.current.viewedRaftMissions.size).toBe(0)
     expect(result.current.journalViewed).toBe(false)
     expect(result.current.lastViewedCompletedMission).toBeNull()
   })

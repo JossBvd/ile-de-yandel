@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { OrientationGuard } from "@/components/game/OrientationGuard";
 import { IntroAccessibilityChoiceModal } from "@/components/ui/IntroAccessibilityChoiceModal";
@@ -63,24 +64,71 @@ function WelcomeContent({
     <div
       id="main-content"
       role="main"
-      className="flex flex-col relative overflow-hidden min-h-dvh safe-area-inset"
+      className="flex flex-col relative overflow-hidden min-h-dvh safe-area-inset bg-[#e8dbb8]"
       style={{
-        backgroundImage: "url(/backgrounds/Background_title_screen.webp)",
+        backgroundImage: "url(/backgrounds/background_journal.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex-1 flex flex-col items-center justify-center px-[clamp(0.75rem,4vw,2rem)] pt-[clamp(1rem,5vh,2rem)] pb-2">
-        <h1
-          className="font-bold text-gray-800 text-center mb-4 md:mb-6"
-          style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
+      <div className="absolute inset-x-0 top-0 z-10 flex items-start justify-between px-[clamp(0.625rem,3.5vw,1.5rem)] pt-[max(env(safe-area-inset-top),clamp(0.5rem,2vh,1rem))]">
+        <div
+          className="relative shrink-0"
+          style={{
+            width: "clamp(175px, 50vw, 300px)",
+            height: "clamp(65px, 13vh, 96px)",
+          }}
         >
-          L&apos;île de Yandel
-        </h1>
+          <Image
+            src="/intro/Logo seine et marne.svg"
+            alt="Seine-et-Marne"
+            fill
+            className="object-contain object-top-left"
+            priority
+          />
+        </div>
+        <div
+          className="relative shrink-0"
+          style={{
+            width: "clamp(100px, 32vw, 150px)",
+            height: "clamp(100px, 18vh, 140px)",
+          }}
+        >
+          <Image
+            src="/intro/logoMK_fond_clair.png"
+            alt="MK Team Building"
+            fill
+            className="object-contain object-top-right"
+            priority
+          />
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-3 sm:gap-4 px-[clamp(0.75rem,4vw,2rem)] pb-[max(env(safe-area-inset-bottom),clamp(1rem,5vh,2rem))] max-w-[672px] mx-auto shrink-0">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-[clamp(0.75rem,4vw,2rem)] pt-[clamp(4rem,14vh,6rem)] sm:pt-0">
+        <div
+          className="relative w-[clamp(480px,135vw,960px)] sm:w-[clamp(400px,110vw,960px)] lg:w-[clamp(400px,70vw,800px)]"
+          style={{ aspectRatio: "280/170" }}
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden>
+            <Image
+              src="/ui/picto_ile.webp"
+              alt=""
+              fill
+              className="object-contain object-center"
+              priority
+            />
+          </div>
+          <h1
+            className="absolute inset-0 flex items-center justify-center font-bold text-gray-800 text-center px-4"
+            style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
+          >
+            Le crash de Yandel
+          </h1>
+        </div>
+      </div>
+
+      <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-3 sm:gap-4 px-[clamp(0.75rem,4vw,2rem)] pb-[max(env(safe-area-inset-bottom),clamp(1rem,5vh,2rem))] max-w-[672px] mx-auto shrink-0">
         <input
           type="text"
           value={pseudo}

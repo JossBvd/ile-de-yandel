@@ -1,4 +1,4 @@
-# Tests — L'île de Yandel
+# Tests — Le crash de Yandel
 
 Ce document décrit la structure des tests et comment les exécuter.
 

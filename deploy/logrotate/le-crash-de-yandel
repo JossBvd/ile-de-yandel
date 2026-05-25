@@ -1,10 +1,10 @@
-# Configuration logrotate — L'île de Yandel
+# Configuration logrotate — Le crash de Yandel
 # Rétention des logs Nginx limitée à 7 jours (conformité RGPD)
 #
-# Déploiement : copier dans /etc/logrotate.d/ile-de-yandel
+# Déploiement : copier dans /etc/logrotate.d/le-crash-de-yandel
 
-/var/log/nginx/ile-de-yandel-access.log
-/var/log/nginx/ile-de-yandel-error.log {
+/var/log/nginx/le-crash-de-yandel-access.log
+/var/log/nginx/le-crash-de-yandel-error.log {
     daily
     rotate 7
     compress

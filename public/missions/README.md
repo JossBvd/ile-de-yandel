@@ -212,6 +212,28 @@ export const missionXStepY: Step = {
 };
 ```
 
+#### Champ `narrative` (écran avant le mini-jeu)
+
+Affiché au **premier step** de la mission (via `StepPageNarrative`) si défini et step non complété.
+
+| Syntaxe dans les données | Effet |
+| --- | --- |
+| Texte continu | Un slide, affiché en entier dans la bulle |
+| Saut de ligne simple | Normalisé en espace (même slide) |
+| Double saut de ligne (ligne vide) | Nouveau slide au clic Suivant |
+
+**Bonnes pratiques :**
+
+- Intro courte (~250–300 caractères) : **tout en un bloc** (accroche + consigne), sans ligne vide artificielle.
+- Réserver le double saut de ligne aux textes longs avec un vrai changement de scène ou de ton.
+- Le **titre** du step (`title`) s'affiche au-dessus de la bulle ; le champ `narrative` ne contient que le corps du récit.
+
+Exemple (mission 1, step 1) :
+
+```typescript
+narrative: `« Pour mon radeau, je vais avoir besoin d'une voile. Aide-moi à fouiller près de l'épave de l'avion pour trouver les matériaux nécessaires à la fabrication ! Bonne chance ! »`,
+```
+
 ### 4. Désactiver le mode debug
 
 ⚠️ **Important** : Une fois les coordonnées trouvées, désactivez le debug :

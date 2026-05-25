@@ -63,7 +63,7 @@ function HomeContent() {
     resetMissionSteps,
   } = useGameProgress();
   const { collectedPieces, reset: resetInventory } = useInventory();
-  const { viewedMissions, raftViewed, journalViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, markJournalAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
+  const { viewedMissions, viewedRaftMissions, lastViewedCompletedMission, markMissionAsViewed, markRaftMissionAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const { reset: resetAudioDescription } = useAudioDescriptionStore();
   const { readingAidEnabled, setReadingAidEnabled, reset: resetReadingAid } = useReadingAidStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -85,7 +85,11 @@ function HomeContent() {
     if (pieceIds.length !== 3) return false;
     return pieceIds.every((id) => collectedPieces.includes(id));
   };
-  const showRaftNew = !raftViewed && completedMissions.some(hasPendingFusionForMission);
+  const showRaftNew = completedMissions.some(
+    (missionId) =>
+      hasPendingFusionForMission(missionId) &&
+      !viewedRaftMissions.has(missionId as MissionId),
+  );
 
   const missions = [
     {
@@ -179,7 +183,9 @@ function HomeContent() {
   const latestCompletedMission = completedMissions.length > 0 
     ? completedMissions[completedMissions.length - 1] 
     : null;
-  const showJournalNew = !journalViewed && latestCompletedMission !== null && 
+  const showJournalNew =
+    latestCompletedMission !== null &&
+    lastViewedCompletedMission !== latestCompletedMission &&
     missions.some((m) => m.available);
 
   useEffect(() => {
@@ -624,7 +630,9 @@ function HomeContent() {
               alt="Journal de bord"
               sizeVariant="map"
               onClick={() => {
-                markJournalAsViewed();
+                if (latestCompletedMission) {
+                  setLastViewedCompletedMission(latestCompletedMission);
+                }
                 router.push("/journal-de-bord");
               }}
               label="Menu"
@@ -659,7 +667,11 @@ function HomeContent() {
             alt="Radeau"
             sizeVariant="map"
             onClick={() => {
-              markRaftAsViewed();
+              completedMissions
+                .filter(hasPendingFusionForMission)
+                .forEach((missionId) =>
+                  markRaftMissionAsViewed(missionId as MissionId),
+                );
               router.push("/radeau");
             }}
             label="Radeau"

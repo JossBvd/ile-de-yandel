@@ -20,13 +20,13 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "L'île de Yandel",
+  title: "Le crash de Yandel",
   description: "Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "L'île de Yandel",
+    title: "Le crash de Yandel",
   },
   formatDetection: {
     telephone: false,

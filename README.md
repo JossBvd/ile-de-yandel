@@ -1,4 +1,4 @@
-# L'île de Yandel
+# Le crash de Yandel
 
 Escape game éducatif interactif pour les élèves de 6ᵉ et 5ᵉ, développé avec Next.js.
 
