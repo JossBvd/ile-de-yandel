@@ -14,6 +14,8 @@ import { getNarrativeTypography } from "./narrativeTypography";
 
 
 
+const DEFAULT_NARRATIVE_BACKGROUND = "/intro/background_sensi_intro.webp";
+
 export interface NarrativeDialogueLayoutProps {
 
   title?: string;
@@ -27,6 +29,9 @@ export interface NarrativeDialogueLayoutProps {
   onNext: () => void;
 
   nextAriaLabel: string;
+
+  /** Fond plein écran (défaut : intro) */
+  backgroundImageUrl?: string;
 
 }
 
@@ -45,6 +50,8 @@ export function NarrativeDialogueLayout({
   onNext,
 
   nextAriaLabel,
+
+  backgroundImageUrl = DEFAULT_NARRATIVE_BACKGROUND,
 
 }: NarrativeDialogueLayoutProps) {
 
@@ -94,7 +101,7 @@ export function NarrativeDialogueLayout({
 
       style={{
 
-        backgroundImage: "url(/intro/background_sensi_intro.webp)",
+        backgroundImage: `url(${backgroundImageUrl})`,
 
         backgroundSize: "cover",
 

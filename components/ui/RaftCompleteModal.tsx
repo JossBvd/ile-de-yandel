@@ -1,0 +1,120 @@
+"use client";
+
+import Image from "next/image";
+import { useOrientationContext } from "@/components/game/OrientationGuard";
+import { useResponsive } from "@/hooks/useResponsive";
+import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+
+const RAFT_COMPLETE_IMAGE = "/raft/radeauM5.png";
+const POPUP_BACKGROUND = "/backgrounds/background_journal.webp";
+const READ_ALOUD_TEXT =
+  "Félicitations ! Tu as construit le radeau ! Tu peux continuer pour découvrir la fin de l'aventure.";
+
+interface RaftCompleteModalProps {
+  onContinue: () => void;
+}
+
+export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
+  const { isRotated, width, height } = useOrientationContext();
+  const { isSmallScreen, isMediumScreen } = useResponsive();
+
+  const nextIconSize = isSmallScreen ? 48 : isMediumScreen ? 56 : 64;
+
+  return (
+    <div
+      className="fixed z-[60] flex items-center justify-center p-4"
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
+        width: isRotated ? `${width}px` : "100vw",
+        height: isRotated ? `${height}px` : "100dvh",
+        left: isRotated ? "50%" : "0",
+        top: isRotated ? "50%" : "0",
+        marginLeft: isRotated ? `-${width / 2}px` : "0",
+        marginTop: isRotated ? `-${height / 2}px` : "0",
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="raft-complete-title"
+    >
+      <div
+        className="relative flex flex-col items-center w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl"
+        style={{
+          maxWidth: isSmallScreen ? "min(92vw, 420px)" : "min(90vw, 520px)",
+          maxHeight: isRotated ? `${height * 0.9}px` : "90dvh",
+          padding: isSmallScreen ? "20px 16px 16px" : "28px 24px 20px",
+          backgroundImage: `url(${POPUP_BACKGROUND})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="absolute top-3 right-3 z-10">
+          <ReadAloudButton text={READ_ALOUD_TEXT} ariaLabel="Lire le message" />
+        </div>
+
+        <h2
+          id="raft-complete-title"
+          className="font-bold text-center text-gray-900 shrink-0"
+          style={{
+            fontSize: isSmallScreen ? "1.125rem" : "1.375rem",
+            lineHeight: 1.35,
+            marginBottom: isSmallScreen ? 12 : 16,
+            paddingTop: 4,
+            paddingLeft: 8,
+            paddingRight: 8,
+          }}
+        >
+          Félicitations ! Tu as construit le radeau !
+        </h2>
+
+        <div
+          className="relative w-full flex-1 min-h-0 flex items-center justify-center"
+          style={{
+            minHeight: isSmallScreen ? 160 : 200,
+            maxHeight: isRotated ? `${height * 0.5}px` : "50dvh",
+          }}
+        >
+          <div
+            className="relative w-full h-full"
+            style={{
+              maxWidth: isSmallScreen ? 280 : 360,
+              aspectRatio: "4 / 3",
+              margin: "0 auto",
+            }}
+          >
+            <Image
+              src={RAFT_COMPLETE_IMAGE}
+              alt="Radeau terminé"
+              fill
+              className="object-contain pointer-events-none"
+              sizes="(max-width: 640px) 90vw, 360px"
+              priority
+            />
+          </div>
+        </div>
+
+        <div
+          className="w-full flex justify-end shrink-0"
+          style={{ marginTop: isSmallScreen ? 12 : 16 }}
+        >
+          <button
+            type="button"
+            onClick={onContinue}
+            className="rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-500 touch-manipulation"
+            style={{ padding: 6 }}
+            aria-label="Suivant"
+          >
+            <Image
+              src="/ui/icon_next.webp"
+              alt=""
+              width={64}
+              height={64}
+              style={{ width: nextIconSize, height: nextIconSize }}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

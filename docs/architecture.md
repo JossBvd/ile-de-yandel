@@ -113,17 +113,34 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 - `data/raft.ts` définit les entrées `RaftPiece` (id, libellés, image, `stepId`).
 - En environnement non production, une **validation** croise `RAFT_PIECES` avec `ALL_STEPS` (`raftPiece` sur chaque step) pour éviter les divergences.
 - La page `app/radeau/page.tsx` implémente l’assemblage avec `@dnd-kit` (`DndContext`, `useDraggable`, `useDroppable`, `DragOverlay`) et les hooks partagés `useDndSensors` + `useDndCollisionDetection`.
-- L’inventaire affiche une grille fixe de **15 emplacements** (5 missions × 3 pièces), organisée par lignes de mission.
+- L’inventaire affiche une grille fixe de **15 emplacements** (5 missions × 3 pièces), organisée par lignes de mission (une ligne = une mission ; les lignes restent fixes même après fusion).
 - Les visuels de pièces (`/raft/radeau_photo-01.webp` à `-15.webp`) sont rendus **sans déformation** (`object-contain`) pour respecter leur ratio d’origine.
-- La grille d’inventaire est affichée sans espacement entre cases (`gap: 0`) et sans habillage de carte autour des pièces image pour garder un rendu “photo tel quel”.
-- Les **3 slots de fusion** restent carrés (ratio 1:1), sont affichés dans un bloc de fusion compact, et acceptent les drops uniquement sur slot valide ; un clic sur un slot occupé retire la pièce.
+- La grille d’inventaire est affichée sans espacement entre cases (`gap: 0`) et sans habillage de carte autour des pièces image pour garder un rendu « photo tel quel ».
 - Une fusion réussie affiche un **objet fusionné dans l’inventaire** avec les visuels `public/raft/merged_photo-01.webp` à `-05.webp` (ordre par mission).
 - L’ordre de fusion est **libre** (toute mission peut être fusionnée dès que ses 3 pièces sont disponibles), mais le dépôt sur le radeau est **ordonné visuellement** (mission 1 puis 2 puis 3 puis 4 puis 5).
 - Le visuel du radeau n’évolue qu’après **drag & drop de l’objet fusionné vers la zone du radeau** ; une fusion seule ne met pas à jour le radeau.
 - La progression textuelle affichée est le compteur dynamique **`x/5`** basé sur les objets fusionnés réellement déposés sur le radeau.
-- Après chaque fusion réussie, une modal “objet fusionné” est affichée avec les visuels `public/raft/popup_merged_object-01.webp` à `-05.webp` dans l’ordre des missions.
+- Après chaque fusion réussie, une modal « objet fusionné » est affichée avec les visuels `public/raft/popup_merged_object-01.webp` à `-05.webp` dans l’ordre des missions.
 - Quand l’audio description est activée, le bouton mégaphone de la zone de fusion est positionné à droite en absolu pour ne pas modifier la hauteur du conteneur gauche.
 - Règles de fusion : les 3 pièces doivent venir de la même mission ; sinon feedback d’erreur et réinitialisation des slots.
+
+#### Outro (radeau terminé)
+
+- Déclenchement : lorsque les **5 objets fusionnés** sont déposés sur le radeau (`placedOnRaft.length === 5`), si l’outro n’a pas déjà été vu (`uiStore.raftOutroCompleted`).
+- **Étape 1** — `RaftCompleteModal` : fond `backgrounds/background_journal.webp`, message « Félicitations ! Tu as construit le radeau ! », visuel central `radeauM5.png`, bouton Suivant en bas à droite.
+- **Étape 2** — `OutroNarrativeScreen` : 5 bulles Yandel sur fond `public/outro/background_end.jpeg` (`NarrativeDialogueLayout` + typewriter + audio description comme l’intro).
+- Fin de la narration : `markRaftOutroCompleted()`, redirection vers `/carte-de-l-ile`. L’outro ne se rejoue pas tant que la session UI n’est pas réinitialisée (nouvelle partie).
+
+#### Responsive et cibles tactiles (`app/radeau/page.tsx`)
+
+- Helper **`getRaftDndTouchSizes()`** (dans la page) : tailles en pixels selon `useResponsive()`, avec un plancher **`MIN_RAFT_TOUCH_PX` = 48** (WCAG 2.5.5 / recommandations Material).
+- **Inventaire** : grille `3 × 5` en pixels fixes (`gridTemplateColumns` / `gridTemplateRows`), pas de `1fr` qui réduisait les cases sous la hauteur utile en mobile paysage.
+  - Exemples de tailles de case : **64 px** (mobile petit, h &lt; 600), **72 px** (mobile moyen), **76–88 px** (tablette / desktop).
+  - Largeur du panneau droit = `3 × slot + padding` (calculée, plus de `aspect-ratio` rigide sur le panneau).
+- **Slots de fusion** (sous le radeau) : carrés à taille fixe (`mergeSlotPx`, ex. **60–84 px**), grille `repeat(3, …px)` avec espacement explicite.
+- **`DragOverlay`** : même taille que les cases d’inventaire (`dragOverlayPx`) pour un retour visuel cohérent pendant le drag.
+- **Panneau inventaire** : colonne flex (`header` fixe + zone grille scrollable), `h-full` / `max-h-[96dvh]`, **`items-start`** sur la zone scroll (la première rangée reste visible en haut ; évite le centrage vertical qui masquait le haut des images sur mobile).
+- Alignement avec les mini-jeux drag (`DragOrderImagesGame`, etc.) : tailles explicites + `useDndSensors` (`activationConstraint: { distance: 8 }`) + `touch-none` sur les éléments draggables.
 
 ---
 
@@ -204,7 +221,7 @@ Organisation par **famille** de mécanique :
 | **`games/enigma/`**      | Saisie / décodage (`EnigmaGame`), cibles point-clic multi-énigmes (`PointClickMultiEnigmaGame`)                  |
 | **`games/image-click/`** | Clic sur zones dans une image (`ImageClickGame`)                                                                 |
 
-Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndCollisionDetection` avec `DndContext`.
+Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndCollisionDetection` avec `DndContext`. La page **`/radeau`** suit la même stack et applique en plus `getRaftDndTouchSizes()` pour dimensionner inventaire, slots de fusion et `DragOverlay` (voir § 4 — Radeau).
 
 ### 7.4 `components/ui/` — transverse
 

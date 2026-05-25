@@ -116,6 +116,11 @@ Les données sont stockées dans le **SessionStorage** (réinitialisé à la fer
 - **@dnd-kit** (drag & drop)
 - **Tailwind CSS**
 
+## 📚 Documentation
+
+- [Architecture et composants](docs/architecture.md) — routage, missions, **page radeau** (fusion, drag & drop, responsive tactile)
+- [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire
+
 ## 📝 Notes
 
 - Frontend uniquement (pas de backend)

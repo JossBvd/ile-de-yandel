@@ -15,6 +15,7 @@ describe('uiStore', () => {
     expect(result.current.viewedRaftMissions.size).toBe(0)
     expect(result.current.journalViewed).toBe(false)
     expect(result.current.lastViewedCompletedMission).toBeNull()
+    expect(result.current.raftOutroCompleted).toBe(false)
   })
 
   it('devrait marquer une mission comme vue', () => {
@@ -99,6 +100,16 @@ describe('uiStore', () => {
     expect(result.current.lastViewedCompletedMission).toBeNull()
   })
 
+  it('devrait marquer l\'outro radeau comme terminé', () => {
+    const { result } = renderHook(() => useUIStore())
+
+    act(() => {
+      result.current.markRaftOutroCompleted()
+    })
+
+    expect(result.current.raftOutroCompleted).toBe(true)
+  })
+
   it('devrait réinitialiser complètement le store', () => {
     const { result } = renderHook(() => useUIStore())
     
@@ -107,6 +118,7 @@ describe('uiStore', () => {
       result.current.markRaftMissionAsViewed('mission-1' as MissionId)
       result.current.markJournalAsViewed()
       result.current.setLastViewedCompletedMission('mission-1' as MissionId)
+      result.current.markRaftOutroCompleted()
     })
 
     act(() => {
@@ -117,5 +129,6 @@ describe('uiStore', () => {
     expect(result.current.viewedRaftMissions.size).toBe(0)
     expect(result.current.journalViewed).toBe(false)
     expect(result.current.lastViewedCompletedMission).toBeNull()
+    expect(result.current.raftOutroCompleted).toBe(false)
   })
 })

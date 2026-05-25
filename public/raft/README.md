@@ -54,10 +54,10 @@ Où `XX` va de `01` à `15` (ordre mission puis step).
 
 ## Fonctionnement
 
-- Chaque step complété débloque automatiquement sa pièce associée
-- Les pièces sont sauvegardées dans le localStorage du navigateur
-- L'inventaire complet sera accessible via un bouton d'interface (à implémenter)
-- Une fois toutes les pièces collectées, le radeau sera complet et le joueur pourra quitter l'île
+- Chaque step complété débloque automatiquement sa pièce associée (`inventoryStore`, persisté en **sessionStorage**)
+- L’assemblage et la fusion se font sur la route **`/radeau`** (`app/radeau/page.tsx`) : inventaire 15 cases, 3 slots de fusion, dépôt des objets fusionnés sur le radeau
+- Visuels d’étapes du radeau : `radeau_base.png`, `radeauM1.png` … `radeauM5.png` ; objets fusionnés : `merged_photo-*.webp`, modales : `popup_merged_object-*.webp`
+- Documentation technique : `docs/architecture.md` (section **Radeau**, responsive et cibles tactiles)
 
 ## Note importante
 

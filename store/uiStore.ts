@@ -9,10 +9,13 @@ interface UIState {
   viewedRaftMissions: Set<MissionId>;
   journalViewed: boolean;
   lastViewedCompletedMission: MissionId | null;
+  /** Outro radeau (félicitations + narration finale) déjà vu cette session */
+  raftOutroCompleted: boolean;
   markMissionAsViewed: (missionId: MissionId) => void;
   markRaftMissionAsViewed: (missionId: MissionId) => void;
   markJournalAsViewed: () => void;
   setLastViewedCompletedMission: (missionId: MissionId | null) => void;
+  markRaftOutroCompleted: () => void;
   reset: () => void;
 }
 
@@ -21,6 +24,7 @@ const initialState = {
   viewedRaftMissions: new Set<MissionId>(),
   journalViewed: false,
   lastViewedCompletedMission: null as MissionId | null,
+  raftOutroCompleted: false,
 };
 
 export const useUIStore = create<UIState>()(
@@ -47,6 +51,8 @@ export const useUIStore = create<UIState>()(
       setLastViewedCompletedMission: (missionId) =>
         set({ lastViewedCompletedMission: missionId }),
 
+      markRaftOutroCompleted: () => set({ raftOutroCompleted: true }),
+
       reset: () => set(initialState),
     }),
     {
@@ -57,6 +63,7 @@ export const useUIStore = create<UIState>()(
         viewedRaftMissions: Array.from(state.viewedRaftMissions),
         journalViewed: state.journalViewed,
         lastViewedCompletedMission: state.lastViewedCompletedMission,
+        raftOutroCompleted: state.raftOutroCompleted,
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
