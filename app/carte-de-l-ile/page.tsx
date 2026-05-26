@@ -28,6 +28,7 @@ import {
 import { useUIStore } from "@/store/uiStore";
 import { useReadingAidStore } from "@/store/readingAidStore";
 import { resetGameSession } from "@/lib/resetGameSession";
+import { DEMO_JOURNAL_ENABLED, DEMO_MISSION_ONE_ONLY } from "@/lib/demoConfig";
 import type { MissionId } from "@/types/mission";
 
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
@@ -38,13 +39,11 @@ const MISSION_DISPLAY_NAMES: Record<string, string> = {
   "mission-5": "Le bosquet",
 };
 
-const DEVELOPED_MISSIONS = new Set<string>([
-  "mission-1",
-  "mission-2",
-  "mission-3",
-  "mission-4",
-  "mission-5",
-]);
+const DEVELOPED_MISSIONS = new Set<string>(
+  DEMO_MISSION_ONE_ONLY
+    ? ["mission-1"]
+    : ["mission-1", "mission-2", "mission-3", "mission-4", "mission-5"],
+);
 
 function SettingsGearIcon({ sizePx }: { sizePx: number }) {
   return (
@@ -657,7 +656,9 @@ function HomeContent() {
               icon="/ui/icon_menu.webp"
               alt="Journal de bord"
               sizeVariant="map"
+              disabled={!DEMO_JOURNAL_ENABLED}
               onClick={() => {
+                if (!DEMO_JOURNAL_ENABLED) return;
                 if (latestCompletedMission) {
                   setLastViewedCompletedMission(latestCompletedMission);
                 }
@@ -665,7 +666,7 @@ function HomeContent() {
               }}
               label="Menu"
             />
-            {showJournalNew && (
+            {DEMO_JOURNAL_ENABLED && showJournalNew && (
               <div 
                 className="absolute top-0 right-0 z-10 pointer-events-none translate-x-1/4 -translate-y-1/4"
                 style={{
@@ -683,7 +684,11 @@ function HomeContent() {
             )}
           </div>
           <ReadAloudButton
-            text="Journal de bord. Consulter tes souvenirs."
+            text={
+              DEMO_JOURNAL_ENABLED
+                ? "Journal de bord. Consulter tes souvenirs."
+                : "Journal de bord. Non disponible pour la démo."
+            }
             ariaLabel="Lire : Journal de bord"
             className="self-center"
           />

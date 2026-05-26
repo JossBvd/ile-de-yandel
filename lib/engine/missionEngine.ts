@@ -1,4 +1,5 @@
 import { MISSIONS, getMissionById } from "@/data/missions";
+import { isMissionAllowedInDemo } from "@/lib/demoConfig";
 import { Mission, MissionId } from "@/types/mission";
 import { StepId } from "@/types/step";
 
@@ -18,6 +19,7 @@ export function isMissionAccessible(
   completedMissions: MissionId[],
   completedSteps: StepId[],
 ): boolean {
+  if (!isMissionAllowedInDemo(targetMissionId)) return false;
   if (targetMissionId === "mission-1") return true;
   const index = MISSIONS.findIndex((m) => m.id === targetMissionId);
   if (index <= 0) return false;

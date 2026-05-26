@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -12,12 +12,14 @@ import { MISSIONS } from "@/data/missions";
 import { IconButton } from "@/components/ui/IconButton";
 import { useGameProgress } from "@/hooks/useGameProgress";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+import { DEMO_JOURNAL_ENABLED, isMissionAllowedInDemo } from "@/lib/demoConfig";
 
 
 function isMissionUnlocked(
   missionId: string,
   completedMissions: string[],
 ): boolean {
+  if (!isMissionAllowedInDemo(missionId)) return false;
   const n = parseInt(missionId.split("-")[1], 10);
   if (n === 1) return true;
   const prevId = `mission-${n - 1}`;
@@ -31,9 +33,15 @@ function JournalContent() {
   const { isRotated, width, height } = useOrientationContext();
   const { completedMissions } = useGameProgress();
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } = useResponsive();
-
   const [selectedMissionId, setSelectedMissionId] =
     useState<string>("mission-1");
+
+  useEffect(() => {
+    if (!DEMO_JOURNAL_ENABLED) {
+      router.replace("/carte-de-l-ile");
+    }
+  }, [router]);
+
   const selectedMission = MISSIONS.find((m) => m.id === selectedMissionId);
 
   const unlockedMissionIds = useMemo(
@@ -45,6 +53,10 @@ function JournalContent() {
       ),
     [completedMissions],
   );
+
+  if (!DEMO_JOURNAL_ENABLED) {
+    return null;
+  }
 
   return (
     <div

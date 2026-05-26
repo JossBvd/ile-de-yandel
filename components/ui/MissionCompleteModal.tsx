@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useOrientationContext } from "@/components/game/OrientationGuard";
 import { useResponsive } from "@/hooks/useResponsive";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+import { DEMO_JOURNAL_ENABLED } from "@/lib/demoConfig";
 
 const FOCUSABLE_SELECTOR =
   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -255,9 +256,19 @@ export function MissionCompleteModal({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={onJournalClick}
-                      className="relative flex items-center hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group"
-                      aria-label="Journal de bord - complète tes souvenirs"
+                      onClick={DEMO_JOURNAL_ENABLED ? onJournalClick : undefined}
+                      disabled={!DEMO_JOURNAL_ENABLED}
+                      className={`relative flex items-center transition-opacity focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 touch-manipulation min-h-[48px] min-w-[48px] group ${
+                        DEMO_JOURNAL_ENABLED
+                          ? "hover:opacity-90 cursor-pointer"
+                          : "opacity-40 cursor-not-allowed pointer-events-none"
+                      }`}
+                      aria-label={
+                        DEMO_JOURNAL_ENABLED
+                          ? "Journal de bord - complète tes souvenirs"
+                          : "Journal de bord - non disponible pour la démo"
+                      }
+                      aria-disabled={!DEMO_JOURNAL_ENABLED}
                     >
                       <div
                         className="relative shrink-0 z-10"
@@ -288,8 +299,9 @@ export function MissionCompleteModal({
                       <div
                         className="flex flex-col items-start rounded-full"
                         style={{
-                          background:
-                            "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                          background: DEMO_JOURNAL_ENABLED
+                            ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+                            : "linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)",
                           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
                           paddingLeft: isSmallScreen
                             ? "20px"
@@ -352,7 +364,11 @@ export function MissionCompleteModal({
                       </div>
                     </button>
                     <ReadAloudButton
-                      text="Journal de bord, complète tes souvenirs"
+                      text={
+                        DEMO_JOURNAL_ENABLED
+                          ? "Journal de bord, complète tes souvenirs"
+                          : "Journal de bord. Non disponible pour la démo."
+                      }
                       ariaLabel="Lire : Journal de bord"
                     />
                   </div>

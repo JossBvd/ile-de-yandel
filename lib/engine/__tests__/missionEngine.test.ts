@@ -161,9 +161,9 @@ describe("missionEngine", () => {
       ).toBe(false)
     })
 
-    it('devrait autoriser mission-2 quand tous les steps de mission-1 sont complétés', () => {
+    it('devrait refuser mission-2 même si mission-1 est complète (mode démo)', () => {
       const done: StepId[] = [...dataMission1.steps]
-      expect(isMissionAccessible('mission-2', [], done)).toBe(true)
+      expect(isMissionAccessible('mission-2', [], done)).toBe(false)
     })
   })
 
@@ -208,10 +208,10 @@ describe("missionEngine", () => {
       ).toBe(true)
     })
 
-    it('devrait autoriser une mission suivante après complétion de la précédente', () => {
+    it('devrait refuser une mission suivante même après complétion de la précédente (mode démo)', () => {
       const done: StepId[] = [...dataMission1.steps]
       const firstM2 = dataMission2.steps[0]
-      expect(canAccessMissionStep(dataMission2, firstM2, [], done)).toBe(true)
+      expect(canAccessMissionStep(dataMission2, firstM2, [], done)).toBe(false)
     })
   })
 })
