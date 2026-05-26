@@ -371,13 +371,6 @@ function StepPageContent() {
     return (
       <StepPageNarrative
         step={step}
-        isSmallScreen={isSmallScreen}
-        isMediumScreen={isMediumScreen}
-        isDesktopSmall={isDesktopSmall}
-        isDesktopMedium={isDesktopMedium}
-        isRotated={isRotated}
-        width={width}
-        height={height}
         onContinue={handleContinueFromNarrative}
       />
     );

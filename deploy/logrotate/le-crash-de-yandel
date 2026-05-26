@@ -1,0 +1,18 @@
+# Configuration logrotate — Le crash de Yandel
+# Rétention des logs Nginx limitée à 7 jours (conformité RGPD)
+#
+# Déploiement : copier dans /etc/logrotate.d/le-crash-de-yandel
+
+/var/log/nginx/le-crash-de-yandel-access.log
+/var/log/nginx/le-crash-de-yandel-error.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+        [ -f /var/run/nginx.pid ] && kill -USR1 $(cat /var/run/nginx.pid)
+    endscript
+}

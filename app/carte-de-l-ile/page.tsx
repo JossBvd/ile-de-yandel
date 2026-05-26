@@ -46,6 +46,22 @@ const DEVELOPED_MISSIONS = new Set<string>([
   "mission-5",
 ]);
 
+function SettingsGearIcon({ sizePx }: { sizePx: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={sizePx}
+      height={sizePx}
+      fill="currentColor"
+      aria-hidden
+      className="shrink-0"
+    >
+      <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.4-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.63c-.04.34-.07.67-.07 1 0 .33.03.66.07.97l-2.11 1.63c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.31.61.22l2.49-1c.52.4 1.06.73 1.69.98l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.25 1.17-.59 1.69-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.63Z" />
+    </svg>
+  );
+}
+
 function HomeContent() {
   const router = useRouter();
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(
@@ -63,7 +79,7 @@ function HomeContent() {
     resetMissionSteps,
   } = useGameProgress();
   const { collectedPieces, reset: resetInventory } = useInventory();
-  const { viewedMissions, raftViewed, journalViewed, lastViewedCompletedMission, markMissionAsViewed, markRaftAsViewed, markJournalAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
+  const { viewedMissions, viewedRaftMissions, lastViewedCompletedMission, markMissionAsViewed, markRaftMissionAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
   const { reset: resetAudioDescription } = useAudioDescriptionStore();
   const { readingAidEnabled, setReadingAidEnabled, reset: resetReadingAid } = useReadingAidStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -85,7 +101,11 @@ function HomeContent() {
     if (pieceIds.length !== 3) return false;
     return pieceIds.every((id) => collectedPieces.includes(id));
   };
-  const showRaftNew = !raftViewed && completedMissions.some(hasPendingFusionForMission);
+  const showRaftNew = completedMissions.some(
+    (missionId) =>
+      hasPendingFusionForMission(missionId) &&
+      !viewedRaftMissions.has(missionId as MissionId),
+  );
 
   const missions = [
     {
@@ -179,7 +199,9 @@ function HomeContent() {
   const latestCompletedMission = completedMissions.length > 0 
     ? completedMissions[completedMissions.length - 1] 
     : null;
-  const showJournalNew = !journalViewed && latestCompletedMission !== null && 
+  const showJournalNew =
+    latestCompletedMission !== null &&
+    lastViewedCompletedMission !== latestCompletedMission &&
     missions.some((m) => m.available);
 
   useEffect(() => {
@@ -299,13 +321,24 @@ function HomeContent() {
           <Button
             type="button"
             variant="parchemin"
-            size="md"
+            size={isMobile ? "sm" : "md"}
+            className={
+              isMobile
+                ? "inline-flex items-center justify-center !px-2.5 !min-w-[48px]"
+                : undefined
+            }
             onClick={() => setShowParamsMenu((v) => !v)}
             aria-label="Ouvrir le menu Paramètres"
             aria-expanded={showParamsMenu}
             aria-haspopup="true"
           >
-            Paramètres
+            {isMobile ? (
+              <SettingsGearIcon
+                sizePx={isSmallScreen ? 22 : isMediumScreen ? 24 : 26}
+              />
+            ) : (
+              "Paramètres"
+            )}
           </Button>
           <ReadAloudButton
             text="Paramètres. Ouvrir le menu : audio description, mentions légales, politique de confidentialité, nouvelle partie."
@@ -315,9 +348,16 @@ function HomeContent() {
           {showParamsMenu && (
             <div
               role="menu"
-              className="absolute bottom-full right-0 mb-2 rounded-lg shadow-xl min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 overflow-x-hidden overflow-y-auto scrollbar-hide"
+              className="absolute bottom-full right-0 mb-2 z-50 rounded-lg shadow-xl min-w-[200px] bg-[#e8dcc4] border border-amber-800/20 overflow-x-hidden overflow-y-auto scrollbar-hide"
               style={{
                 padding: isMobileOrTablet ? '8px' : '12px',
+                maxHeight: isMobileOrTablet
+                  ? isSmallScreen
+                    ? 'calc(100dvh - 5.5rem)'
+                    : isMediumScreen
+                      ? 'calc(100dvh - 6.5rem)'
+                      : 'calc(100dvh - 7.5rem)'
+                  : 'calc(100dvh - 10rem)',
               }}
             >
               <div className="flex items-center gap-2 w-full">
@@ -624,7 +664,9 @@ function HomeContent() {
               alt="Journal de bord"
               sizeVariant="map"
               onClick={() => {
-                markJournalAsViewed();
+                if (latestCompletedMission) {
+                  setLastViewedCompletedMission(latestCompletedMission);
+                }
                 router.push("/journal-de-bord");
               }}
               label="Menu"
@@ -659,7 +701,11 @@ function HomeContent() {
             alt="Radeau"
             sizeVariant="map"
             onClick={() => {
-              markRaftAsViewed();
+              completedMissions
+                .filter(hasPendingFusionForMission)
+                .forEach((missionId) =>
+                  markRaftMissionAsViewed(missionId as MissionId),
+                );
               router.push("/radeau");
             }}
             label="Radeau"

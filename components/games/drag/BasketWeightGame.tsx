@@ -20,6 +20,7 @@ interface BasketWeightGameProps {
   step: Step;
   onComplete: () => void;
   onDefeat?: () => void;
+  questionContainerVisible?: boolean;
 }
 
 function formatWeight(value: number, unit: "grams" | "centiliters"): string {
@@ -135,7 +136,11 @@ function DroppableBasket({ basketImageSrc, size }: DroppableBasketProps) {
   );
 }
 
-export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
+export function BasketWeightGame({
+  step,
+  onComplete,
+  questionContainerVisible = true,
+}: BasketWeightGameProps) {
   const game = step.game as BasketWeightGameData;
   const measurementUnit = game.measurementUnit ?? "grams";
   const sensors = useDndSensors();
@@ -360,8 +365,11 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
     game.text ??
     "Ajoute les bons morceaux de lianes au panier ! Attention, si c'est trop lourd, le panier va craquer !";
 
+  const panelMaxHeight =
+    "min(92dvh, calc(var(--app-viewport-height, 100dvh) * 0.92))";
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none overflow-hidden">
       {isExceeded && (
         <div className="absolute inset-0 z-20 bg-black/55 pointer-events-auto" />
       )}
@@ -372,10 +380,13 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
         onDragEnd={handleDragEnd}
       >
         <div
-          className="pointer-events-auto flex items-center relative"
+          className="pointer-events-auto flex items-center relative max-h-full min-h-0"
           style={{ gap, paddingLeft: outerLeftPadding }}
         >
-          <div className="flex flex-col items-center" style={{ gap: draggableColumnGap }}>
+          <div
+            className="flex flex-col items-center shrink-0"
+            style={{ gap: draggableColumnGap }}
+          >
             {game.items.map((item) => {
               const used = dropCounts[item.id] ?? 0;
               const exhausted =
@@ -393,16 +404,17 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
           </div>
 
           <div
-            className="rounded-3xl shadow-2xl flex flex-col"
+            className="rounded-3xl shadow-2xl flex flex-col min-h-0 overflow-y-auto scrollbar-hide"
             style={{
               backgroundColor: "#E8D8B4",
               padding: panelPadding,
               gap: gap,
               maxWidth: panelMaxWidth,
-              maxHeight: "92dvh",
+              maxHeight: panelMaxHeight,
             }}
           >
-            <div className="flex items-center" style={{ gap: 8 }}>
+            {questionContainerVisible && (
+            <div className="flex items-center shrink-0" style={{ gap: 8 }}>
               <ReadAloudButton text={instructionText} />
               <p
                 className="font-display text-gray-800 text-center flex-1"
@@ -411,12 +423,19 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                 {instructionText}
               </p>
             </div>
+            )}
 
             <div
-              className="flex items-center justify-center self-center"
-              style={{ gap, marginTop: titleToContentGap }}
+              className="flex items-start justify-center self-center min-h-0"
+              style={{
+                gap,
+                marginTop: questionContainerVisible ? titleToContentGap : 0,
+              }}
             >
-              <div className="flex flex-col items-center" style={{ gap: 8 }}>
+              <div
+                className="flex flex-col items-center shrink-0"
+                style={{ gap: 8 }}
+              >
                 <DroppableBasket basketImageSrc={basketImageSrc} size={basketSize} />
                 <div
                   className={`rounded-xl border-2 flex items-center justify-center font-bold transition-colors duration-300 ${
@@ -436,7 +455,10 @@ export function BasketWeightGame({ step, onComplete }: BasketWeightGameProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col" style={{ gap: gap * 0.6 }}>
+              <div
+                className="flex flex-col min-h-0 overflow-y-auto scrollbar-hide"
+                style={{ gap: gap * 0.6, maxHeight: panelMaxHeight }}
+              >
                 {game.items.map((item) => {
                   const used = dropCounts[item.id] ?? 0;
                   const exhausted =

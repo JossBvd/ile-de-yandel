@@ -5,7 +5,7 @@ export const mission3Step3: Step = {
   title: "Décodage",
   instruction:
     "Quel est le synonyme de tropical, dans le contexte d’un climat chaud et humide ? Pour le savoir, trouve la solution à cette énigme.",
-  narrative: "Yondel doit décoder les lettres pour trouver le mot juste.",
+  narrative: "Yandel doit décoder les lettres pour trouver le mot juste.",
   raftPiece: "piece-3-3",
   raftObject: {
     image: "/missions/mission-3/step-3/M3_S2_popup-fruits.webp",

@@ -87,6 +87,7 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
   - Sélection d'images (drag-select-image)
   - Remplir un panier (basket-fill)
   - Vider une bouteille (bottle-empty)
+  - Photosynthèse — fusion d'atomes (`photosynthesis-atoms`, mission 2 step 3)
 - **Image Click** : Cliquer sur une zone précise d'une image
 
 ## 📱 Contraintes
@@ -99,26 +100,36 @@ Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
 ## 💾 Persistance
 
-Les données sont stockées dans le **LocalStorage** :
+Les données sont stockées dans le **SessionStorage** (réinitialisé à la fermeture du navigateur) :
 
 - Mission en cours
 - Step en cours
 - Steps validés
 - Indices utilisés
 - Pièces du radeau obtenues
+- Préférences d'accessibilité (audiodescription, aide à la lecture DYS)
+- État UI (badges « Nouveau », outro radeau vue)
+
+Un avertissement navigateur peut s'afficher à la fermeture d'onglet si une partie est en cours (sans bloquer la navigation interne entre les pages du jeu).
 
 ## 🛠️ Technologies
 
 - **Next.js 16** (App Router)
 - **React 19**
 - **TypeScript**
-- **Zustand** (state management avec persistance)
+- **Zustand** (state management avec persistance `sessionStorage`)
 - **@dnd-kit** (drag & drop)
 - **Tailwind CSS**
+
+## 📚 Documentation
+
+- [Architecture et composants](docs/architecture.md) — routage, missions, **radeau** (fusion, outro, tactile), **photosynthèse** (M2 S3), **panier au poids** (M4 S2, M5 S3), narration (guillemets Yandel), menu Paramètres (icône mobile), `beforeunload`
+- [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire, état UI (`raftOutroCompleted`)
+- [Assets radeau](public/raft/README.md) — pièces, fusion, lien vers l'outro
 
 ## 📝 Notes
 
 - Frontend uniquement (pas de backend)
 - Aucun compte utilisateur
-- Aucune donnée personnelle collectée
+- Pseudonyme et progression stockés localement (`sessionStorage`), sans envoi vers un serveur applicatif
 - Conforme usage scolaire

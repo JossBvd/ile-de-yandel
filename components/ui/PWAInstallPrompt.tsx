@@ -35,11 +35,9 @@ export function PWAInstallPrompt() {
     const ios = isIOS();
     setIsIOSDevice(ios);
 
-    const storedDismissal = localStorage.getItem('pwa-install-dismissed');
-    const dismissalTime = storedDismissal ? parseInt(storedDismissal, 10) : 0;
-    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const alreadyDismissed = sessionStorage.getItem('pwa-install-dismissed') === '1';
 
-    if (ios && dismissalTime < oneWeekAgo) {
+    if (ios && !alreadyDismissed) {
       const t = setTimeout(() => setShowPrompt(true), 3000);
       return () => clearTimeout(t);
     }
@@ -48,7 +46,7 @@ export function PWAInstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
 
-      if (dismissalTime < oneWeekAgo) {
+      if (!alreadyDismissed) {
         setTimeout(() => setShowPrompt(true), 3000);
       }
     };
@@ -75,7 +73,7 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
-    localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    sessionStorage.setItem('pwa-install-dismissed', '1');
     setShowPrompt(false);
   };
 

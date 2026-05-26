@@ -1,6 +1,6 @@
 # Images des pièces du radeau
 
-Ce dossier contient les images des pièces du radeau que Yondel collecte tout au long de son aventure.
+Ce dossier contient les images des pièces du radeau que Yandel collecte tout au long de son aventure.
 
 ## Structure attendue
 
@@ -54,10 +54,19 @@ Où `XX` va de `01` à `15` (ordre mission puis step).
 
 ## Fonctionnement
 
-- Chaque step complété débloque automatiquement sa pièce associée
-- Les pièces sont sauvegardées dans le localStorage du navigateur
-- L'inventaire complet sera accessible via un bouton d'interface (à implémenter)
-- Une fois toutes les pièces collectées, le radeau sera complet et le joueur pourra quitter l'île
+- Chaque step complété débloque automatiquement sa pièce associée (`inventoryStore`, persisté en **sessionStorage**)
+- L’assemblage et la fusion se font sur la route **`/radeau`** (`app/radeau/page.tsx`) : inventaire 15 cases, 3 slots de fusion, dépôt des objets fusionnés sur le radeau
+- Visuels d’étapes du radeau : `radeau_base.png`, `radeauM1.png` … `radeauM5.png` ; objets fusionnés : `merged_photo-*.webp`, modales : `popup_merged_object-*.webp`
+- Documentation technique : `docs/architecture.md` (section **Radeau**, responsive et cibles tactiles)
+
+## Outro (radeau terminé)
+
+Quand les **5 objets fusionnés** sont déposés sur le radeau :
+
+1. **`RaftCompleteModal`** — félicitations (fond `backgrounds/background_journal.webp`, visuel `radeauM5.png`). Sur mobile, popup scrollable et bouton Suivant toujours visible (voir `docs/architecture.md`, § Outro).
+2. **`OutroNarrativeScreen`** — 5 slides de narration finale (fond `public/outro/background_end.jpeg`).
+
+L’état `raftOutroCompleted` (`uiStore`, clé `escape_game_ui`) évite de rejouer cette séquence tant que l’élève ne lance pas une **Nouvelle partie**. Voir `docs/architecture.md` (§ Outro).
 
 ## Note importante
 

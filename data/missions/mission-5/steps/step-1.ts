@@ -4,9 +4,7 @@ export const mission5Step1: Step = {
   id: "mission-5-step-1",
   title: "Trop salée",
   instruction: "Réponds à cette question",
-  narrative: `Avant de pouvoir rentrer chez moi, j'ai besoin de rassembler des vivres !
-
-Aide moi à explorer les environs pour trouver de la nourriture !`,
+  narrative: `Avant de pouvoir rentrer chez moi, j'ai besoin de rassembler des vivres ! Aide moi à explorer les environs pour trouver de la nourriture !`,
   raftPiece: "piece-5-1",
   raftObject: {
     image: "/missions/mission-5/step-1/M5_S1_popup-gourde.webp",
@@ -15,7 +13,7 @@ Aide moi à explorer les environs pour trouver de la nourriture !`,
   backgroundImage: "/missions/mission-5/step-1/M5_background_beach-02.webp",
   game: {
     type: "qcm",
-    question: `Yondel suit la rivière qui descend de la montagne jusqu’à la mer.
+    question: `Yandel suit la rivière qui descend de la montagne jusqu’à la mer.
 Il veut remplir sa gourde près de la mer, mais l’eau y est légèrement salée.
 alors que celle de la montagne ne l’était pas. Pourquoi ?`,
     options: [

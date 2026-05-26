@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { GameState, GameProgress } from "@/types/game";
 import { StepId } from "@/types/step";
 import { MissionId } from "@/types/mission";
@@ -59,6 +59,7 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: STORAGE_KEY_GAME_PROGRESS,
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         currentMissionId: state.currentMissionId,
         currentStepId: state.currentStepId,

@@ -60,23 +60,34 @@ export function PolitiqueConfidentialiteModal({
           className="text-gray-700 text-sm overflow-y-auto flex-1 min-h-0"
         >
           <p className="mb-3">
-            L’application « Le crash de Yandel » ne collecte aucune donnée
-            personnelle. Aucun compte utilisateur n’est requis.
+            Aucun compte utilisateur n’est requis. Les données de jeu
+            (progression, inventaire, indices, préférences d’interface) ne sont
+            pas envoyées à un serveur applicatif : elles sont enregistrées dans
+            le <strong>sessionStorage</strong> de votre navigateur, avec le{" "}
+            <strong>pseudonyme</strong> éventuellement saisi à l’accueil. En
+            usage normal, elles sont effacées à la fermeture du navigateur ou de
+            l’onglet.
           </p>
           <p className="mb-3">
-            <strong>Données stockées localement :</strong> la progression du jeu
-            (étapes complétées, pièces du radeau, indices utilisés) est
-            enregistrée uniquement sur votre appareil (localStorage / cookies),
-            pour permettre de reprendre la partie après fermeture du navigateur.
+            <strong>Installation (PWA) :</strong> si vous ignorez l’invite
+            d’ajout à l’écran d’accueil, un marqueur technique peut être conservé
+            dans le <strong>sessionStorage</strong> pour ne plus l'afficher
+            durant la session en cours. Il est effacé à la fermeture du
+            navigateur.
           </p>
           <p className="mb-3">
-            <strong>Audio description :</strong> si vous activez la lecture à
-            voix haute, les préférences (activation, vitesse, lecture
-            automatique) sont également stockées localement.
+            <strong>Audiodescription et aide à la lecture :</strong> les
+            préférences (activation, vitesse, lecture automatique, parcours
+            d’introduction) sont stockées dans le sessionStorage avec la
+            progression.
           </p>
           <p>
-            Aucune de ces données n’est envoyée à un serveur. L’application
-            fonctionne entièrement côté navigateur.
+            La consultation du site génère uniquement les échanges techniques
+            habituels avec le serveur d’hébergement (téléchargement des pages et
+            médias), sans envoi des contenus du sessionStorage vers ce serveur.
+            Les logs du serveur web ne contiennent que des{" "}
+            <strong>adresses IP anonymisées</strong> (dernier octet masqué) et
+            sont supprimés automatiquement après 7 jours.
           </p>
         </div>
         <div className="mt-6 flex justify-end">

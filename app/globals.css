@@ -71,6 +71,14 @@ html.reading-aid-enabled body {
   word-spacing: 0.1em;
 }
 
+/* Menus Paramètres : conserver une hauteur de ligne compacte (évite de masquer le haut du menu) */
+html.reading-aid-enabled [role="menu"],
+html.reading-aid-enabled [role="menu"] * {
+  line-height: 1.35;
+  letter-spacing: normal;
+  word-spacing: normal;
+}
+
 /* Le verrou global du scroll mobile est volontairement évité :
    les pages de jeu gèrent déjà leur propre overflow localement. */
 

@@ -10,12 +10,14 @@ interface DragSelectImageGameProps {
   step: Step;
   onComplete: () => void;
   onDefeat?: () => void;
+  questionContainerVisible?: boolean;
 }
 
 export function DragSelectImageGame({
   step,
   onComplete,
   onDefeat: _onDefeat,
+  questionContainerVisible = true,
 }: DragSelectImageGameProps) {
   const game = step.game as DragSelectImageGameData;
   const { isSmallScreen, isMediumScreen, isDesktopSmall, isDesktopMedium, isMobileOrTablet } =
@@ -27,8 +29,10 @@ export function DragSelectImageGame({
   const maxSelections = game.maxSelections ?? game.correctImages.length;
   const canSubmit = selectedImages.length > 0;
   const hasDenseImageGrid = game.images.length >= 8;
-  const shouldEnableVerticalScroll = isMobileOrTablet;
-  const shouldTopAlignContent = isMobileOrTablet && hasDenseImageGrid;
+  const shouldEnableVerticalScroll =
+    isMobileOrTablet && questionContainerVisible;
+  const shouldTopAlignContent =
+    shouldEnableVerticalScroll && hasDenseImageGrid;
 
   const imageSize = isMobileOrTablet
     ? isSmallScreen
@@ -93,6 +97,7 @@ export function DragSelectImageGame({
   return (
     <div className="absolute inset-0 z-10 flex flex-col overflow-hidden pointer-events-none" style={{ padding: containerPadding }}>
       <div className="pointer-events-auto flex flex-col flex-1 min-h-0" style={{ gap: isMobileOrTablet ? 8 : 12 }}>
+        {questionContainerVisible && (
         <div
           className="rounded-xl shadow-xl border-2 border-amber-800/30 shrink-0"
           style={{
@@ -127,6 +132,7 @@ export function DragSelectImageGame({
             />
           </div>
         </div>
+        )}
 
         <div
           className={`flex-1 min-h-0 flex flex-col ${

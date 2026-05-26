@@ -81,11 +81,22 @@ export function MentionsLegalesModal({
           <p className="mb-3">
             <strong>Hébergement :</strong>
             <br />
-            Vercel Inc.
+            OVHcloud SAS
             <br />
-            440 N Barranca Ave #4133, Covina, CA 91723
+            2 rue Kellermann
             <br />
-            États-Unis
+            59100 Roubaix
+            <br />
+            France
+            <br />
+            <a
+              href="https://www.ovhcloud.com/fr/"
+              className="text-orange-700 underline underline-offset-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ovhcloud.com
+            </a>
           </p>
           <p className="mb-3">
             <strong>Public cible :</strong> élèves de 6ᵉ et 5ᵉ (usage scolaire

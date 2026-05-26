@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { STORAGE_KEY_AUDIO_DESCRIPTION } from "@/lib/constants";
 
 export type AudioDescriptionSpeed = 0.5 | 1 | 1.5 | 2;
@@ -47,6 +47,7 @@ export const useAudioDescriptionStore = create<AudioDescriptionState>()(
     }),
     {
       name: STORAGE_KEY_AUDIO_DESCRIPTION,
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         audioDescriptionEnabled: state.audioDescriptionEnabled,
         audioDescriptionFirstVisitDone: state.audioDescriptionFirstVisitDone,

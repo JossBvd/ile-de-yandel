@@ -5,6 +5,7 @@ import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
 import { SkipLink } from "@/components/ui/SkipLink";
 import { ReadingAidEffect } from "@/components/ui/ReadingAidEffect";
+import { BeforeUnloadWarning } from "@/components/ui/BeforeUnloadWarning";
 
 const baloo = Baloo_2({
   variable: "--font-baloo",
@@ -67,6 +68,7 @@ export default function RootLayout({
       >
         <AudioDescriptionProvider>
           <ReadingAidEffect />
+          <BeforeUnloadWarning />
           <SkipLink />
           {children}
           <PWAInstallPrompt />

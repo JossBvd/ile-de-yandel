@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
+  DragStartEvent,
   useDraggable,
   useDroppable,
   DragOverlay,
@@ -23,6 +24,9 @@ import {
 import { useDndSensors } from "@/hooks/useDndSensors";
 import { useDndCollisionDetection } from "@/hooks/useDndCollisionDetection";
 import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
+import { RaftCompleteModal } from "@/components/ui/RaftCompleteModal";
+import { OutroNarrativeScreen } from "@/components/ui/OutroNarrativeScreen";
+import { useUIStore } from "@/store/uiStore";
 
 const INVENTORY_SLOTS_COUNT = 15;
 const RAFT_STAGE_IMAGES = [
@@ -49,6 +53,89 @@ const MERGED_INVENTORY_IMAGES = [
   "/raft/merged_photo-05.webp",
 ] as const;
 
+/** Cible tactile minimale (WCAG 2.5.5 / ~48dp) */
+const MIN_RAFT_TOUCH_PX = 48;
+
+type RaftResponsiveFlags = {
+  isMobileOrTablet: boolean;
+  isSmallScreen: boolean;
+  isMediumScreen: boolean;
+  isDesktopSmall: boolean;
+  isDesktopMedium: boolean;
+};
+
+function getRaftDndTouchSizes({
+  isMobileOrTablet,
+  isSmallScreen,
+  isMediumScreen,
+  isDesktopSmall,
+  isDesktopMedium,
+}: RaftResponsiveFlags) {
+  let inventorySlotPx: number;
+  let mergeSlotPx: number;
+
+  if (isMobileOrTablet) {
+    if (isSmallScreen) {
+      inventorySlotPx = 64;
+      mergeSlotPx = 60;
+    } else if (isMediumScreen) {
+      inventorySlotPx = 72;
+      mergeSlotPx = 68;
+    } else {
+      inventorySlotPx = 76;
+      mergeSlotPx = 72;
+    }
+  } else if (isDesktopSmall) {
+    inventorySlotPx = 80;
+    mergeSlotPx = 76;
+  } else if (isDesktopMedium) {
+    inventorySlotPx = 84;
+    mergeSlotPx = 80;
+  } else {
+    inventorySlotPx = 88;
+    mergeSlotPx = 84;
+  }
+
+  inventorySlotPx = Math.max(MIN_RAFT_TOUCH_PX, inventorySlotPx);
+  mergeSlotPx = Math.max(MIN_RAFT_TOUCH_PX, mergeSlotPx);
+
+  const inventoryPanelPaddingX = isMobileOrTablet
+    ? isSmallScreen
+      ? 16
+      : isMediumScreen
+        ? 18
+        : 20
+    : isDesktopSmall
+      ? 22
+      : isDesktopMedium
+        ? 24
+        : 26;
+
+  const inventoryPanelWidth =
+    inventorySlotPx * 3 + inventoryPanelPaddingX * 2;
+
+  const mergeSlotGap = isMobileOrTablet
+    ? isSmallScreen
+      ? 6
+      : isMediumScreen
+        ? 8
+        : 10
+    : 10;
+
+  const mergeAreaMaxWidth = mergeSlotPx * 3 + mergeSlotGap * 2;
+
+  return {
+    inventorySlotPx,
+    mergeSlotPx,
+    mergeSlotGap,
+    dragOverlayPx: inventorySlotPx,
+    inventoryPanelWidth,
+    mergeAreaMaxWidth,
+    inventoryGridWidth: inventorySlotPx * 3,
+    inventoryGridHeight: inventorySlotPx * 5,
+  };
+}
+
 interface DraggableItemProps {
   id: string;
   piece: ReturnType<typeof getRaftPieceById> | null;
@@ -58,6 +145,7 @@ interface DraggableItemProps {
   isGuidedOut: boolean;
   missionIndex?: number;
   isPlacedOnRaft?: boolean;
+  slotSizePx: number;
 }
 
 function DraggableItem({
@@ -69,6 +157,7 @@ function DraggableItem({
   isGuidedOut,
   missionIndex,
   isPlacedOnRaft,
+  slotSizePx,
 }: DraggableItemProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
@@ -86,7 +175,7 @@ function DraggableItem({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-full h-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden touch-none ${
+      className={`flex items-center justify-center overflow-hidden touch-none shrink-0 ${
         piece?.image && !isFused
           ? ""
           : isFused
@@ -99,15 +188,19 @@ function DraggableItem({
             : "opacity-50 cursor-not-allowed"
           : "cursor-grab active:cursor-grabbing"
       } ${isDragging ? "opacity-50" : ""} ${isGuidedOut ? "grayscale" : ""}`}
-      style={
-        piece?.image && !isFused
-          ? undefined
+      style={{
+        width: slotSizePx,
+        height: slotSizePx,
+        minWidth: MIN_RAFT_TOUCH_PX,
+        minHeight: MIN_RAFT_TOUCH_PX,
+        ...(piece?.image && !isFused
+          ? {}
           : isFused
-            ? undefined
+            ? {}
             : {
                 boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
-              }
-      }
+              }),
+      }}
     >
       {isFused && missionIndex ? (
         <div
@@ -157,12 +250,14 @@ interface DroppableSlotProps {
   index: number;
   pieceId: RaftPieceId | null;
   onRemove: () => void;
+  sizePx: number;
 }
 
 function DroppableSlot({
   index,
   pieceId,
   onRemove,
+  sizePx,
 }: Omit<DroppableSlotProps, "onDrop">) {
   const piece = pieceId ? getRaftPieceById(pieceId) : null;
   const hasPiece = Boolean(pieceId);
@@ -172,22 +267,21 @@ function DroppableSlot({
   });
 
   return (
-    <div
-      className="w-full min-w-0 min-h-0 flex items-center justify-center"
-      style={{ aspectRatio: "1 / 1" }}
+    <button
+      type="button"
+      ref={setNodeRef}
+      onClick={onRemove}
+      className={`rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors shrink-0 ${
+        isOver ? "bg-gray-700/80" : ""
+      }`}
+      style={{
+        borderColor: "#d97706",
+        width: sizePx,
+        height: sizePx,
+        minWidth: MIN_RAFT_TOUCH_PX,
+        minHeight: MIN_RAFT_TOUCH_PX,
+      }}
     >
-      <button
-        type="button"
-        ref={setNodeRef}
-        onClick={onRemove}
-        className={`w-full h-full min-w-0 min-h-0 rounded border-[3px] bg-gray-900/80 flex items-center justify-center touch-none transition-colors ${
-          isOver ? "bg-gray-700/80" : ""
-        }`}
-        style={{
-          borderColor: "#d97706",
-          minHeight: 0,
-        }}
-      >
         {hasPiece ? (
           piece?.image ? (
             <div className="relative w-full h-full">
@@ -208,8 +302,7 @@ function DroppableSlot({
             </span>
           )
         ) : null}
-      </button>
-    </div>
+    </button>
   );
 }
 
@@ -269,9 +362,23 @@ function RadeauContent({
     isMediumScreen,
     isDesktopSmall,
     isDesktopMedium,
-    isDesktopLarge,
     isMobileOrTablet,
   } = useResponsive();
+  const {
+    inventorySlotPx,
+    mergeSlotPx,
+    mergeSlotGap,
+    inventoryPanelWidth,
+    mergeAreaMaxWidth,
+    inventoryGridWidth,
+    inventoryGridHeight,
+  } = getRaftDndTouchSizes({
+    isMobileOrTablet,
+    isSmallScreen,
+    isMediumScreen,
+    isDesktopSmall,
+    isDesktopMedium,
+  });
   const [fusionFeedback, setFusionFeedback] = useState<string | null>(null);
   const [mergedObjectModalImage, setMergedObjectModalImage] = useState<
     string | null
@@ -618,19 +725,15 @@ function RadeauContent({
             style={{
               width: "100%",
               gap: isSmallScreen ? 6 : isMediumScreen ? 8 : 10,
-              maxWidth: isMobileOrTablet ? (isSmallScreen ? 184 : 212) : 236,
+              maxWidth: mergeAreaMaxWidth,
             }}
           >
             <div
-              className="grid grid-cols-3 w-full"
+              className="grid shrink-0"
               style={{
-                gap: isMobileOrTablet
-                  ? isSmallScreen
-                    ? "4px"
-                    : isMediumScreen
-                      ? "6px"
-                      : "8px"
-                  : "10px",
+                gridTemplateColumns: `repeat(3, ${mergeSlotPx}px)`,
+                gap: mergeSlotGap,
+                width: mergeAreaMaxWidth,
               }}
             >
               {mergeSlots.map((pieceId, i) => (
@@ -638,6 +741,7 @@ function RadeauContent({
                   key={i}
                   index={i}
                   pieceId={pieceId}
+                  sizePx={mergeSlotPx}
                   onRemove={() => removeFromMergeSlot(i)}
                 />
               ))}
@@ -789,23 +893,10 @@ function RadeauContent({
 
       {/* Panneau inventaire (droite) */}
       <div
-        className="relative shrink-0 flex flex-col overflow-hidden z-10"
+        className="relative shrink-0 flex flex-col overflow-hidden z-10 h-full max-h-[96dvh]"
         style={{
-          height: "auto",
-          width: isMobileOrTablet
-            ? isSmallScreen
-              ? 214
-              : isMediumScreen
-                ? 238
-                : 268
-            : isDesktopSmall
-              ? 318
-              : isDesktopMedium
-                ? 348
-                : 382,
-          maxHeight: "96dvh",
-          maxWidth: "90vw",
-          aspectRatio: isMobileOrTablet ? "10.5/19" : "10/19",
+          width: inventoryPanelWidth,
+          maxWidth: "min(90vw, 100%)",
           margin: isMobileOrTablet
             ? isSmallScreen
               ? 6
@@ -847,20 +938,17 @@ function RadeauContent({
         }}
       >
         <div
-          className="w-full h-full min-h-0 min-w-0 grid"
+          className="flex flex-col flex-1 min-h-0 w-full"
           style={{
-            gridTemplateRows: "auto minmax(0, 1fr)",
-            gap: isSmallScreen ? 10 : isMediumScreen ? 12 : 14,
+            gap: isSmallScreen ? 8 : isMediumScreen ? 10 : 12,
           }}
         >
           <div
-            className="w-full rounded-lg border border-amber-700/60"
+            className="w-full shrink-0 rounded-lg border border-amber-700/60"
             style={{
-              gridColumn: "1 / -1",
-              padding: isSmallScreen ? 10 : isMediumScreen ? 12 : 14,
+              padding: isSmallScreen ? 8 : isMediumScreen ? 10 : 12,
               backgroundColor: "rgba(255, 245, 220, 0.82)",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.18)",
-              alignSelf: "stretch",
             }}
           >
             <p
@@ -882,22 +970,19 @@ function RadeauContent({
           </div>
 
           <div
-            className="min-h-0 min-w-0 flex items-center justify-center overflow-hidden"
+            className="min-h-0 min-w-0 flex flex-1 items-start justify-center overflow-y-auto overflow-x-hidden overscroll-contain"
             style={{ paddingLeft: isSmallScreen ? 4 : isMediumScreen ? 6 : 8 }}
           >
             <div
               className="grid shrink-0"
               style={{
-                width: "100%",
-                height: "100%",
-                minHeight: 0,
-                minWidth: 0,
-                maxHeight: "100%",
-                maxWidth: "100%",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gridTemplateRows: "repeat(5, minmax(0, 1fr))",
+                gridTemplateColumns: `repeat(3, ${inventorySlotPx}px)`,
+                gridTemplateRows: `repeat(5, ${inventorySlotPx}px)`,
+                width: inventoryGridWidth,
+                height: inventoryGridHeight,
+                minWidth: inventoryGridWidth,
+                minHeight: inventoryGridHeight,
                 gap: 0,
-                alignContent: "stretch",
               }}
             >
               {Array.from({ length: INVENTORY_SLOTS_COUNT }).map((_, i) => {
@@ -941,6 +1026,7 @@ function RadeauContent({
                       isGuidedOut={isGuidedOut}
                       missionIndex={itemMissionIndex}
                       isPlacedOnRaft={isPlacedOnRaft}
+                      slotSizePx={inventorySlotPx}
                     />
                   );
                 }
@@ -948,7 +1034,13 @@ function RadeauContent({
                 return (
                   <div
                     key={i}
-                    className="w-full h-full min-w-0 min-h-0 flex items-center justify-center overflow-hidden"
+                    className="shrink-0"
+                    style={{
+                      width: inventorySlotPx,
+                      height: inventorySlotPx,
+                      minWidth: MIN_RAFT_TOUCH_PX,
+                      minHeight: MIN_RAFT_TOUCH_PX,
+                    }}
                   />
                 );
               })}
@@ -1042,10 +1134,16 @@ function RadeauContent({
   );
 }
 
+type OutroPhase = "none" | "congrats" | "narrative";
+
 function RadeauWrapper() {
+  const router = useRouter();
   const sensors = useDndSensors();
   const collisionDetection = useDndCollisionDetection();
-  const { placedOnRaft, placeOnRaft, fusionHistory } = useInventoryStore();
+  const { placedOnRaft, placeOnRaft } = useInventoryStore();
+  const raftOutroCompleted = useUIStore((s) => s.raftOutroCompleted);
+  const markRaftOutroCompleted = useUIStore((s) => s.markRaftOutroCompleted);
+  const [outroPhase, setOutroPhase] = useState<OutroPhase>("none");
   const {
     isSmallScreen,
     isMediumScreen,
@@ -1053,6 +1151,13 @@ function RadeauWrapper() {
     isDesktopMedium,
     isMobileOrTablet,
   } = useResponsive();
+  const { dragOverlayPx } = getRaftDndTouchSizes({
+    isMobileOrTablet,
+    isSmallScreen,
+    isMediumScreen,
+    isDesktopSmall,
+    isDesktopMedium,
+  });
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mergeSlots, setMergeSlots] = useState<(RaftPieceId | null)[]>([
     null,
@@ -1063,23 +1168,25 @@ function RadeauWrapper() {
     string | null
   >(null);
 
-  const dragOverlaySize = isMobileOrTablet
-    ? isSmallScreen
-      ? 56
-      : isMediumScreen
-        ? 64
-        : 72
-    : isDesktopSmall
-      ? 80
-      : isDesktopMedium
-        ? 88
-        : 96;
+  const tryOpenRaftCompleteCongrats = () => {
+    if (raftOutroCompleted) return;
+    const placedCount = useInventoryStore.getState().placedOnRaft.length;
+    if (placedCount >= MAX_FUSED_RAFT_PIECES) {
+      setOutroPhase("congrats");
+    }
+  };
 
-  const handleDragStart = (event: DragEndEvent) => {
+  useEffect(() => {
+    tryOpenRaftCompleteCongrats();
+  }, [placedOnRaft.length, raftOutroCompleted]);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    if (outroPhase !== "none") return;
     setActiveId(event.active.id as string);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (outroPhase !== "none") return;
     const { active, over } = event;
     setActiveId(null);
 
@@ -1106,6 +1213,7 @@ function RadeauWrapper() {
           const ok = placeOnRaft(missionIndex);
           if (ok) {
             setRaftPlacementFeedback(null);
+            tryOpenRaftCompleteCongrats();
           }
         }
       }
@@ -1138,28 +1246,38 @@ function RadeauWrapper() {
       ? getRaftPieceById(activeId as RaftPieceId)
       : null;
 
+  const outroActive = outroPhase !== "none";
+
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={collisionDetection}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <RadeauContent
-        mergeSlots={mergeSlots}
-        setMergeSlots={setMergeSlots}
-        activeId={activeId}
-        raftPlacementFeedback={raftPlacementFeedback}
-        setRaftPlacementFeedback={setRaftPlacementFeedback}
-      />
-      <DragOverlay>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={collisionDetection}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className={outroActive ? "pointer-events-none" : undefined}>
+          <RadeauContent
+            mergeSlots={mergeSlots}
+            setMergeSlots={setMergeSlots}
+            activeId={activeId}
+            raftPlacementFeedback={raftPlacementFeedback}
+            setRaftPlacementFeedback={setRaftPlacementFeedback}
+          />
+        </div>
+        <DragOverlay>
         {activeFusedMissionIndex != null &&
         !isNaN(activeFusedMissionIndex) &&
         activeFusedMissionIndex >= 1 &&
         activeFusedMissionIndex <= 5 ? (
           <div
             className="rounded overflow-hidden opacity-90 shrink-0"
-            style={{ width: dragOverlaySize, height: dragOverlaySize }}
+            style={{
+              width: dragOverlayPx,
+              height: dragOverlayPx,
+              minWidth: MIN_RAFT_TOUCH_PX,
+              minHeight: MIN_RAFT_TOUCH_PX,
+            }}
           >
             <div className="relative w-full h-full">
               <Image
@@ -1175,8 +1293,10 @@ function RadeauWrapper() {
           <div
             className="rounded border-2 border-white bg-[#93c5fd]/80 flex items-center justify-center overflow-hidden opacity-90 shrink-0"
             style={{
-              width: dragOverlaySize,
-              height: dragOverlaySize,
+              width: dragOverlayPx,
+              height: dragOverlayPx,
+              minWidth: MIN_RAFT_TOUCH_PX,
+              minHeight: MIN_RAFT_TOUCH_PX,
               boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5)",
             }}
           >
@@ -1200,8 +1320,23 @@ function RadeauWrapper() {
             )}
           </div>
         ) : null}
-      </DragOverlay>
-    </DndContext>
+        </DragOverlay>
+      </DndContext>
+
+      {outroPhase === "congrats" ? (
+      <RaftCompleteModal onContinue={() => setOutroPhase("narrative")} />
+      ) : null}
+
+      {outroPhase === "narrative" ? (
+        <OutroNarrativeScreen
+          onComplete={() => {
+            markRaftOutroCompleted();
+            setOutroPhase("none");
+            router.push("/carte-de-l-ile");
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 

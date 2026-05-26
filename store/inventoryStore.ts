@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { RaftPieceId } from "@/types/step";
 import { TOTAL_RAFT_PIECES, MAX_FUSED_RAFT_PIECES } from "@/data/raft";
 
@@ -134,7 +134,8 @@ export const useInventoryStore = create<InventoryState>()(
         }),
     }),
     {
-      name: "escape_game_inventory", // Clé localStorage
+      name: "escape_game_inventory",
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         collectedPieces: state.collectedPieces,
         fusedRaftPiecesCount: state.fusedRaftPiecesCount,
