@@ -69,7 +69,6 @@ export function MissionCompleteModal({
   if (!isOpen) return null;
 
   const missionNumber = missionId.replace("mission-", "") || "1";
-  const compactPortraitLayout = isSmallScreen && !isRotated;
   const effectiveCompletionText = (completionText ?? "")
     .replace(/\s+/g, " ")
     .trim();
@@ -94,24 +93,20 @@ export function MissionCompleteModal({
     >
       <div
         className="relative flex items-center justify-center min-h-0 min-w-0 max-h-[min(92dvh,calc(100dvh-env(safe-area-inset-bottom)-env(safe-area-inset-top)-24px))]"
-        style={
-          compactPortraitLayout
-            ? {
-                width: "min(96vw, 28rem)",
-                maxWidth: "96vw",
-                height: "min(92dvh, max(calc(min(96vw, 28rem) * 9 / 16), 52dvh))",
-                maxHeight:
-                  "min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px))",
-              }
-            : {
-                aspectRatio: "16/9",
-                width: isRotated
-                  ? `${Math.min(width * 0.95, (height * 0.95 * 16) / 9)}px`
-                  : `min(95vw, calc(95dvh * 16/9))`,
-                maxWidth: isRotated ? `${width * 0.95}px` : "95vw",
-                maxHeight: isRotated ? `${height * 0.95}px` : "95dvh",
-              }
-        }
+        style={{
+          aspectRatio: "16/9",
+          width: isRotated
+            ? `${Math.min(width * 0.95, (height * 0.95 * 16) / 9)}px`
+            : isSmallScreen
+              ? `min(98vw, calc(98dvh * 16/9))`
+              : `min(95vw, calc(95dvh * 16/9))`,
+          maxWidth: isRotated
+            ? `${width * 0.95}px`
+            : isSmallScreen
+              ? "98vw"
+              : "95vw",
+          maxHeight: isRotated ? `${height * 0.95}px` : "95dvh",
+        }}
       >
         <div className="relative w-full h-full min-h-0 flex items-center justify-center overflow-hidden rounded-sm">
           <Image
@@ -137,11 +132,11 @@ export function MissionCompleteModal({
             }}
           >
             <div
-              className={`w-full min-h-0 flex items-center justify-center ${compactPortraitLayout ? "flex-col gap-6" : "flex-row"}`}
+              className="w-full min-h-0 flex flex-row items-center justify-center"
               style={{
-                maxWidth: compactPortraitLayout ? "100%" : "95%",
-                gap: compactPortraitLayout
-                  ? undefined
+                maxWidth: isSmallScreen ? "98%" : "95%",
+                gap: isSmallScreen
+                  ? "2rem"
                   : isMediumScreen
                     ? "2.5rem"
                     : isDesktopSmall
@@ -150,7 +145,7 @@ export function MissionCompleteModal({
               }}
             >
               <div
-                className={`flex flex-col items-center flex-1 min-w-0 relative ${compactPortraitLayout ? "max-w-full w-full" : "max-w-[40%]"}`}
+                className="flex flex-col items-center flex-1 min-w-0 max-w-[40%] relative"
                 style={{
                   gap: isSmallScreen
                     ? "12px"
@@ -240,7 +235,7 @@ export function MissionCompleteModal({
               </div>
 
               <div
-                className="flex flex-col items-center shrink-0 w-full sm:w-auto"
+                className="flex flex-col items-center shrink-0"
                 style={{
                   gap: isSmallScreen
                     ? "16px"

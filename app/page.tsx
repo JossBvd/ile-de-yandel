@@ -106,14 +106,10 @@ function WelcomeContent({
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-[clamp(0.75rem,4vw,2rem)] pt-[clamp(4rem,14vh,6rem)] max-sm:landscape:pt-[max(env(safe-area-inset-top),0.75rem)] sm:pt-0">
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center px-[clamp(0.75rem,4vw,2rem)] pt-[clamp(4rem,14vh,6rem)] sm:pt-0">
         <div
-          className="relative mx-auto w-full max-w-[min(960px,95vw)] lg:max-w-[min(800px,92vw)]"
-          style={{
-            aspectRatio: "280/170",
-            width:
-              "min(100%, calc((100dvh - 15rem) * 280 / 170))",
-          }}
+          className="welcome-hero-block relative w-[clamp(480px,135vw,960px)] sm:w-[clamp(400px,110vw,960px)] lg:w-[clamp(400px,70vw,800px)]"
+          style={{ aspectRatio: "280/170" }}
         >
           <div className="pointer-events-none absolute inset-0 opacity-70" aria-hidden>
             <Image
@@ -125,7 +121,7 @@ function WelcomeContent({
             />
           </div>
           <h1
-            className="absolute inset-0 flex items-center justify-center font-bold text-gray-800 text-center px-4"
+            className="welcome-hero-title absolute inset-0 flex items-center justify-center font-bold text-gray-800 text-center whitespace-nowrap px-4"
             style={{ fontSize: "clamp(1.75rem, 5vw + 1rem, 3.75rem)" }}
           >
             Le crash de Yandel

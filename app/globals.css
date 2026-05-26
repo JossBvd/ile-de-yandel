@@ -123,6 +123,21 @@ html.reading-aid-enabled [role="menu"] * {
   animation: slide-up 0.3s ease-out;
 }
 
+/* Page d'accueil : bloc titre + île compact en mobile paysage (évite le scroll) */
+@media (orientation: landscape) and (max-height: 600px) and (max-width: 1023px) {
+  .welcome-hero-block {
+    width: min(92vw, calc((100dvh - 10.5rem) * 280 / 170)) !important;
+    height: calc(100dvh - 10.5rem) !important;
+    max-width: min(92vw, calc((100dvh - 10.5rem) * 280 / 170)) !important;
+    max-height: calc(100dvh - 10.5rem) !important;
+    aspect-ratio: 280 / 170 !important;
+  }
+
+  .welcome-hero-title {
+    font-size: clamp(1.125rem, 3.5vw + 0.25rem, 1.75rem) !important;
+  }
+}
+
 /* Animations personnalisées */
 @keyframes shake {
   0%,

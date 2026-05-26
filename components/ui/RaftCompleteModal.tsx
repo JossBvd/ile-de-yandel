@@ -41,7 +41,7 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
       aria-labelledby="raft-complete-title"
     >
       <div
-        className="relative flex flex-col items-center w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl min-h-0 overflow-y-auto scrollbar-hide"
+        className="relative flex flex-col w-full min-h-0 rounded-2xl border-2 border-amber-700/50 shadow-2xl overflow-hidden"
         style={{
           maxWidth: isSmallScreen ? "min(92vw, 420px)" : "min(90vw, 520px)",
           maxHeight: modalMaxHeight,
@@ -67,47 +67,31 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
             lineHeight: 1.35,
             marginBottom: isSmallScreen ? 12 : 16,
             paddingTop: 4,
-            paddingLeft: 8,
-            paddingRight: 8,
+            paddingLeft: 36,
+            paddingRight: 36,
           }}
         >
           Félicitations ! Tu as construit le radeau !
         </h2>
 
         <div
-          className="relative w-full flex-1 min-h-0 flex items-end justify-center shrink pb-1"
+          className="relative w-full flex-1 min-h-0 overflow-hidden"
           style={{
-            minHeight: isSmallScreen ? 132 : 180,
-            maxHeight: isRotated
-              ? `${height * 0.5}px`
-              : isSmallScreen
-                ? "min(52dvh, calc(var(--app-viewport-height, 100dvh) * 0.52))"
-                : "min(56dvh, calc(var(--app-viewport-height, 100dvh) * 0.56))",
+            minHeight: isSmallScreen ? 96 : 120,
           }}
         >
-          <div
-            className="relative w-full shrink-0"
-            style={{
-              maxWidth: isSmallScreen ? 340 : 500,
-              width: "100%",
-              aspectRatio: "4 / 3",
-              margin: "0 auto",
-              maxHeight: "100%",
-            }}
-          >
-            <Image
-              src={RAFT_COMPLETE_IMAGE}
-              alt="Radeau terminé"
-              fill
-              className="object-contain object-bottom pointer-events-none"
-              sizes="(max-width: 640px) 92vw, 500px"
-              priority
-            />
-          </div>
+          <Image
+            src={RAFT_COMPLETE_IMAGE}
+            alt="Radeau terminé"
+            fill
+            className="object-contain object-center pointer-events-none"
+            sizes="(max-width: 640px) 92vw, 500px"
+            priority
+          />
         </div>
 
         <div
-          className="w-full flex justify-end shrink-0 sticky bottom-0"
+          className="w-full flex justify-end shrink-0"
           style={{
             marginTop: isSmallScreen ? 10 : 16,
             paddingBottom: "max(4px, env(safe-area-inset-bottom))",
