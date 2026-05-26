@@ -294,7 +294,7 @@ Dans la mesure où l'application ne crée aucun compte, n'enregistre pas de donn
 | **Pas de backend applicatif** | Aucune surface d'attaque côté serveur métier |
 | **Aucun cookie applicatif** | Aucun cookie n'est posé par l'application en production |
 | **Polices auto-hébergées** | Baloo 2, Lexend et Comic Neue embarquées via `next/font` à la compilation — aucun appel vers `fonts.googleapis.com` en production |
-| **Content-Security-Policy (Nginx, production)** | `connect-src 'self'` — empêche les requêtes réseau initiées par l'application vers des domaines tiers |
+| **Content-Security-Policy (Nginx, production)** | `connect-src 'self'` — empêche les requêtes réseau initiées par l'application vers des domaines tiers  |
 
 ---
 
