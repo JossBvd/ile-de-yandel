@@ -16,7 +16,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-baloo), ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", cursive;
+  --font-display: var(--font-comic-neue), "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Marker Felt", ui-sans-serif, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   --color-orange-300: #fbbf77;
   --color-orange-400: #f9a855;
