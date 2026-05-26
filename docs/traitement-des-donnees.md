@@ -225,7 +225,7 @@ Pour un effacement complet sans passer par le menu, l'utilisateur peut aussi fer
 | Serveur / base de données | Aucune | — |
 | Logs Nginx (VPS) | IP anonymisée, user-agent, URL, code HTTP, horodatage | 7 jours (logrotate) |
 
-> **Note technique :** Les polices de caractères (Baloo 2, Lexend) sont téléchargées et auto-hébergées lors de la compilation du projet grâce à `next/font/google`. En production, **aucune requête n'est envoyée vers les serveurs Google** à l'utilisation du jeu.
+> **Note technique :** Les polices de caractères (Baloo 2, Lexend, Comic Neue pour le style BD) sont téléchargées et auto-hébergées lors de la compilation du projet grâce à `next/font/google`. En production, **aucune requête n'est envoyée vers les serveurs Google** à l'utilisation du jeu.
 
 ---
 
@@ -293,7 +293,7 @@ Dans la mesure où l'application ne crée aucun compte, n'enregistre pas de donn
 | **Rétention courte des logs** | Suppression automatique des logs après 7 jours via `logrotate`. |
 | **Pas de backend applicatif** | Aucune surface d'attaque côté serveur métier |
 | **Aucun cookie applicatif** | Aucun cookie n'est posé par l'application en production |
-| **Polices auto-hébergées** | Baloo 2 et Lexend embarquées via `next/font` à la compilation — aucun appel vers `fonts.googleapis.com` en production |
+| **Polices auto-hébergées** | Baloo 2, Lexend et Comic Neue embarquées via `next/font` à la compilation — aucun appel vers `fonts.googleapis.com` en production |
 | **Content-Security-Policy (Nginx, production)** | `connect-src 'self'` — empêche les requêtes réseau initiées par l'application vers des domaines tiers |
 
 ---

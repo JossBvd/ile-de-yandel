@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Baloo_2, Lexend } from "next/font/google";
+import { Baloo_2, Comic_Neue, Lexend } from "next/font/google";
 import "./globals.css";
 import { PWAInstallPrompt } from "@/components/ui/PWAInstallPrompt";
 import { AudioDescriptionProvider } from "@/components/ui/AudioDescriptionProvider";
@@ -17,6 +17,12 @@ const lexend = Lexend({
   variable: "--font-reading-aid",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+const comicNeue = Comic_Neue({
+  variable: "--font-comic-neue",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -58,7 +64,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${baloo.variable} ${lexend.variable} antialiased`}
+        className={`${baloo.variable} ${lexend.variable} ${comicNeue.variable} antialiased`}
         style={{
           margin: 0,
           padding: 0,
