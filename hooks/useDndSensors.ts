@@ -9,11 +9,11 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
  * Utilise PointerSensor avec activationConstraint pour éviter les conflits
  * avec les clics sur mobile (démarre le drag après 8px de mouvement)
  */
-export function useDndSensors() {
+export function useDndSensors(activationDistance = 8) {
   return useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Démarre le drag après 8px de mouvement (évite les conflits avec les clics)
+        distance: activationDistance,
       },
     }),
     useSensor(KeyboardSensor, {

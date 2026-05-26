@@ -123,7 +123,7 @@ Un avertissement navigateur peut s'afficher à la fermeture d'onglet si une part
 
 ## 📚 Documentation
 
-- [Architecture et composants](docs/architecture.md) — routage, missions, **radeau** (fusion, outro, tactile), **photosynthèse** (M2 S3), menu Paramètres, `beforeunload`
+- [Architecture et composants](docs/architecture.md) — routage, missions, **radeau** (fusion, outro, tactile), **photosynthèse** (M2 S3), **panier au poids** (M4 S2, M5 S3), narration (guillemets Yandel), menu Paramètres (icône mobile), `beforeunload`
 - [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire, état UI (`raftOutroCompleted`)
 - [Assets radeau](public/raft/README.md) — pièces, fusion, lien vers l'outro
 

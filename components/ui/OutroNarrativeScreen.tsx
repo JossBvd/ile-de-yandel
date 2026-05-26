@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAudioDescription } from "@/hooks/useAudioDescription";
 import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
 import { NarrativeDialogueLayout } from "@/components/ui/narrative/NarrativeDialogueLayout";
+import { formatYandelDialogue } from "@/components/ui/narrative/formatYandelDialogue";
 import { useNarrativeTypewriter } from "@/components/ui/narrative/useNarrativeTypewriter";
 
 const OUTRO_BACKGROUND = "/outro/background_end.jpeg";
@@ -14,7 +15,7 @@ const OUTRO_SLIDES = [
   "Cette aventure captivante restera gravée dans ma mémoire.",
   "Aujourd'hui, je quitte enfin cette île… et c'est grâce à toi.",
   "Mais ce n'est peut-être pas la fin… une autre histoire commence peut-être déjà quelque part. Merci d'avoir joué, et merci de m'avoir aidé.",
-] as const;
+].map(formatYandelDialogue);
 
 interface OutroNarrativeScreenProps {
   onComplete: () => void;

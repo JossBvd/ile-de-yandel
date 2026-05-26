@@ -8,6 +8,7 @@ import { ReadAloudButton } from "@/components/ui/ReadAloudButton";
 import { NarrativeDialogueLayout } from "@/components/ui/narrative/NarrativeDialogueLayout";
 import { NarrativeYandelCharacter } from "@/components/ui/narrative/NarrativeYandelCharacter";
 import { getNarrativeSceneLayout } from "@/components/ui/narrative/narrativeSceneLayout";
+import { formatYandelDialogue } from "@/components/ui/narrative/formatYandelDialogue";
 import { useNarrativeTypewriter } from "@/components/ui/narrative/useNarrativeTypewriter";
 import { useResponsive } from "@/hooks/useResponsive";
 
@@ -15,7 +16,7 @@ const INTRO_SLIDES = [
   "Salut à toi jeune aventurier, Je m'appelle Yandel et je vais avoir besoin de ton aide.",
   "Mon avion s'est écrasé sur une île inconnue sans carte et sans moyen de partir. Pour m'aider, tu devras répondre aux questions qui te seront posées.",
   "Bonne chance, aventurier !",
-];
+].map(formatYandelDialogue);
 
 const MAP_READ_ALOUD_TEXT =
   "Voici la carte de l'île ! C'est ici que va se dérouler ton aventure. Explore chaque zone pour aider Yandel à construire son radeau.";

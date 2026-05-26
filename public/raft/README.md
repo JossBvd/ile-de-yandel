@@ -63,7 +63,7 @@ Où `XX` va de `01` à `15` (ordre mission puis step).
 
 Quand les **5 objets fusionnés** sont déposés sur le radeau :
 
-1. **`RaftCompleteModal`** — félicitations (fond `backgrounds/background_journal.webp`, visuel `radeauM5.png`).
+1. **`RaftCompleteModal`** — félicitations (fond `backgrounds/background_journal.webp`, visuel `radeauM5.png`). Sur mobile, popup scrollable et bouton Suivant toujours visible (voir `docs/architecture.md`, § Outro).
 2. **`OutroNarrativeScreen`** — 5 slides de narration finale (fond `public/outro/background_end.jpeg`).
 
 L’état `raftOutroCompleted` (`uiStore`, clé `escape_game_ui`) évite de rejouer cette séquence tant que l’élève ne lance pas une **Nouvelle partie**. Voir `docs/architecture.md` (§ Outro).

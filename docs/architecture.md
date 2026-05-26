@@ -127,7 +127,7 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 #### Outro (radeau terminé)
 
 - Déclenchement : lorsque les **5 objets fusionnés** sont déposés sur le radeau (`placedOnRaft.length === 5`), si l’outro n’a pas déjà été vu (`uiStore.raftOutroCompleted`).
-- **Étape 1** — `RaftCompleteModal` : fond `backgrounds/background_journal.webp`, message « Félicitations ! Tu as construit le radeau ! », visuel central `radeauM5.png`, bouton Suivant en bas à droite.
+- **Étape 1** — `RaftCompleteModal` : fond `backgrounds/background_journal.webp`, message « Félicitations ! Tu as construit le radeau ! », visuel central `radeauM5.png`, bouton Suivant en bas à droite. **Mobile** : contenu scrollable (`overflow-y-auto`), `safe-area-inset`, hauteur image réduite, bouton Suivant **sticky** en bas pour rester visible malgré la barre du navigateur.
 - **Étape 2** — `OutroNarrativeScreen` : 5 bulles Yandel sur fond `public/outro/background_end.jpeg` (`NarrativeDialogueLayout` + typewriter + audio description comme l’intro).
 - Fin de la narration : `markRaftOutroCompleted()`, redirection vers `/carte-de-l-ile`. L’outro ne se rejoue pas tant que la session UI n’est pas réinitialisée (nouvelle partie).
 
@@ -184,6 +184,7 @@ Le suivi radeau et journal est **par mission complétée** : une nouvelle missio
 ### Menu Paramètres (`app/carte-de-l-ile/page.tsx`)
 
 - Bouton **Paramètres** (bas droite) : menu déroulant vers le haut avec Audio description, Aide à la lecture (toggle), Mentions légales, Politique de confidentialité, Nouvelle partie.
+- **Mobile** (`max-width: 767px`) : le libellé texte est remplacé par une **icône engrenage** (SVG inline) pour limiter la largeur du bouton ; `aria-label` et bouton « Lire à voix haute » inchangés. **Tablette / desktop** : libellé « Paramètres » conservé.
 - **DYS actif** : `globals.css` applique une interligne compacte sur `[role="menu"]` pour éviter que le menu dépasse l’écran ; `maxHeight` + scroll sur le menu pour garder **Audio description** visible en haut.
 
 **Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
@@ -196,7 +197,7 @@ Le suivi radeau et journal est **par mission complétée** : une nouvelle missio
 
 | Composant                 | Responsabilité                                                                                                      |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **`GameRenderer`**        | Seul endroit qui connaît la carte **type de jeu → composant**. Reçoit `Step` + callbacks `onComplete` / `onDefeat`. |
+| **`GameRenderer`**        | Seul endroit qui connaît la carte **type de jeu → composant**. Reçoit `Step` + callbacks `onComplete` / `onDefeat`, et **`questionContainerVisible`** (barre latérale Instruction) pour les jeux qui affichent un panneau consigne : QCM, `drag-select-image`, `drag-order-images`, `basket-weight`, énigmes, photosynthèse, etc. |
 | **`StepBackground`**      | Fond d’écran statique avec image, contenu enfant centré (zone de jeu).                                              |
 | **`ClickableBackground`** | Fond + zones cliquables (indices sur le décor) ; enrobe souvent le `GameRenderer`.                                  |
 | **`OrientationGuard`**    | Contexte dimensions / orientation ; overlay paysage via `LandscapeEnforcer` sauf `allowPortrait`.                   |
@@ -237,6 +238,16 @@ Les jeux drag utilisent en général `hooks/useDndSensors` et `hooks/useDndColli
 - **Panneau droit (recettes)** : `overflow-y: auto` sur mobile si le contenu dépasse ; panneau gauche (atomes) scrollable si besoin.
 - Mode **inspecter** : zones cliquables sur le fond (`inspectTargets`) + modal d’indice.
 
+#### Panier au poids — missions 4 step 2 & 5 step 3 (`BasketWeightGame`)
+
+- Type de jeu : `basket-weight` (lianes / gourde, compteurs par type, dépassement = écran bloqué + reset).
+- **Panneau droit** (consigne + panier + compteurs + bouton reset) : `maxHeight` basé sur `--app-viewport-height` / `dvh`, **`overflow-y-auto`** sur le panneau et sur la colonne des compteurs si le contenu dépasse (barre du navigateur mobile).
+- **Instruction** (barre latérale) : masque la ligne de consigne du panneau via `questionContainerVisible` (comme les autres mini-jeux à panneau).
+
+#### Sélection d’images — ex. mission 3 step 1 (`DragSelectImageGame`)
+
+- Type de jeu : `drag-select-image` ; panneau consigne (titre + texte) masquable via **`questionContainerVisible`** (bouton Instruction de `StepPageSidebar`).
+
 ### 7.4 `components/ui/` — transverse
 
 Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `DefeatModal`, `MissionCompleteModal`, `RaftCompleteModal`, légales…), **accessibilité** (`ReadAloudButton`, `AudioDescriptionProvider`, `SkipLink`, `AudioDescriptionButton`), **PWA** (`PWAInstallPrompt`), **`BeforeUnloadWarning`**, barre de progression, etc.
@@ -244,8 +255,7 @@ Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `Defea
 | Composant | Responsabilité |
 | --------- | -------------- |
 | **`BeforeUnloadWarning`** | Avertissement navigateur (`beforeunload`) si une partie est en cours (`gameStore`). Délégation à `lib/navigation/unloadWarning.ts` : **pas d’alerte** en navigation interne (router, liens même origine, barre d’URL vers le site), rechargement, ni quand les données `sessionStorage` persistent ; alerte conservée à la **fermeture d’onglet** / sortie hors site. |
-| **`RaftCompleteModal`** | Popup félicitations après radeau terminé (fond `background_journal.webp`, `radeauM5.png`). |
-| **`OutroNarrativeScreen`** | Narration finale (5 slides, fond `outro/background_end.jpeg`). |
+| **`RaftCompleteModal`** | Popup félicitations après radeau terminé (fond `background_journal.webp`, `radeauM5.png`). Responsive mobile : scroll, safe-area, bouton Suivant toujours accessible. |
 
 Composants d'accessibilité intro :
 
@@ -263,18 +273,21 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 | **`NarrativeDialogueLayout`** | Fond configurable (`backgroundImageUrl`, défaut intro ; outro : `outro/background_end.jpeg`), Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
 | **`useNarrativeTypewriter`** | Effet typewriter (30 ms/caractère) ; `revealAll()` si Suivant pendant l'écriture. |
 | **`narrativeTypography.ts`** | Tailles basées sur la hauteur (`useResponsive`) ; pas de césure auto. |
-| **`slidesFromNarrative.ts`** | Découpe `step.narrative` : double saut de ligne → slide ; saut simple → espace. |
+| **`slidesFromNarrative.ts`** | Découpe `step.narrative` : double saut de ligne → slide ; saut simple → espace ; chaque slide passe par **`formatYandelDialogue`**. |
+| **`formatYandelDialogue.ts`** | Encadre le texte avec des **guillemets français** `« … »` s’il ne l’est pas déjà (voix de Yandel). Utilisé par `slidesFromNarrative`, `IntroNarrativeScreen` (`INTRO_SLIDES`) et `OutroNarrativeScreen` (`OUTRO_SLIDES`). |
 
 **Règles d'affichage et rédaction (`step.narrative`) :**
 
 - Affiché au **premier step** d'une mission si `step.narrative` est défini et le step non complété.
+- **Guillemets** : à l’affichage, tout texte narratif est encadré par `« … »` pour indiquer que **Yandel parle** (intro, outro, début de mission) ; les données peuvent déjà contenir les guillemets — pas de double encadrement.
 - Intro courte (~250–300 caractères) : **un seul slide** (accroche + consigne dans le même bloc).
 - Double saut de ligne dans les données : nouveau slide uniquement pour un **vrai changement de beat** (texte long), jamais au milieu d'une citation.
 - Pas de pagination automatique selon le viewport ; scroll invisible en secours si un bloc dépasse.
 
 | Composant | Responsabilité |
 | --------- | -------------- |
-| **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides (présentation Yandel, île / questions, bonne chance) via layout partagé (sans titre), puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
+| **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides (présentation Yandel, île / questions, bonne chance) via layout partagé (sans titre), guillemets appliqués à l’affichage, puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
+| **`OutroNarrativeScreen`** | 5 slides de clôture après `RaftCompleteModal` ; guillemets appliqués à l’affichage ; fond `outro/background_end.jpeg`. |
 
 ---
 
