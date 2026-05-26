@@ -19,10 +19,18 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
   const { isSmallScreen, isMediumScreen } = useResponsive();
 
   const nextIconSize = isSmallScreen ? 48 : isMediumScreen ? 56 : 64;
-
-  const modalMaxHeight = isRotated
-    ? `${height * 0.9}px`
-    : "min(90dvh, calc(var(--app-viewport-height, 100dvh) * 0.9))";
+  const modalMaxHeightPx = height * 0.9;
+  const modalPaddingY = isSmallScreen ? 32 : 56;
+  const titleBlockHeight = isSmallScreen ? 56 : 72;
+  const footerBlockHeight = nextIconSize + (isSmallScreen ? 20 : 28);
+  const imageMaxHeight = Math.max(
+    72,
+    Math.min(
+      isSmallScreen ? 150 : 260,
+      modalMaxHeightPx - modalPaddingY - titleBlockHeight - footerBlockHeight - 8,
+    ),
+  );
+  const imageMaxWidth = isSmallScreen ? 200 : 360;
 
   return (
     <div
@@ -41,10 +49,10 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
       aria-labelledby="raft-complete-title"
     >
       <div
-        className="relative flex flex-col items-center w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl min-h-0 overflow-y-auto scrollbar-hide"
+        className="relative flex flex-col items-stretch w-full rounded-2xl border-2 border-amber-700/50 shadow-2xl overflow-hidden"
         style={{
           maxWidth: isSmallScreen ? "min(92vw, 420px)" : "min(90vw, 520px)",
-          maxHeight: modalMaxHeight,
+          maxHeight: `${modalMaxHeightPx}px`,
           padding: isSmallScreen
             ? "16px 14px max(12px, env(safe-area-inset-bottom))"
             : "28px 24px max(20px, env(safe-area-inset-bottom))",
@@ -52,63 +60,50 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          gap: isSmallScreen ? 8 : 12,
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute top-3 right-3 z-10">
-          <ReadAloudButton text={READ_ALOUD_TEXT} ariaLabel="Lire le message" />
-        </div>
-
-        <h2
-          id="raft-complete-title"
-          className="font-bold text-center text-gray-900 shrink-0"
-          style={{
-            fontSize: isSmallScreen ? "1.125rem" : "1.375rem",
-            lineHeight: 1.35,
-            marginBottom: isSmallScreen ? 12 : 16,
-            paddingTop: 4,
-            paddingLeft: 8,
-            paddingRight: 8,
-          }}
-        >
-          Félicitations ! Tu as construit le radeau !
-        </h2>
-
-        <div
-          className="relative w-full flex-1 min-h-0 flex items-center justify-center shrink"
-          style={{
-            minHeight: isSmallScreen ? 100 : 140,
-            maxHeight: isRotated
-              ? `${height * 0.42}px`
-              : isSmallScreen
-                ? "min(38dvh, calc(var(--app-viewport-height, 100dvh) * 0.38))"
-                : "min(45dvh, calc(var(--app-viewport-height, 100dvh) * 0.45))",
-          }}
-        >
-          <div
-            className="relative w-full"
+        <div className="flex w-full items-start gap-2 shrink-0">
+          <h2
+            id="raft-complete-title"
+            className="flex-1 min-w-0 font-bold text-center text-gray-900"
             style={{
-              maxWidth: isSmallScreen ? 240 : 360,
-              aspectRatio: "4 / 3",
-              margin: "0 auto",
-              maxHeight: "100%",
+              fontSize: isSmallScreen ? "1.125rem" : "1.375rem",
+              lineHeight: 1.35,
+              paddingLeft: 4,
+              paddingRight: 4,
             }}
           >
-            <Image
-              src={RAFT_COMPLETE_IMAGE}
-              alt="Radeau terminé"
-              fill
-              className="object-contain pointer-events-none"
-              sizes="(max-width: 640px) 90vw, 360px"
-              priority
+            Félicitations ! Tu as construit le radeau !
+          </h2>
+          <div className="shrink-0">
+            <ReadAloudButton
+              text={READ_ALOUD_TEXT}
+              ariaLabel="Lire le message"
             />
           </div>
         </div>
 
+        <div className="flex w-full items-center justify-center shrink-0 overflow-hidden">
+          <Image
+            src={RAFT_COMPLETE_IMAGE}
+            alt="Radeau terminé"
+            width={360}
+            height={270}
+            className="object-contain pointer-events-none w-auto h-auto max-w-full"
+            style={{
+              maxWidth: imageMaxWidth,
+              maxHeight: imageMaxHeight,
+            }}
+            sizes="(max-width: 640px) 200px, 360px"
+            priority
+          />
+        </div>
+
         <div
-          className="w-full flex justify-end shrink-0 sticky bottom-0"
+          className="w-full flex justify-end shrink-0"
           style={{
-            marginTop: isSmallScreen ? 10 : 16,
             paddingBottom: "max(4px, env(safe-area-inset-bottom))",
           }}
         >
