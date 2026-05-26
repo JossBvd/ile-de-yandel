@@ -33,6 +33,9 @@ export interface NarrativeDialogueLayoutProps {
   /** Fond plein écran (défaut : intro) */
   backgroundImageUrl?: string;
 
+  /** Classe z-index du calque plein écran (ex. z-[60] après une modale) */
+  overlayZClass?: string;
+
 }
 
 
@@ -52,6 +55,8 @@ export function NarrativeDialogueLayout({
   nextAriaLabel,
 
   backgroundImageUrl = DEFAULT_NARRATIVE_BACKGROUND,
+
+  overlayZClass = "z-50",
 
 }: NarrativeDialogueLayoutProps) {
 
@@ -97,7 +102,7 @@ export function NarrativeDialogueLayout({
 
     <div
 
-      className="fixed inset-0 z-50 overflow-hidden"
+      className={`fixed inset-0 overflow-hidden bg-zinc-950 ${overlayZClass}`}
 
       style={{
 

@@ -26,8 +26,8 @@ import {
   isMissionAccessible,
 } from "@/lib/engine/missionEngine";
 import { useUIStore } from "@/store/uiStore";
-import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
 import { useReadingAidStore } from "@/store/readingAidStore";
+import { resetGameSession } from "@/lib/resetGameSession";
 import type { MissionId } from "@/types/mission";
 
 const MISSION_DISPLAY_NAMES: Record<string, string> = {
@@ -75,13 +75,11 @@ function HomeContent() {
   const {
     completedSteps,
     completedMissions,
-    reset: resetProgress,
     resetMissionSteps,
   } = useGameProgress();
-  const { collectedPieces, reset: resetInventory } = useInventory();
-  const { viewedMissions, viewedRaftMissions, lastViewedCompletedMission, markMissionAsViewed, markRaftMissionAsViewed, setLastViewedCompletedMission, reset: resetUI } = useUIStore();
-  const { reset: resetAudioDescription } = useAudioDescriptionStore();
-  const { readingAidEnabled, setReadingAidEnabled, reset: resetReadingAid } = useReadingAidStore();
+  const { collectedPieces } = useInventory();
+  const { viewedMissions, viewedRaftMissions, lastViewedCompletedMission, markMissionAsViewed, markRaftMissionAsViewed, setLastViewedCompletedMission } = useUIStore();
+  const { readingAidEnabled, setReadingAidEnabled } = useReadingAidStore();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const { isRotated, width, height } = useOrientationContext();
   const { isPWAFullscreen } = usePWAMode();
@@ -463,11 +461,7 @@ function HomeContent() {
                         "Êtes-vous sûr de vouloir commencer une nouvelle partie ?",
                       )
                     ) {
-                      resetProgress();
-                      resetInventory();
-                      resetUI();
-                      resetAudioDescription();
-                      resetReadingAid();
+                      resetGameSession();
                       router.push("/");
                     }
                   }}

@@ -107,6 +107,7 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 
 - Le champ `step.game` est une **union discriminée** `GameData` : le discriminant est `game.type` (`GameType`).
 - `components/game/GameRenderer.tsx` fait le **dispatch** vers le bon composant selon `game.type`. Le `default` utilise `assertNever` (`lib/assertNever.ts`) pour forcer l’exhaustivité TypeScript lors de l’ajout d’un nouveau type.
+- **QCM (`qcm`)** : pour une bonne coupe sur petit écran, rédiger la **question et les réponses sans retours à la ligne forcés** (`\n` dans les données) ; laissez le flux du navigateur faire le renvoi à la ligne.
 
 ### Radeau
 
@@ -127,8 +128,9 @@ Le contenu pédagogique (textes, images sous `/missions/...`, paramètres de jeu
 #### Outro (radeau terminé)
 
 - Déclenchement : lorsque les **5 objets fusionnés** sont déposés sur le radeau (`placedOnRaft.length === 5`), si l’outro n’a pas déjà été vu (`uiStore.raftOutroCompleted`).
-- **Étape 1** — `RaftCompleteModal` : fond `backgrounds/background_journal.webp`, message « Félicitations ! Tu as construit le radeau ! », visuel central `radeauM5.png`, bouton Suivant en bas à droite. **Mobile** : contenu scrollable (`overflow-y-auto`), `safe-area-inset`, hauteur image réduite, bouton Suivant **sticky** en bas pour rester visible malgré la barre du navigateur.
+- **Étape 1** — `RaftCompleteModal` : fond `backgrounds/background_journal.webp`, message « Félicitations ! Tu as construit le radeau ! », visuel `radeauM5.png` **plus grand** et **basculé vers le bas** de la carte (flex `items-end`, zone utile élargie en hauteur), bouton Suivant en bas à droite. **Mobile** : contenu scrollable (`overflow-y-auto`), `safe-area-inset`, bouton Suivant **sticky** en bas pour rester visible malgré la barre du navigateur.
 - **Étape 2** — `OutroNarrativeScreen` : 5 bulles Yandel sur fond `public/outro/background_end.jpeg` (`NarrativeDialogueLayout` + typewriter + audio description comme l’intro).
+- **Transition modale → narration** : `NarrativeDialogueLayout` affiche sous le `background-image` une sous-couleur opaque **`bg-zinc-950`** (évite de voir le décor du radeau une fraction de seconde pendant le chargement du JPEG). L’outro passe **`overlayZClass="z-[60]"`** (aligné avec `RaftCompleteModal`). Dès que le radeau est complet et tant que `raftOutroCompleted` est faux, **`RadeauWrapper`** précharge `public/outro/background_end.jpeg` via `new Image()` pour que le fichier soit souvent déjà en cache au clic Suivant.
 - Fin de la narration : `markRaftOutroCompleted()`, redirection vers `/carte-de-l-ile`. L’outro ne se rejoue pas tant que la session UI n’est pas réinitialisée (nouvelle partie).
 
 #### Responsive et cibles tactiles (`app/radeau/page.tsx`)
@@ -187,7 +189,7 @@ Le suivi radeau et journal est **par mission complétée** : une nouvelle missio
 - **Mobile** (`max-width: 767px`) : le libellé texte est remplacé par une **icône engrenage** (SVG inline) pour limiter la largeur du bouton ; `aria-label` et bouton « Lire à voix haute » inchangés. **Tablette / desktop** : libellé « Paramètres » conservé.
 - **DYS actif** : `globals.css` applique une interligne compacte sur `[role="menu"]` pour éviter que le menu dépasse l’écran ; `maxHeight` + scroll sur le menu pour garder **Audio description** visible en haut.
 
-**Réinitialisation complète (Nouvelle partie)** : `resetProgress()` + `resetInventory()` + `resetUI()` + `resetAudioDescription()` + `resetReadingAid()` — tous les stores sont remis à zéro, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
+**Réinitialisation complète (Nouvelle partie)** : `resetGameSession()` (`lib/resetGameSession.ts`) — remet à zéro tous les stores Zustand (progression, inventaire, indices, UI, audiodescription, aide à la lecture) et supprime `playerPseudo` et `pwa-install-dismissed` du `sessionStorage`, ce qui redéclenche le workflow intro (AD + DYS) au prochain clic sur JOUER.
 
 ---
 
@@ -212,9 +214,11 @@ Découpage de l’**écran step** pour limiter la taille de la page :
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | **`StepPageNarrative`** | Écran narration avant le mini-jeu (premier step non complété avec `step.narrative`). Orchestre slides, typewriter et navigation ; délègue le rendu à `NarrativeDialogueLayout`. |
 | **`StepPageSidebar`**   | Bandeau gauche : titre mission/étape, description audio, bascule instruction/inspecter, indice, radeau, retour carte. |
-| **`StepPageModals`**    | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal`).                  |
+| **`StepPageModals`**    | Modales : défaite, objet radeau, indices (général / image), fin de mission (`MissionCompleteModal` : `completionText` normalisé en espaces simples, retours à la ligne supprimés ; texte cédé sur mobile avec `min-w-0` / `max-w-full`, pas de `whitespace-pre-line` sur le message). |
 
 La page `app/[missionId]/[stepSlug]/page.tsx` orchestre : chargement du step, progression (`useGameProgress`, `useInventory`), garde d’accès (`useGameStoreHydrated`, `canAccessMissionStep` — voir §3), effets (audio auto), et branchement **ClickableBackground** vs **StepBackground** selon `backgroundHintZones`.
+
+**Indices décor en mode « inline »** (`step.ui.backgroundHintDisplay === "inline"` + `step.backgroundHintZones`) : l’overlay visuel est rendu dans `StepPageClient` (plein écran `z-50`). Fermeture au clic sur **le fond assombri** ou **l’image d’indice** ; **`stopPropagation`** uniquement sur le bloc du bouton lecture à voix haute pour ne pas fermer pendant la lecture. Les indices ouverts via `StepPageModals` (mode modal) conservent leur comportement existant.
 
 ### 7.3 `components/games/` — mini-jeux par domaine
 
@@ -255,7 +259,7 @@ Boutons (`Button`, `IconButton`, `ContinueButton`), **modales** (`Modal`, `Defea
 | Composant | Responsabilité |
 | --------- | -------------- |
 | **`BeforeUnloadWarning`** | Avertissement navigateur (`beforeunload`) si une partie est en cours (`gameStore`). Délégation à `lib/navigation/unloadWarning.ts` : **pas d’alerte** en navigation interne (router, liens même origine, barre d’URL vers le site), rechargement, ni quand les données `sessionStorage` persistent ; alerte conservée à la **fermeture d’onglet** / sortie hors site. |
-| **`RaftCompleteModal`** | Popup félicitations après radeau terminé (fond `background_journal.webp`, `radeauM5.png`). Responsive mobile : scroll, safe-area, bouton Suivant toujours accessible. |
+| **`RaftCompleteModal`** | Popup félicitations après radeau terminé (fond `background_journal.webp`, `radeauM5.png` mis en avant, bas de la zone image). Responsive mobile : scroll, safe-area, bouton Suivant toujours accessible. |
 
 Composants d'accessibilité intro :
 
@@ -270,7 +274,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 
 | Composant / module | Responsabilité |
 | ------------------ | -------------- |
-| **`NarrativeDialogueLayout`** | Fond configurable (`backgroundImageUrl`, défaut intro ; outro : `outro/background_end.jpeg`), Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
+| **`NarrativeDialogueLayout`** | Fond configurable (`backgroundImageUrl`, défaut intro ; outro : `outro/background_end.jpeg`), **sous-couleur `bg-zinc-950`** sous le fond image (évite transparence pendant le chargement). Prop **`overlayZClass`** (défaut `z-50` ; outro : `z-[60]`). Yandel en bas à gauche, **titre du step au-dessus de la bulle** (missions uniquement), corps centré H+V dans `bullebd.webp`, bouton Suivant, `ReadAloudButton`. |
 | **`useNarrativeTypewriter`** | Effet typewriter (30 ms/caractère) ; `revealAll()` si Suivant pendant l'écriture. |
 | **`narrativeTypography.ts`** | Tailles basées sur la hauteur (`useResponsive`) ; pas de césure auto. |
 | **`slidesFromNarrative.ts`** | Découpe `step.narrative` : double saut de ligne → slide ; saut simple → espace ; chaque slide passe par **`formatYandelDialogue`**. |
@@ -287,7 +291,7 @@ Layout partagé entre `IntroNarrativeScreen` et `StepPageNarrative`.
 | Composant | Responsabilité |
 | --------- | -------------- |
 | **`IntroNarrativeScreen`** | Après workflow AD/DYS : 3 slides (présentation Yandel, île / questions, bonne chance) via layout partagé (sans titre), guillemets appliqués à l’affichage, puis carte de l'île. Auto-play audio si activé. Prop `onComplete`. |
-| **`OutroNarrativeScreen`** | 5 slides de clôture après `RaftCompleteModal` ; guillemets appliqués à l’affichage ; fond `outro/background_end.jpeg`. |
+| **`OutroNarrativeScreen`** | 5 slides de clôture après `RaftCompleteModal` ; guillemets appliqués à l’affichage ; fond `outro/background_end.jpeg` ; transmission de `overlayZClass="z-[60]"` au layout. |
 
 ---
 
