@@ -125,7 +125,22 @@ Un avertissement navigateur peut s'afficher à la fermeture d'onglet si une part
 
 - [Architecture et composants](docs/architecture.md) — routage, missions, **radeau** (fusion, outro, tactile), **photosynthèse** (M2 S3), **panier au poids** (M4 S2, M5 S3), narration (guillemets Yandel), menu Paramètres (icône mobile), `beforeunload`
 - [Traitement des données](docs/traitement-des-donnees.md) — RGPD, `sessionStorage`, inventaire, état UI (`raftOutroCompleted`)
+- [Déploiement](docs/deploy.md) — VPS, Nginx, export statique, pipeline GitHub Actions (push `main` → rsync SSH)
 - [Assets radeau](public/raft/README.md) — pièces, fusion, lien vers l'outro
+
+## Déploiement
+
+L'application est exportée en **fichiers statiques** (`npm run build` → dossier `out/`) et servie par **Nginx** sur un VPS.
+
+Chaque push sur la branche `main` déclenche un déploiement automatique via GitHub Actions (build + rsync SSH).
+
+Voir le guide complet : [docs/deploy.md](docs/deploy.md).
+
+```bash
+# Test local de l'export statique
+npm run build
+npx serve out
+```
 
 ## 📝 Notes
 
