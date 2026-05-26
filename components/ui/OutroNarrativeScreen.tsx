@@ -75,6 +75,7 @@ export function OutroNarrativeScreen({ onComplete }: OutroNarrativeScreenProps) 
             : "Continuer"
       }
       backgroundImageUrl={OUTRO_BACKGROUND}
+      overlayZClass="z-[60]"
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { STORAGE_KEY_PWA_INSTALL_DISMISSED } from '@/lib/constants';
 import { useResponsive } from '@/hooks/useResponsive';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -35,7 +36,7 @@ export function PWAInstallPrompt() {
     const ios = isIOS();
     setIsIOSDevice(ios);
 
-    const alreadyDismissed = sessionStorage.getItem('pwa-install-dismissed') === '1';
+    const alreadyDismissed = sessionStorage.getItem(STORAGE_KEY_PWA_INSTALL_DISMISSED) === '1';
 
     if (ios && !alreadyDismissed) {
       const t = setTimeout(() => setShowPrompt(true), 3000);
@@ -73,7 +74,7 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
-    sessionStorage.setItem('pwa-install-dismissed', '1');
+    sessionStorage.setItem(STORAGE_KEY_PWA_INSTALL_DISMISSED, '1');
     setShowPrompt(false);
   };
 

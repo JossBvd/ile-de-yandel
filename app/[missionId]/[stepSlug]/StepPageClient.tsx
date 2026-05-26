@@ -486,10 +486,7 @@ function StepPageContent() {
           aria-modal="true"
           aria-label="Indice"
         >
-          <div
-            className="relative w-full max-w-2xl max-h-[90dvh] flex items-center justify-center cursor-pointer"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <div className="relative w-full max-w-2xl max-h-[90dvh] flex items-center justify-center">
             <Image
               src={inlineHintZone.image}
               alt={inlineHintZone.title ?? "Indice visuel"}
@@ -501,14 +498,20 @@ function StepPageContent() {
             />
             <button
               type="button"
-              onClick={() => setInlineHintZone(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setInlineHintZone(null);
+              }}
               className="absolute top-3 left-3 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white transition-colors touch-manipulation"
               style={{ width: "36px", height: "36px", fontSize: "1.125rem" }}
               aria-label="Fermer l'indice"
             >
               ✕
             </button>
-            <div className="absolute top-4 right-4 z-10">
+            <div
+              className="absolute top-4 right-4 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
               <ReadAloudButton
                 text={
                   inlineHintZone.readAloudText ??

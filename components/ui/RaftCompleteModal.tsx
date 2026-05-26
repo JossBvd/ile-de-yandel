@@ -75,20 +75,21 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
         </h2>
 
         <div
-          className="relative w-full flex-1 min-h-0 flex items-center justify-center shrink"
+          className="relative w-full flex-1 min-h-0 flex items-end justify-center shrink pb-1"
           style={{
-            minHeight: isSmallScreen ? 100 : 140,
+            minHeight: isSmallScreen ? 132 : 180,
             maxHeight: isRotated
-              ? `${height * 0.42}px`
+              ? `${height * 0.5}px`
               : isSmallScreen
-                ? "min(38dvh, calc(var(--app-viewport-height, 100dvh) * 0.38))"
-                : "min(45dvh, calc(var(--app-viewport-height, 100dvh) * 0.45))",
+                ? "min(52dvh, calc(var(--app-viewport-height, 100dvh) * 0.52))"
+                : "min(56dvh, calc(var(--app-viewport-height, 100dvh) * 0.56))",
           }}
         >
           <div
-            className="relative w-full"
+            className="relative w-full shrink-0"
             style={{
-              maxWidth: isSmallScreen ? 240 : 360,
+              maxWidth: isSmallScreen ? 340 : 500,
+              width: "100%",
               aspectRatio: "4 / 3",
               margin: "0 auto",
               maxHeight: "100%",
@@ -98,8 +99,8 @@ export function RaftCompleteModal({ onContinue }: RaftCompleteModalProps) {
               src={RAFT_COMPLETE_IMAGE}
               alt="Radeau terminé"
               fill
-              className="object-contain pointer-events-none"
-              sizes="(max-width: 640px) 90vw, 360px"
+              className="object-contain object-bottom pointer-events-none"
+              sizes="(max-width: 640px) 92vw, 500px"
               priority
             />
           </div>

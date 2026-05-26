@@ -1180,6 +1180,13 @@ function RadeauWrapper() {
     tryOpenRaftCompleteCongrats();
   }, [placedOnRaft.length, raftOutroCompleted]);
 
+  useEffect(() => {
+    if (raftOutroCompleted) return;
+    if (placedOnRaft.length < MAX_FUSED_RAFT_PIECES) return;
+    const img = new window.Image();
+    img.src = "/outro/background_end.jpeg";
+  }, [placedOnRaft.length, raftOutroCompleted]);
+
   const handleDragStart = (event: DragStartEvent) => {
     if (outroPhase !== "none") return;
     setActiveId(event.active.id as string);

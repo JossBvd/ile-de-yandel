@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { OrientationGuard } from "@/components/game/OrientationGuard";
 import { IntroAccessibilityChoiceModal } from "@/components/ui/IntroAccessibilityChoiceModal";
 import { IntroNarrativeScreen } from "@/components/ui/IntroNarrativeScreen";
+import { STORAGE_KEY_PLAYER_PSEUDO } from "@/lib/constants";
 import { useAudioDescriptionStore } from "@/store/audioDescriptionStore";
 import { useReadingAidStore } from "@/store/readingAidStore";
 
@@ -34,7 +35,7 @@ function WelcomeContent({
   } = useReadingAidStore();
 
   useEffect(() => {
-    const savedPseudo = sessionStorage.getItem("playerPseudo");
+    const savedPseudo = sessionStorage.getItem(STORAGE_KEY_PLAYER_PSEUDO);
     if (savedPseudo) {
       setPseudo(savedPseudo);
     }
@@ -43,7 +44,7 @@ function WelcomeContent({
   const handlePlayClick = () => {
     const sanitized = sanitizePseudo(pseudo);
     if (!sanitized || sanitized.length < 1) return;
-    sessionStorage.setItem("playerPseudo", sanitized);
+    sessionStorage.setItem(STORAGE_KEY_PLAYER_PSEUDO, sanitized);
     if (!introWorkflowDone) {
       setShowAudioChoice(true);
       return;
